@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+<title>LEASHTIME CAREREPORTS™</title>
+
+<!-- BEGIN META -->
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="LEASHTIME,Leashtime,software,pet,pets,pet sitters,pet services,">
+<meta name="description" content="Sit Stay Prosper">
+
+<!-- BEGIN STYLESHEETS -->
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,300,400,600,700,800' rel='stylesheet' type='text/css'/>
+<link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/bootstrap.css" />
+<link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/bootstrap.css" />
+<link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/materialadmin.css" />
+<link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/font-awesome.min.css" /> <!--Font Awesome Icon Font-->
+<link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/material-design-iconic-font.min.css" /> <!--Material Design Iconic Font-->
+<!-- Additional CSS includes -->
+
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+<script type="text/javascript" src="/assets/js/libs/utils/html5shiv.js"></script>
+<script type="text/javascript" src="/assets/js/libs/utils/respond.min.js"></script>
+<![endif]-->
+</head>
+<body>
+
+
+<header>Header</header>
+
+<div id="CAREREPORT">
+    <h2>VISIT COMPLETE</h2>
+    <h3 class="BIZNAME"></h3>
+    <div class="VRCARD"></div>
+</div>
+
+<footer>Footer</footer>
+
+
+<!-- BEGIN JAVASCRIPT -->
+    <script src="../../assets/js/libs/jquery/jquery-1.11.2.min.js"></script>
+<script src="../../assets/js/libs/jquery/jquery-migrate-1.2.1.min.js"></script>
+<script src="../../assets/js/libs/bootstrap/bootstrap.min.js"></script>
+<script src="../../assets/js/libs/nanoscroller/jquery.nanoscroller.min.js"></script>
+
+<!-- Put App.js last in your javascript imports -->
+<script src="/assets/js/leashtime/"></script>
+
+<script>
+    window.onload = init;
+
+    function init() {
+        $.ajax({
+            "url" : "http://localhost:3300",
+            "type" : "GET",
+            "data" : {"type" : "visitreport"},
+            "dataTYPE" : "JSON"
+        })
+        .done((data)=>
+            {
+
+            class CareReport {
+                constructor(visitId, service, date, time){
+                    this.visitId = data.VISITID ;
+                    this.service = data.SERVICE;
+                    this.date = data.DATE;
+                    this.time = data.TIME;
+                }
+            }
+
+            //Instantiate Object
+            const newReport = new CareReport('VR.0001','30MIN WALK','2020-01-01','MORNING');
+
+
+
+
+
+            const vrData = 'visitreport';
+            const vrClass = Object.keys(data);
+            const vrClasses = []
+
+            vrClass.forEach(function(element) {
+                element = "." + element;
+                vrClasses.push(element);
+            });
+
+            console.log("VR CONTENT: " + vrData);
+            console.log("VR CLASS: " + vrClass);
+            console.log("VR CLASSES: " + vrClasses);
+
+
+
+
+
+
+        })
+
+        }
+
+    function makeField(element){
+        var dataValue = element;
+        console.log(element);
+        console.log(dataValue);
+        var element = "." + element;
+        console.log("CONV: " + element);
+        var element = document.querySelectorAll(element);
+        element.forEach(function(element) {
+            element.textContent = data.dataValue;
+        });
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,852 @@
+<html>
+<head>
+<script
+src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+crossorigin="anonymous"></script>
+<style type="text/css">
+
+html {
+margin: 20;
+padding: 20;
+}
+body {
+font: 100% Lato-Light;
+line-height: 1.0000;
+color: #FFFFFF;
+background: #ccc url(http://csszengarden.com/001/blossoms.jpg) no-repeat bottom right;
+margin: 0;
+padding: 0;
+}
+p {
+margin-top: 10;
+text-align: justify;
+}
+h3 {
+font: italic normal 1.4em Lato-Bold;
+letter-spacing: 1px;
+margin-bottom: 0;
+color: #7C075C;
+}
+h1 {
+font: italic normal 1.8em Lato-Bold;
+letter-spacing: 1px;
+margin-bottom: 0;
+color: #7D775C;
+}
+
+table {
+border-spacing: 1;
+border-collapse: collapse;
+background: #018BFB;
+border-radius: 6px;
+overflow: hidden;
+max-width: 800px;
+width: 100%;
+margin: 0 auto;
+position: relative;
+}
+
+table {
+width: 100%;
+}
+
+table * {
+position: relative;
+}
+table td, table th {
+padding-left: 8px;
+}
+table thead tr {
+height: 60px;
+background: #FFED86;
+font-size: 16px;
+}
+table tbody tr {
+height: 48px;
+border-bottom: 1px solid #FFFFFF;
+}
+table tbody tr:last-child {
+border: 0;
+}
+table td, table th {
+text-align: left;
+}
+table td.l, table th.l {
+text-align: right;
+}
+table td.c, table th.c {
+text-align: center;
+}
+table td.r, table th.r {
+text-align: center;
+}
+@media screen and (max-width: 35.5em) {
+table {
+display: block;
+}
+table > *, table tr, table td, table th {
+display: block;
+}
+table thead {
+display: none;
+}
+table tbody tr {
+height: auto;
+padding: 8px 0;
+}
+table tbody tr td {
+padding-left: 45%;
+margin-bottom: 12px;
+}
+table tbody tr td:last-child {
+margin-bottom: 0;
+}
+table tbody tr td:before {
+position: absolute;
+font-weight: 700;
+width: 40%;
+left: 10px;
+top: 0;
+}
+table tbody tr td:nth-child(1):before {
+content: "Code";
+}
+table tbody tr td:nth-child(2):before {
+content: "Stock";
+}
+table tbody tr td:nth-child(3):before {
+content: "Cap";
+}
+table tbody tr td:nth-child(4):before {
+content: "Inch";
+}
+table tbody tr td:nth-child(5):before {
+content: "Box Type";
+}
+}
+body {
+background: #FFBBBB;
+font: 400 18px 'Lato-Light';
+padding: 40px;
+}
+blockquote {
+color: white;
+text-align: center;
+}
+</style>
+</head>
+
+<body>
+            <div id="visits">
+                <table id="visitTable">
+                    <tr><th>Visit ID</th><th>Beg</th><th>End</th><th>Service</th><th>Status</th></tr>
+                    <!--<tr><td id="appointmentid"></td><td id ="time_begin"></td><td id="time_end"></td><td id="service"></td><td id="status"></td></tr>-->
+                </table>
+            </div>
+
+            <script type="text/javascript">
+
+                data =
+                    {
+                    "services" : [
+                        {
+                            "servicecode": "29",
+                            "servicelabel": "Puppy Package - 30 min",
+                            "clientservicelabel": "Dog Walk 1 hr",
+                            "charge": "15.00",
+                            "tax": "0.00",
+                            "hours": "00:00",
+                            "formattedhours": "0.000",
+                        },
+                        {
+                            "servicecode": "30",
+                            "servicelabel": "Mid Day Walk 30",
+                            "clientservicelabel": "30 min dog walk",
+                            "charge": "18.00",
+                            "tax": "0.00",
+                            "hours": "00:00",
+                            "formattedhours": "0.000",
+                        }
+
+                    ],
+
+                    "timewindows" : [
+                        {
+                            "begin" : "11a",
+                            "end" : "1p",
+                            "label" : "Mid Day"
+                        },
+                        {
+                            "begin" : "1p",
+                            "end" : "3p",
+                            "label" : "Late Afternoon"
+                        },
+                        {
+                            "begin" : "10p",
+                            "end" : "6a",
+                            "label" : "Overnight"
+                        }
+                    ],
+
+                    "allowAnyTimeWindows" : "YES",
+
+                    "surcharges" : [
+                        {
+                            "name" : "Memorial Day",
+                            "type" : "Holiday",
+                            "date" : "Sept 5, 2018",
+                            "collision_policy" : "apply greatest",
+                            "amount" : "10.00"
+                        },
+                        {
+                            "name" : "Weekend",
+                            "type" : "Temporal",
+                            "date" : "Saturday",
+                            "collision_policy" : "apply greatest",
+                            "amount" : "5.00"
+                        }
+                    ],
+
+                    "visits": [
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "06:00:00",
+                            "endtime": "21:00:00",
+                            "timeofday": "6:00 am-9:00 pm",
+                            "appointmentid": "203622",
+                            "providerptr": "8",
+                            "servicecode": "29",
+                            "charge": "0.00",
+                            "adjustment": null,
+                            "rate": "0.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:00",
+                            "formattedhours": "0.000",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Puppy Package - 30 min",
+                            "tax": "0.00",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk 1 hr",
+                            "sitter": "H.D."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "06:00:00",
+                            "endtime": "09:00:00",
+                            "timeofday": "6:00 am-9:00 am",
+                            "appointmentid": "203649",
+                            "providerptr": "0",
+                            "servicecode": "1",
+                            "charge": "22.00",
+                            "adjustment": null,
+                            "rate": "11.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.65",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "unassigned"
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "09:00:00",
+                            "endtime": "11:00:00",
+                            "timeofday": "9:00 am-11:00 am",
+                            "appointmentid": "203628",
+                            "providerptr": "42",
+                            "servicecode": "1",
+                            "charge": "21.00",
+                            "adjustment": null,
+                            "rate": "10.50",
+                            "bonus": "2.00",
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": "2018-08-08 07:05:49",
+                            "completed": "2018-08-08 09:09:23",
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.58",
+                            "visitreport": "2018-08-11 16:39:08",
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.M."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "09:00:00",
+                            "endtime": "11:00:00",
+                            "timeofday": "9:00 am-11:00 am",
+                            "appointmentid": "203656",
+                            "providerptr": "8",
+                            "servicecode": "1",
+                            "charge": "22.00",
+                            "adjustment": null,
+                            "rate": "0.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.10",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "H.D."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:00:00",
+                            "endtime": "11:00:00",
+                            "timeofday": "11:00 am-11:00 am",
+                            "appointmentid": "203616",
+                            "providerptr": "42",
+                            "servicecode": "1",
+                            "charge": "20.00",
+                            "adjustment": null,
+                            "rate": "7.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.50",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.M."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:00:00",
+                            "endtime": "11:00:00",
+                            "timeofday": "11:00 am-11:00 am",
+                            "appointmentid": "203614",
+                            "providerptr": "42",
+                            "servicecode": "1",
+                            "charge": "20.00",
+                            "adjustment": null,
+                            "rate": "10.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.50",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.M."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:30:00",
+                            "endtime": "14:30:00",
+                            "timeofday": "11:30 am-2:30 pm",
+                            "appointmentid": "203635",
+                            "providerptr": "2",
+                            "servicecode": "43",
+                            "charge": "80.00",
+                            "adjustment": null,
+                            "rate": "0.00",
+                            "bonus": null,
+                            "packagetype": "fixed price",
+                            "status": "INCOMPLETE",
+                            "hours": "00:00",
+                            "formattedhours": "0.000",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "\"Basic\" Housecleaning",
+                            "tax": null,
+                            "visitreport": null,
+                            "clientservicelabel": null,
+                            "sitter": "B.B."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:30:00",
+                            "endtime": "14:30:00",
+                            "timeofday": "11:30 am-2:30 pm",
+                            "appointmentid": "203636",
+                            "providerptr": "2",
+                            "servicecode": "1",
+                            "charge": "25.00",
+                            "adjustment": null,
+                            "rate": "0.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "INCOMPLETE",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": null,
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.B."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:30:00",
+                            "endtime": "14:30:00",
+                            "timeofday": "11:30 am-2:30 pm",
+                            "appointmentid": "203634",
+                            "providerptr": "42",
+                            "servicecode": "1",
+                            "charge": "21.00",
+                            "adjustment": null,
+                            "rate": "9.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.58",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.M."
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:30:00",
+                            "endtime": "14:30:00",
+                            "timeofday": "11:30 am-2:30 pm",
+                            "appointmentid": "203637",
+                            "providerptr": "0",
+                            "servicecode": "1",
+                            "charge": "21.00",
+                            "adjustment": null,
+                            "rate": "10.50",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": "1.58",
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "unassigned"
+                        },
+                        {
+                            "date": "2018-08-08",
+                            "starttime": "11:30:00",
+                            "endtime": "14:30:00",
+                            "timeofday": "11:30 am-2:30 pm",
+                            "appointmentid": "203632",
+                            "providerptr": "2",
+                            "servicecode": "36",
+                            "charge": "15.00",
+                            "adjustment": null,
+                            "rate": "0.00",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "completed",
+                            "hours": "00:00",
+                            "formattedhours": "0.000",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "15 minute Walk - 2 dogs",
+                            "tax": "1.13",
+                            "visitreport": null,
+                            "clientservicelabel": null,
+                            "sitter": "B.B."
+                        },
+                        {
+                            "date": "2018-08-12",
+                            "starttime": "19:00:00",
+                            "endtime": "21:00:00",
+                            "timeofday": "7:00 pm-9:00 pm",
+                            "appointmentid": "203772",
+                            "providerptr": "42",
+                            "servicecode": "1",
+                            "charge": "21.00",
+                            "adjustment": null,
+                            "rate": "10.50",
+                            "bonus": null,
+                            "packagetype": "ongoing",
+                            "status": "INCOMPLETE",
+                            "hours": "00:30",
+                            "formattedhours": "0.500",
+                            "arrived": null,
+                            "completed": null,
+                            "servicelabel": "Dog Walk ",
+                            "tax": null,
+                            "visitreport": null,
+                            "clientservicelabel": "Dog Walk",
+                            "sitter": "B.M."
+                        }
+                    ]
+                }
+
+                fda_alerts =
+                    {
+                    "fda_alerts" :  [
+
+                        {
+                            "fda_alert_type" : "recall_alert",
+                            "date" : "8/21/18",
+                            "brand_name" : "Rad Cat ",
+                            "product_description" : "Raw Diet Cat Food (Free Range Chicken; Pasture-Raised Venison) ",
+                            "company_name" : "Radagast Pet Food, Inc.",
+                            "published_link" : "https://www.fda.gov/Safety/Recalls/ucm612737.htm",
+                            "reason_problem" : "Listeria monocytogenes or Shiga Toxin producing E. coli O121",
+                            "title" : "Radagast Pet Food, Inc. Voluntarily Recalls Three Lots of Rad Cat Raw Diet Free-Range Chicken Recipe and One Lot of Pasture-Raised Venison Recipe Because of Possible Health Risk",
+                            "email" : "",
+                            "phone" : " 503-736-4649",
+                            "product_photos_link" : "https://www.fda.gov/Safety/Recalls/ucm612737.htm#recall-photos",
+                            "full_text" : [
+                                "Radagast Pet Food, Inc. of Portland, OR is recalling three lots of Rad Cat Raw Diet Free-Range Chicken Recipe because testing results indicate they have the potential to be contaminated with Listeria monocytogenes. The Company is also recalling one lot of Rad Cat Raw Diet Pasture-Raised Venison Recipe because testing results indicate it has the potential to  be contaminated with Shiga Toxin producing E. coli O121. These pathogens can cause serious and potentially fatal infections in animals consuming the pet food and in humans that handle the pet food and surfaces exposed to the product. This recall is being conducted out of an abundance of caution. Due to Radagast Pet Food’s commitment to food safety and quality, The Company is conducting this voluntary recall.",
+                                "Listeria monocytogenes is pathogenic to humans. Healthy people exposed to Listeria monocytogenes should monitor themselves for some or all of the following symptoms: nausea, vomiting, diarrhea, aches, abdominal cramping, and fever. These pathogens can cause serious and potentially fatal infections in animals consuming the pet food and in humans that handle the pet food and surfaces exposed to the product. There is risk to humans from handling contaminated pet products, especially if they have not thoroughly washed their hands after having contact with the products or any surfaces exposed to these products. Consumers exhibiting these signs after having contact with this product should contact their healthcare providers.",
+                                "Listeria monocytogenes can affect animals eating the product. Animals exposed to Listeria monocytogenes can display short-term symptoms such as: vomiting, diarrhea, fever, muscular or respiratory signs and anorexia. Animals can shed Listeria monocytogenes through their feces onto their coats and into the home environment and thus serve as sources of infection to humans and other animals in the household. If your pet has consumed the recalled product and has these symptoms, please contact your veterinarian.",
+                                "Shiga Toxin releasing E. coli O121 (STEC) is a pathogenic bacterium that can cause illness in humans. People handling or consuming raw pet foods contaminated with this pathogenic bacterium can lead to E. coli infections. E. coli O121 can cause symptoms which include severe stomach cramps, mild fever and vomiting, and diarrhea, often with bloody stools. Animals can shed Listeria monocytogenes through their feces onto their coats and into the home environment and thus serve as sources of infection to humans and other animals in the household. Consumers exhibiting these signs after having contact with this product should contact their healthcare providers",
+                                "Although E. coli O121 is not known to cause illness in cats, the FDA has a zero-tolerance rule for pathogens in pet food, as humans that handle the food may become infected. Infected cats can become carriers of E. coli O121 and transfer the E. coli O121 to the home environment, thus increasing the potential human exposure.",
+                                "No pet or human illnesses have been reported to date.",
+                                "The three lots of Rad Cat Raw Diet Free-Range Chicken Recipe were shipped to distributors in the US in May and June 2018: Affected products are determined by Lot Code identification only. Free-Range Chicken Recipe:",
+                                "Lot Code 63057, Best By Date: 10/9/2019",
+                                "Lot Code 63069, Best By Date: 10/23/2019*",
+                                "Lot Code 63076, Best By Date: 10/31/2019*",
+                                "(8oz UPC 8 51536 00103 6, 16oz UPC 8 51536 00104 3, 24oz UPC 8 51536 00105 0)",
+                                "*These two lots were shipped to one distributor in Vancouver, BC, Canada in addition to US distributors in May and June, 2018:",
+                                "The single lot of Rad Cat Raw Diet Pasture-Raised Venison Recipe, was shipped to distributors in the US only in May and June:",
+                                "Pasture-Raised Venison Recipe:",
+                                "Lot Code 63063, Best By Date: 10/15/2019",
+                                "(8oz UPC 8 51536 00121 0, 16oz UPC 8 51536 00122 7, 24oz UPC 8 51536 00123 4 and 1oz Samples)",
+                                "The Company discovered these lots were potentially contaminated during enhanced quality testing it conducted as a follow-up to its March 2018 recall.",
+                                "Consumers are encouraged to check the Lot Codes on their Free-Range Chicken Recipe and Pasture-Raised Venison Recipe containers. The Lot Codes can be found printed on the bottom of the plastic containers. Any products with these Lot Codes should be returned to the specialty retailer where purchased for a full refund.",
+                                "Consumers with questions should contact Radagast Pet Food, Inc. at 503-736-4649 Monday- Friday 9:00am – 5:00pm Pacific Time or contact us through our website at www.RadFood.com.",
+                                "Consumers who have purchased Pat's Cat Turkey Cat Food with the lot number, WWPKTF051618, OR Ground Lamb Dog Food with the lot number MFF022718 are urged to return it to G & C Raw, 225 N. West Street, Versailles, OH, for a full refund. Consumers with questions may contact: G & C Raw, LLC at 937 827 0010 (eastern), or by email at gcrawdogfood@yahoo.com."
+
+                            ]
+                        },
+
+                        {
+                            "fda_alert_type" : "recall_alert",
+                            "date" : "8/3/18",
+                            "brand_name" : "G & C Raw",
+                            "product_description" : "Ground Lamb Dog Food and Ground Turkey Cat Food  ",
+                            "company_name" : "G & C Raw LLC",
+                            "published_link" : "https://www.fda.gov/Safety/Recalls/ucm615902.htm",
+                            "reason_problem" : "Potential to be contaminated with Listeria monocytogenes",
+                            "title" : "G & C Raw, LLC Recalls Pat's Cat Turkey, and Ground Lamb Pet Food, because of Possible Listeria Monocytogenes Health Risk",
+                            "email" : "gcrawdogfood@yahoo.com",
+                            "phone" : "937-827-0010",
+                            "product_photos_link" : "https://www.fda.gov/Safety/Recalls/ucm615902.htm#recall-photos",
+                            "full_text" : [
+                                "G & C Raw, of Versailles, OH is recalling 30 1–lb containers of Pat's Cat Turkey Cat Food and 40 2-lb containers of Ground Lamb Dog Food because it has the potential to be contaminated with Listeria monocytogenes. Listeria monocytogenes can cause serious and sometimes fatal infections in animals eating the products. Furthermore, there is risk to humans from handling contaminated pet products, especially if they have not thoroughly washed their hands after having contact with the products or any surfaces exposed to these products.",
+                                "Healthy people infected with Listeria monocytogenes should monitor themselves for some or all of the following symptoms: nausea, vomiting, aches, fever, and diarrhea. Listeria monocytogenes infections can also spread through the bloodstream to the nervous system (including the brain), resulting in meningitis and other potentially fatal problems. Pregnant women are especially susceptible to Listeria infection, which can result in abortion. The young, the elderly, and people with weakened immune systems also are more vulnerable. Consumers exhibiting these signs after having contact with this product should contact their healthcare providers.",
+                                "Pets with Listeria monocytogenes infections are rare, and pets may display symptoms such as mild to severe diarrhea, anorexia, fever, nervous, muscular and respiratory signs, abortion, depression, shock, and death. In addition to the possibility of becoming sick, such infected animals can shed Listeria monocytogenes through their feces onto their coats and into the home environment and thus serve as sources of infection to humans and other animals in the household. If your pet has consumed the recalled product and has these symptoms, please contact your veterinarian.",
+                                "Pat's Cat Turkey and Ground Lamb Dog Food were distributed in OH, MI, IN, PAN, KY, NC, AND GA, the product was distributed by G & C Raw, LLC through direct delivery.",
+                                "The Pat's Cat Turkey comes in 1 lb clear plastic containers with the Lot number WWPKTF051618. The Ground Lamb comes in a 2 lb plastic container with the Lot number MFF022718. The Lot number codes are listed on the bottom right corner of the label.",
+                                "No illnesses have been reported to date.",
+                                "The recall was as the result of a routine sampling program by the Ohio Department of Agriculture which revealed that the finished products contained the bacteria",
+                                "The company has ceased the production and distribution of the product as the company continues its investigation as to what caused the problem.",
+                                "Consumers who have purchased Pat's Cat Turkey Cat Food with the lot number, WWPKTF051618, OR Ground Lamb Dog Food with the lot number MFF022718 are urged to return it to G & C Raw, 225 N. West Street, Versailles, OH, for a full refund. Consumers with questions may contact: G & C Raw, LLC at 937 827 0010 (eastern), or by email at gcrawdogfood@yahoo.com."
+
+                            ]
+                        },
+
+                        {
+                            "fda_alert_type" : "warning_letter",
+                            "date" : "7/18/18",
+                            "brand_name" : "Hawaiian Organic Noni",
+                            "product_description" : "Our raw food organic Noni Fruit Leather with 165 beneficial compounds is used as a preventative or to address chronic symptoms internally or externally",
+                            "company_name" : "Hawaiian Organic Noni, LLC",
+                            "published_link" : "https://www.fda.gov/ICECI/EnforcementActions/WarningLetters/ucm614778.htm",
+                            "reason_problem" : "Unapproved Drug",
+                            "title" : "WARNING LETTER: Hawaiian Organic Noni, LLC 7/18/18",
+                            "email" : "rochelle.blair@fda.hhs.gov",
+                            "phone" : "949 608-4496",
+                            "product_photos_link" : "https://www.realnoni.com",
+                            "full_text" : [
+                                "The United States Food and Drug Administration (FDA) inspected your facility located at #3 Larsens Beach Rd. Anahola, Hawaii, from August 15, 2017 through August 21, 2017. As part of the inspection FDA collected finished product labeling, including product labels and brochures, for your Hawaiian Organic Noni products. FDA reviewed the finished product labeling and also reviewed your website at the Internet address https://www.realnoni.com in May and July 2018.  FDA has determined that you take orders at this Internet address for your Hawaiian Organic Noni Fruit Leather, Hawaiian Organic Noni Banana Fruit Leather, Hawaiian Organic Noni Lavender Lotion, Hawaiian Organic Noni BioBandage, Pet Noni Fruit Leather, Pets Noni Lavender Lotion, and Pets Noni BioBandage products. The claims on your product labels, product brochures, and website establish that these products are drugs under sections 201(g)(1)(B) and/or 201(g)(1)(C) of the Federal Food, Drug and Cosmetic Act (the Act),[ 21 U.S.C. § 321(g)(1)(B) and/or  § 321(g)(1)(C)], because they are intended for use in the cure, mitigation, treatment, or prevention of disease in humans or other animals and/or to affect the structure or function of the body of man or other animals. As explained further below, introducing or delivering these products for introduction into interstate commerce for such uses violates the Act. You can find the Act and the FDA regulations through links on FDA’s home page at www.fda.gov. ",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ]
+                        },
+
+                        {
+                            "fda_alert_type" : "recall_alert",
+                            "date" : "7/6/18",
+                            "brand_name" : "Rad Cat ",
+                            "product_description" : "Raw Diet Cat Food (Free Range Chicken; Pasture-Raised Venison) ",
+                            "company_name" : "Radagast Pet Food, Inc.",
+                            "published_link" : "https://www.fda.gov/Safety/Recalls/ucm612737.htm",
+                            "reason_problem" : "Listeria monocytogenes or Shiga Toxin producing E. coli O121",
+                            "title" : "Radagast Pet Food, Inc. Voluntarily Recalls Three Lots of Rad Cat Raw Diet Free-Range Chicken Recipe and One Lot of Pasture-Raised Venison Recipe Because of Possible Health Risk",
+                            "email" : "",
+                            "phone" : " 503-736-4649",
+                            "product_photos_link" : "https://www.fda.gov/Safety/Recalls/ucm612737.htm#recall-photos",
+                            "full_text" : [
+                                "Radagast Pet Food, Inc. of Portland, OR is recalling three lots of Rad Cat Raw Diet Free-Range Chicken Recipe because testing results indicate they have the potential to be contaminated with Listeria monocytogenes. The Company is also recalling one lot of Rad Cat Raw Diet Pasture-Raised Venison Recipe because testing results indicate it has the potential to  be contaminated with Shiga Toxin producing E. coli O121. These pathogens can cause serious and potentially fatal infections in animals consuming the pet food and in humans that handle the pet food and surfaces exposed to the product. This recall is being conducted out of an abundance of caution. Due to Radagast Pet Food’s commitment to food safety and quality, The Company is conducting this voluntary recall.",
+                                "Listeria monocytogenes is pathogenic to humans. Healthy people exposed to Listeria monocytogenes should monitor themselves for some or all of the following symptoms: nausea, vomiting, diarrhea, aches, abdominal cramping, and fever. These pathogens can cause serious and potentially fatal infections in animals consuming the pet food and in humans that handle the pet food and surfaces exposed to the product. There is risk to humans from handling contaminated pet products, especially if they have not thoroughly washed their hands after having contact with the products or any surfaces exposed to these products. Consumers exhibiting these signs after having contact with this product should contact their healthcare providers.",
+                                "Listeria monocytogenes can affect animals eating the product. Animals exposed to Listeria monocytogenes can display short-term symptoms such as: vomiting, diarrhea, fever, muscular or respiratory signs and anorexia. Animals can shed Listeria monocytogenes through their feces onto their coats and into the home environment and thus serve as sources of infection to humans and other animals in the household. If your pet has consumed the recalled product and has these symptoms, please contact your veterinarian.",
+                                "Shiga Toxin releasing E. coli O121 (STEC) is a pathogenic bacterium that can cause illness in humans. People handling or consuming raw pet foods contaminated with this pathogenic bacterium can lead to E. coli infections. E. coli O121 can cause symptoms which include severe stomach cramps, mild fever and vomiting, and diarrhea, often with bloody stools. Animals can shed Listeria monocytogenes through their feces onto their coats and into the home environment and thus serve as sources of infection to humans and other animals in the household. Consumers exhibiting these signs after having contact with this product should contact their healthcare providers",
+                                "Although E. coli O121 is not known to cause illness in cats, the FDA has a zero-tolerance rule for pathogens in pet food, as humans that handle the food may become infected. Infected cats can become carriers of E. coli O121 and transfer the E. coli O121 to the home environment, thus increasing the potential human exposure.",
+                                "No pet or human illnesses have been reported to date.",
+                                "The three lots of Rad Cat Raw Diet Free-Range Chicken Recipe were shipped to distributors in the US in May and June 2018: Affected products are determined by Lot Code identification only. Free-Range Chicken Recipe:",
+                                "Lot Code 63057, Best By Date: 10/9/2019",
+                                "Lot Code 63069, Best By Date: 10/23/2019*",
+                                "Lot Code 63076, Best By Date: 10/31/2019*",
+                                "(8oz UPC 8 51536 00103 6, 16oz UPC 8 51536 00104 3, 24oz UPC 8 51536 00105 0)",
+                                "*These two lots were shipped to one distributor in Vancouver, BC, Canada in addition to US distributors in May and June, 2018:",
+                                "The single lot of Rad Cat Raw Diet Pasture-Raised Venison Recipe, was shipped to distributors in the US only in May and June:",
+                                "Pasture-Raised Venison Recipe:",
+                                "Lot Code 63063, Best By Date: 10/15/2019",
+                                "(8oz UPC 8 51536 00121 0, 16oz UPC 8 51536 00122 7, 24oz UPC 8 51536 00123 4 and 1oz Samples)",
+                                "The Company discovered these lots were potentially contaminated during enhanced quality testing it conducted as a follow-up to its March 2018 recall.",
+                                "Consumers are encouraged to check the Lot Codes on their Free-Range Chicken Recipe and Pasture-Raised Venison Recipe containers. The Lot Codes can be found printed on the bottom of the plastic containers. Any products with these Lot Codes should be returned to the specialty retailer where purchased for a full refund.",
+                                "Consumers with questions should contact Radagast Pet Food, Inc. at 503-736-4649 Monday- Friday 9:00am – 5:00pm Pacific Time or contact us through our website at www.RadFood.com.",
+                                "Consumers who have purchased Pat's Cat Turkey Cat Food with the lot number, WWPKTF051618, OR Ground Lamb Dog Food with the lot number MFF022718 are urged to return it to G & C Raw, 225 N. West Street, Versailles, OH, for a full refund. Consumers with questions may contact: G & C Raw, LLC at 937 827 0010 (eastern), or by email at gcrawdogfood@yahoo.com."
+
+                            ]
+                        },
+                        {
+                            "fda_alert_type" : "drug_approval",
+                            "date" : "December 11, 2017",
+                            "brand_name" : "IVERHART MAX Soft Chew",
+                            "product_description" : "IVERHART MAX Soft Chew ",
+                            "company_name" : "Virbac AH, Inc.",
+                            "published_link" : "",
+                            "reason_problem" : "Drug Appoval",
+                            "ingredients" : "Ivermectin, pyrantel pamoate, and praziquantel",
+                            "sponsor" : "Virbac AH, Inc.",
+                            "type" : "Rx",
+                            "route" : "oral",
+                            "species" :  "dogs",
+                            "drug_form" : "chewable tablet",
+                            "concentration" : "Each chewable tablet contains either: 1) 34 micrograms (mcg) ivermectin, 28.5 milligrams (mg) pyrantel pamoate, and 28.5 mg praziquantel; 2) 68 mcg ivermectin, 57 mg pyrantel pamoate, and 57 mg praziquantel; 3) 136 mcg ivermectin, 114 mg pyrantel pamoate, and 114 mg praziquantel; or 4) 272 mcg ivermectin, 228 mg pyrantel pamoate, and 228 mg praziquantel.",
+                            "indications" : "For use in dogs to prevent canine heartworm disease by eliminating the tissue stage of heartworm larvae (Dirofilaria immitis) for a month (30 days) after infection and for the treatment and control of roundworms (Toxocara canis, Toxascaris leonina), hookworms (Ancylostoma caninum, Uncinaria stenocephala, Ancylostoma braziliense), and tapeworms (Dipylidium caninum, Taenia pisiformis).",
+                            "exclusivity" : "3 years"
+                        },
+
+                        {
+                            "fda_alert_type" : "drug_approval",
+                            "date" : "January 19, 2018",
+                            "brand_name" : "Credelio",
+                            "product_description" : "Credelio ",
+                            "company_name" : "Elanco US Inc.",
+                            "published_link" : "",
+                            "reason_problem" : "Drug Appoval",
+                            "ingredients" : "Lotilaner",
+                            "sponsor" : "Elanco US Inc.",
+                            "type" : "Rx",
+                            "route" : "oral",
+                            "species" :  "dogs",
+                            "drug_form" : "chewable tablet",
+                            "concentration" : "Each chewable tablet contains either: 1) 34 micrograms (mcg) ivermectin, 28.5 milligrams (mg) pyrantel pamoate, and 28.5 mg praziquantel; 2) 68 mcg ivermectin, 57 mg pyrantel pamoate, and 57 mg praziquantel; 3) 136 mcg ivermectin, 114 mg pyrantel pamoate, and 114 mg praziquantel; or 4) 272 mcg ivermectin, 228 mg pyrantel pamoate, and 228 mg praziquantel.",
+                            "indications" : "For use in dogs to prevent canine heartworm disease by eliminating the tissue stage of heartworm larvae (Dirofilaria immitis) for a month (30 days) after infection and for the treatment and control of roundworms (Toxocara canis, Toxascaris leonina), hookworms (Ancylostoma caninum, Uncinaria stenocephala, Ancylostoma braziliense), and tapeworms (Dipylidium caninum, Taenia pisiformis).",
+                            "exclusivity" : "3 years"
+                        }
+
+                    ]
+                }
+
+
+
+                class Visit {
+                    constructor(appointmentid, date, start_time, end_time, service_label, charge, service_code, status) {
+                        this.appointmentid = appointmentid;
+                        this.date = date;
+                        this.time_window_start = start_time;
+                        this.time_window_end = end_time;
+                        this.service = service_label;
+                        this.charge = charge;
+                        this.service_code = service_code;
+                        this.status = status;
+
+                    }
+
+                    time_begin(date) {
+                        var start_time = date.split('-')
+                        return start_time[0];
+                    };
+                    time_end(date) {
+                        var start_time = date.split('-')
+                        return start_time[1];
+                    };
+                    updateStatus(status) {
+                        this.status = status;
+                    }
+                };
+                function recursiveGetProperty(obj, lookup, callback) {
+                    var level_depth = 1;
+                    count_level = 1;
+                    for (property in obj) {
+                        count_level = count_level + 1;
+                        if (property == lookup) {
+                            callback(obj[property]);
+                        } else if(obj[property] instanceof Object) {
+                            level_depth = level_depth + 1;
+                            recursiveGetProperty(obj[property], lookup, callback);
+                        }
+                    }
+                }
+                function ajaxGetVisits() {
+                    var username = '';
+                    var password = '';
+                    var start_date = '';
+                    var end_date = '';
+                }
+
+                function getVisits() {
+
+                    var visits = [];
+
+                    recursiveGetProperty(data, "visits", function(obj) {
+                        num_visits = obj.length;
+                        for (i =0; i < num_visits; i++) {
+                            visit_dict = obj[i];
+
+                            const visit = new Visit(visit_dict['appointmentid'],
+                                                    visit_dict['date'],
+                                                    visit_dict['starttime'],
+                                                    visit_dict['endtime'],
+                                                    visit_dict['servicelabel'],
+                                                    visit_dict['charge'],
+                                                    visit_dict['servicecode'],
+                                                    visit_dict['status']);
+                            console.log(visit.time_window_start + ' - '+ visit.time_window_end+ ' ' + visit.service + ' ' + visit_dict.charge)
+
+                            if (i == 10) {
+                                visit.updateStatus('completed');
+                            }
+
+                            visits.push(visit);
+                        }
+                    });
+                    for (i =0; i < num_visits; i++) {
+                        visit_item = visits[i]
+                        populateTable(i);
+                    }
+                }
+                function populateTable(rowNum) {
+                    var table = document.getElementById("visitTable");
+                    var row = table.insertRow(rowNum);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+
+                    cell1.innerHTML = visit_item.status;
+                    cell2.innerHTML = visit_item.appointmentid;
+                    cell3.innerHTML = visit_item.service;
+                    cell4.innerHTML = visit_item.time_window_start;
+                    cell5.innerHTML = visit_item.time_window_end;
+                }
+
+
+                function createFDAAlert(alertNum,alert) {
+
+                    var table = document.getElementById("fdaTable");
+                    var row = table.insertRow(alertNum);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    var cell6 = row.insertCell(5);
+
+                    link_html = "<a href=\""+alert.link+"\">"+alert.alertType+"</a>";
+
+                    cell1.innerHTML = alert.date;
+                    cell2.innerHTML = alert.problem;
+                    cell3.innerHTML = alert.product_description;
+                    cell4.innerHTML = alert.brand;
+                    cell5.innerHTML = alert.company;
+                    cell6.innerHTML = link_html;
+
+                }
+
+                class FDAalert {
+                    constructor(alertType, date, brand, product, company, link, problem) {
+                        if (alertType == "drug_approval") {
+                            this.alertType = "DRUG APPROVAL";
+                        } else if (alertType == "warning_letter") {
+                            this.alertType = "WARNING LETTER";
+                        } else if (alertType == "recall_alert") {
+                            this.alertType = "RECALL ALERT";
+                        }
+                        this.date = date;
+                        this.brand = brand;
+                        this.product_description = product;
+                        this.company = company;
+                        this.link = link;
+                        this.problem = problem;
+                    }
+                };
+
+
+                function getFDAAlerts() {
+
+                    var alerts = []
+
+                    recursiveGetProperty(fda_alerts, "fda_alerts", function(obj) {
+                        num_alerts = obj.length;
+                        console.log(num_alerts);
+
+                        for (p =0; p< num_alerts; p++) {
+                            alert_dic = obj[p];
+                            const alert = new FDAalert(alert_dic['fda_alert_type'],
+                                                       alert_dic['date'],
+                                                       alert_dic['brand_name'],
+                                                       alert_dic['product_description'],
+                                                       alert_dic['company_name'],
+                                                       alert_dic['published_link'],
+                                                       alert_dic['reason_problem']);
+
+                            alerts.push(alert);
+                        }
+                    });
+                    for (  i =0; i < num_alerts; i++) {
+                        fda_alert_item = alerts[i]
+                        createFDAAlert(i, fda_alert_item);
+                    }
+                }
+
+
+                function getData() {
+                    const request = new XMLHttpRequest();
+                    request.open('GET', 'localhost');
+                    request.onReadyStateChange = function() {
+                        if (request.status == 200) {
+                            console.log('AJAX Test: ' + requst.responseText);
+                        }
+                        request.send();
+                    }
+
+                }
+
+                getVisits();
+                getFDAAlerts();
+                getData();
+
+            </script>
+            </body>
+        </html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><!-- html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" -->
+<head> 
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <title>Edit Client Request</title> 
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+  
+  
+  <link rel="stylesheet" href="style.css" type="text/css" /> 
+  <link rel="stylesheet" href="pet.css" type="text/css" />
+
+<style>
+.sectionHead {font-size:1.1em;background:lightblue;border:solid black 1px;font-weight:bold;margin:15px;}
+</style>
+</head> 
+<body style='padding:10px;font-size:0.7em;background-image:url("art/PRODUCTION_PLAIN.gif");' >
+<style>.notelabel {width:80px;}</style><div style='padding: 10px;padding-top:0px;'>
+<h2>Visit Report</h2><form name='requesteditor' method='POST'><input type='hidden' id='updateList' name='updateList' value='clientrequests' ><input type='hidden' id='requestid' name='requestid' value='6441' ><input type='hidden' id='operation' name='operation' value='' ><input type='hidden' id='resolved' name='resolved' value='0' ><h2 style='font-size:1.5em'>Winston X. Barreiro <div id='flagpanel' style='padding-left:10px;font-size:8pt;display:inline;cursor:pointer;'  > <img src='art/flag-female.jpg' title='Female'> <img src='art/flag-parking-no.jpg' title='NO PARKING on street'></div></h2>Submitted by: Brian Martinez at Monday, January 29, 2018 9:45 am<p>Visit: 01/29/2018 11:00 am-11:00 am Dog Walk  Pets: All Pets<p>Not yet sent to client<br>
+<table width=100%>
+<tr><td style='border: solid black 1px;background-color:white;'><table border=0><tr><td colspan=2>Include the following:</td><tr>
+<tr   >
+  <td ><label for='ARRIVED'>Arrived</label></td><td><input type='checkbox' class='standardInput' id='ARRIVED' name='ARRIVED' CHECKED > Monday, January 29, 2018 10:17 am</td></tr>
+<tr   >
+  <td ><label for='COMPLETED'>Completed</label></td><td><input type='checkbox' class='standardInput' id='COMPLETED' name='COMPLETED' CHECKED > Monday, January 29, 2018 10:44 am</td></tr>
+<tr   >
+  <td ><label for='MOODBUTTON'>Mood</label></td><td><input type='checkbox' class='standardInput' id='MOODBUTTON' name='MOODBUTTON' CHECKED > <img height=30 width=30 src='art/mood-pee.png' title='pee'> <img height=30 width=30 src='art/mood-poo.png' title='poo'> <img height=30 width=30 src='art/mood-happy.png' title='happy'></td></tr>
+<tr   >
+  <td ><label for='MAPROUTEURL'>Visit Map</label></td><td><input type='checkbox' class='standardInput' id='MAPROUTEURL' name='MAPROUTEURL' CHECKED > <a onclick="window.opener.location.href='https://LeashTime.com/visit-map.php?id=195733'">View Map in Main Window</a></td></tr>
+
+<tr><td colspan=2><input type='checkbox' class='standardInput' id='INCLUDENOTE' name='INCLUDENOTE' CHECKED > <label  for='INCLUDENOTE' >Include Note:</label>
+<br><textarea name='NOTE' rows=10 cols=75 class='fontSize1_2em'>What a great visit!</textarea></td></tr>
+
+<tr><td colspan=2><input type='checkbox' class='standardInput' id='INCLUDEPHOTO' name='INCLUDEPHOTO' CHECKED > <label  for='INCLUDEPHOTO' >Include Photo: (actual size 1,242 pixels wide X 1,242 pixels high.  File size: 3 MB)</label>
+</td></tr>
+
+<tr><td colspan=2><img src='bizfiles/biz_3/photos/appts/484/195733.png' height=540 width=540></td></tr>
+<tr><td colspan=3><input type='button' id='sendbutton' name='sendbutton' value='Send Now' class='Button' onClick='sendVisitReport()' 
+						onMouseOver='this.className="ButtonDown"' onMouseOut='this.className="Button"'></td></tr></table></td></tr></table><table border=0>
+<tr><td colspan=3>Office Notes:</td></tr><tr><td colspan=3><textarea id='officenotes' name='officenotes' rows=4 cols=80 class='sortableListCell'></textarea></td></tr></table><p align='center'><input type='button' id='' name='' value='Save As-Is' class='Button' onClick='checkAndSubmit()' 
+						onMouseOver='this.className="ButtonDown"' onMouseOut='this.className="Button"'> <input type='button' id='' name='' value='Resolve and Save' class='Button' onClick='checkAndSubmit("resolve")' 
+						onMouseOver='this.className="ButtonDown"' onMouseOut='this.className="Button"'> <input type='button' id='' name='' value='Quit' class='Button' onClick='window.close()' 
+						onMouseOver='this.className="ButtonDown"' onMouseOut='this.className="Button"'><p>
+<label for='owner' >Assigned to:</label><select name='owner' id='owner' onChange='assignRequest(this)' class='standardInput'>
+	<option value='0' SELECTED>- choose an admin -</option>
+
+	<option value='1753' >(corinne@aol.com)</option>
+
+	<option value='82335' >Ted Hooban</option>
+
+	<option value='86397' >S Keduler</option>
+
+	<option value='34' >Donny Life</option>
+
+	<option value='453' >Elise Pelisse</option>
+
+	<option value='27520' >Spike D. Punch</option>
+
+	<option value='60950' >Johan Smith</option>
+
+	<option value='88941' >Tobie Smith</option>
+
+	<option value='9191' >Evangeline-Genevieve Spatcher</option>
+
+</select>
+<input type='hidden' id='lastowner' name='lastowner' value='' ><p><a class='fauxlink' onClick='showRequestHistory()' title='Show assignment history'  >Assignment History</a><div id=requesthistorydiv></div></p></form>
+</div>
+
+<script language='javascript' src='ajax_fns.js'></script>
+<script language='javascript' src='check-form.js'></script>
+
+<link rel="stylesheet" href="colorbox/example1/colorbox.css" type="text/css" /> 
+<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="colorbox/version1.3.19/jquery.colorbox-min.js"></script>
+
+
+
+
+<script language='javascript'>
+
+function findDupLastName(callback) {
+	if(callback) {
+		var list = JSON.parse(callback);
+		var inactive = 0;
+		var out = '';
+		if(list.length == 0) out = 'No duplicate last names found.';
+		else {
+			out = 'Clients with similar names:<p>';
+			out += '<table border=1 bordercolor="gray">';
+			for(var i=0; i<list.length; i++) {
+				var client = list[i];
+				var color = client.active == "1" ? 'black' : 'red';
+				if(client.active != "1") inactive += 1;
+				var link = '<a class="fauxlink" onclick="showClientInMainWindow('+client.clientid+')">'
+										+client.name+'</a>'
+				out += '<tr style="color:'+color+'"><td>@'+client.clientid+'</td><td>'+link+'</td><td>'+client.street1+'</td><td>'+client.city+'</td></tr>';
+			}
+			out += '</table>';
+			out += 'Click a client to view in main window.  ';
+			if(inactive > 0) out += 'Clients in <span style="color:red">red</span> are inactive.';
+		}
+		$.fn.colorbox({html: out, width:"550", height:"310", scrolling: true, opacity: "0.3"});
+	}
+	else if(document.getElementById('lastNameCheck')) {
+		var lname = document.getElementById('lastNameCheck').value;
+		var url = "?findClientsWithLastName="+lname;
+		var xh = getxmlHttp();
+		xh.open("GET",url,true);
+		xh.onreadystatechange=function() { if(xh.readyState==4) { 
+			findDupLastName(xh.responseText); 
+			}
+		}
+		xh.send(null);
+	}
+}
+
+function showClientInMainWindow(id) {
+	window.opener.location.href="client-edit.php?id="+id;
+}
+
+function showRequestHistory() {
+	// make an ajax call and dump the reults to requesthistorydiv
+	var reqid = 6441;
+	ajaxGet('request-edit.php?id='+reqid+'&assignmenthistory='+reqid, 'requesthistorydiv');
+}
+
+
+function scheduleButtonAction(button, url) {
+	button.disabled = true;
+	if(document.getElementById('chosenprovider'))
+		url += '&chosenprovider='+document.getElementById('chosenprovider').value;
+	window.opener.document.location.href=url;
+	window.close();
+}
+
+function openNotifierComposer(requestid) {
+	window.resizeTo(700, 500);
+	document.location.href='request-notification-composer.php?pop=1&clientrequest='+requestid;
+}
+
+
+function update(aspect, text) {
+	if(aspect == 'reload') {
+		document.location.href='request-edit.php?id=6441';
+	}
+}
+
+function updateOpenerAndClose(text) {
+	if(window.opener.update) {
+		window.opener.update('appointments');
+		window.opener.update('clientrequests');
+	}
+	var notifyuserEl = document.getElementById("notifyuser");
+	if(notifyuserEl && notifyuserEl.checked)
+		openNotifierComposer(document.getElementById("requestid").value);
+	else window.close();
+}
+
+
+function newClient(id) {
+	window.opener.location.href='client-edit.php?requestid='+id;
+}
+
+function arrangeMeeting(id, mdate, mtime) {
+	if(id == '') {
+		ajaxGetAndCallWith('request-edit.php?findClientFor='+document.getElementById('requestid').value,
+			tryAgainToArrangeMeeting, mdate+' '+mtime);
+	}
+	else window.opener.location.href='client-meeting.php?clientptr='+id+'&startdate='+mdate+'&timeofday='+mtime;
+}
+
+function tryAgainToArrangeMeeting(dateTime, id) {
+	if(id=='')
+		alert('Please use the New Client button below to register this client first.');
+	else {
+		dateTime = dateTime.split(' ');
+		arrangeMeeting(id, dateTime[0], dateTime[1]);
+	}
+}
+
+function editClient(id, tab, action) {
+	var url = 'client-edit.php?tab='+tab+'&id='+id;
+	if(action == 'notes') url += '&viewallnotes=1';
+	window.opener.location.href=url;
+}
+
+function setFollowOnReminder(requestid) {
+	checkAndSubmit('resolve');
+	openConsoleWindow('messageLogger', 'reminder-edit.php?pop=1&clientrequest='+requestid,700,500);
+}
+
+function activate(active) {
+	var wasactive = document.getElementById('resolved').value == 1 ? false : true;
+	document.getElementById('resolved').value = active ? 0 : 1;
+	document.getElementById('operation').value = 'noclose';
+	if(!active && wasactive)
+		document.getElementById('notifyuser').checked = confirm('Notify the user?');
+	document.requesteditor.submit();
+}
+
+function checkAndSubmit(action) {
+	document.getElementById('operation').value = ''; // in case it has been set previously by a Send Now button
+
+	if(action == 'resolve') {
+				document.getElementById('resolved').value = 1;
+	}
+	else if(action == 'unresolve') document.getElementById('resolved').value = 0;
+	else if(action == 'delete') document.getElementById('operation').value = 'delete';
+	document.requesteditor.submit();
+}
+
+function applyProfileChanges() {
+	var badPetNames = '';
+	for(var i = 1; document.getElementById('name_'+i); i++)
+		if(document.getElementById('name_'+i).value.indexOf(',') > -1)
+			badPetNames = 'Pet names may not include commas';
+  if(MM_validateForm(  // should probably make more thorough checks here
+		  badPetNames, '', 'MESSAGE')) {
+		document.getElementById('resolved').value = 1;
+		document.requesteditor.operation.value = 'applyProfileChanges';
+		document.requesteditor.submit();
+	}
+}
+
+
+function declineOrHonorRequest(id, honor, extraArgs) {
+	if(typeof extraArgs == 'undefined') extraArgs = '';
+	honor = honor ? 1 : 0;
+	var xh = getxmlHttp();
+	xh.open("GET","request-accept-decline-ajax.php?request="+id+"&honor="+honor+extraArgs,true);
+	xh.onreadystatechange=function() { if(xh.readyState==4) {
+		//document.getElementById("cancelappts").innerHTML=xh.responseText;
+		updateOpenerAndClose(xh.responseText);
+	}
+	}
+  xh.send(null);
+}
+
+function cancelAppointments(id) {
+	
+	var xh = getxmlHttp();
+//alert("appointment-request-cancel-ajax.php?request="+id);
+	xh.open("GET","appointment-request-cancel-ajax.php?request="+id,true);
+	xh.onreadystatechange=function() { if(xh.readyState==4) {
+		document.getElementById("cancelappts").innerHTML=xh.responseText;
+		updateOpenerAndClose();
+	}
+	}
+  xh.send(null);
+}
+
+function openConsoleWindow(windowname, url,wide,high) {
+  var w = window.open("",windowname,
+    'toolbar=0,location=0,directories=0,status=0,resizable=yes,menubar=0,scrollbars=yes,width='+wide+',height='+high);
+  w.document.location.href=url;
+  if(w) w.focus();
+}
+
+function openComposer(clientid, lname, fname, email) {
+	var args = clientid ? 'client='+clientid : 'prospect='+6441+'&lname='+lname+'&fname='+fname+'&email='+email;
+	openConsoleWindow('emailcomposer', 'comm-composer.php?'+args,500,500);
+}
+
+function openProviderComposer(providerid) {
+	var args = 'provider='+providerid;
+	openConsoleWindow('emailcomposer', 'comm-composer.php?'+args,500,500);
+}
+
+function openLogger(clientid, emailOrPhone) {
+	if(clientid)
+		openConsoleWindow('messageLogger', 'comm-logger.php?client='+clientid+'&log='+emailOrPhone,500,500);
+	else alert("You cannot log calls for this person until he is a client.");
+}
+
+function parentSwitch(el) {
+	if(window.opener) window.opener.location.href=el.getAttribute('dest');
+	window.close();
+}
+
+function assignRequest(el) {
+	var val = el.options[el.selectedIndex].value;
+	if(val == 0) val = -1;
+	if(confirm('Assign this request?')) {
+		ajaxGetAndCallWith('request-edit.php?id=6441&reassign=6441&adm='+el.options[el.selectedIndex].value,
+			assignedTo, null);
+	}
+	else el.selectedIndex = document.getElementById('lastowner').value;
+
+}
+
+function assignedTo(argument, responseText) {
+	if(responseText == 'ERROR') {
+		alert('Sorry, no can do.');
+		return;
+	}
+	document.getElementById('lastowner').value = responseText == '' ? '0' : responseText;
+	if(window.opener.update) {
+		window.opener.update('clientrequests');
+	}
+	//if(confirm('Close this request?')) window.close();
+}
+
+	
+function setPetPhoto() {
+		openConsoleWindow('photosetter', 'pet-photo-reassign.php?v=195733',750,450);
+}
+
+function editRequest() {
+	document.location.href='request-edit.php?id=6441&updateList=clientrequests&edit=1';
+}
+	
+function sendVisitReport() {
+	document.getElementById('operation').value = 'sendVisitReport';
+	var fields = new Array('ARRIVED','COMPLETED','MOODBUTTON','MAPROUTEURL','INCLUDENOTE','INCLUDEPHOTO');
+	var checked = 0;
+	for(var i = 0; i < fields.length; i++)
+		if(document.getElementById(fields[i]) && document.getElementById(fields[i]).checked) checked += 1;
+	if(checked == 0) alert('Please select at least one element of the report.');
+	else  document.requesteditor.submit();
+}
+</script>
+</body>
+</html>

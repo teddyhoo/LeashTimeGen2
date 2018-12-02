@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <!-- Google fonts -->
+      <link href='https://fonts.googleapis.com/css?family=Vollkorn:400,700' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+
+    </head>
+
+<body>
+
+<h2 id="BIZNAME">The Biz</h2>
+
+
+<p class="#myElem"></p>
+<p class="BIZSHORTNAME"></p>
+<p class="BIZHOMEPAGE"></p>
+<p class="BIZPHONE"></p>
+<p class="BIZADDRESS1"></p>
+<p class="BIZADDRESS2"></p>
+<p class="BIZCITY"></p>
+<p class="BIZSTATE"></p>
+<p class="BIZZIP"></p>
+<p class="BIZLOGINPAGE"></p>
+<p class="CLIENTID"></p>
+<p class="CLIENTFNAME"></p>
+<p class="CLIENTLNAME"></p>
+<p class="SITTERID"></p>
+<p class="SITTER"></p>
+<p class="ARRIVED"></p>
+<p class="COMPLETED"></p>
+<p class="MAPROUTEURL"></p>
+<p class="VISITPHOTOURL"></p>
+<p class="NOTE"></p>
+<p class="PETS"></p>
+<p class="PETSENGLISH"></p>
+
+
+<!-- Margus Lillemägi | codepen.io/VisualAngle/-->
+<div id="container">
+<!--<!DOCTYPE html>-->
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Avatars</title>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Oswald:700,400);
+      @import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+      #content{
+        width:100%;
+        background-color: #fff;
+        color: #666;
+        font-family: 'Open Sans', arial, sans-serif;
+        padding: 5px;
+        overflow:hidden;}
+      #event{
+        width: 208.6px;
+        background-color: #fff;
+        float: left;
+        text-align: center;
+        padding: 10px;
+        margin: 5px 5px 5px 5px;}
+      p{
+        margin: 0 0 0 0;}
+      h3{
+        margin: 0 0 0 0;
+        font-size: 1.3em;
+        color: #3fbb8a;
+        font-family: oswald, arial, sans-serif;}
+      .image{
+        width:200px;
+        padding-bottom:5px;
+        border-radius:50%;}
+     </style>
+  </head>
+  <body>
+
+    <section id="content"></section>
+
+
+
+   <script type="text/javascript">
+    function showEvents(data) {  // Callback when JSON loads
+      var newContent = '';       // Variable to hold HTML
+
+        // BUILD UP STRING WITH NEW CONTENT (could also use DOM manipulation)
+        for (var i = 0; i < data.events.length; i++) {    // Loop through object
+          newContent += '<div id="event">';
+          newContent += '<img class="image crop" src="' + data.events[i].avatar + '" ';
+            newContent += 'alt="' + data.events[i].BIZNAME + '" />';
+            newContent += '<h3><b>' + data.events[i].BIZSHORTNAME + '</b></h3>';
+            newContent += '<p>' + data.events[i].BIZEMAIL + '<br>';
+            newContent += '<i>&quot;' + data.events[i].BIZPHONE + '&quot;</i></p>';
+          newContent += '</div>';
+        }
+
+        // Update the page with the new content
+        document.getElementById('content').innerHTML = newContent;
+    }
+    </script>
+
+    <!--JSON DATA-->
+    <script type="text/javascript">
+     //JSON data start
+      showEvents({
+        "events": [
+          {
+            "avatar": "http://visualangle.ee/image/hipster_001.jpg",
+            "name": "Mike Smart",
+            "expertise": "Evangelist",
+            "topic": "Shit happens",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          },
+          {
+            "avatar": "http://visualangle.ee/image/hipster_002.jpg",
+            "name": "John Doe",
+            "expertise": "Developer",
+              "topic": "Eat, move, shit, repeat",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          },
+          {
+            "avatar": "http://visualangle.ee/image/hipster_004.jpg",
+            "name": "Lyza Beauty",
+            "expertise": "Designer",
+              "topic": "Same shit daily",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          },
+          {
+            "avatar": "http://visualangle.ee/image/hipster_005.jpg",
+            "name": "Joe Black",
+            "expertise": "Programmer",
+              "topic": "When shit hits",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          },
+          {
+            "avatar": "http://visualangle.ee/image/hipster_006.jpg",
+            "name": "Jerry Wild",
+            "expertise": "Guru",
+              "topic": "Don't give a shit",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          },
+          {
+            "avatar": "http://visualangle.ee/image/hipster_007.jpg",
+            "name": "Harry Blindman",
+            "expertise": "Editor",
+              "topic": "Oh shit",
+              "BIZNAME": "Dog's Life",
+              "BIZSHORTNAME": "Dog's Life",
+              "BIZEMAIL": "dogslife69@yahoo.com",
+              "BIZHOMEPAGE": "http:\/\/s179641890.onlinehome.us\/test\/dogslifehome.html",
+              "BIZPHONE": "703 555 1212"
+          }
+        ]
+      });
+    </script>
+  </body>
+</html>
+
+</div>
+
+</body>
+</html>

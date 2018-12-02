@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>LEASHTIME API endpoints</title>
+    <style>
+    @font-face {
+        font-family: Prequel-demo;
+        src: url(PrequelDemo-clean.ttf);
+    }
+     h3{
+                background-color: yellow;
+                background-size: cover;
+                width: 320px;
+                height: 32px;
+                padding-left: 5px;
+                color:Tomato;
+          }
+        h4 {
+                background-color: orange;
+                background-size: cover;
+                width: 320px;
+                height: 32px;
+                padding-left: 40px;
+                color:DodgerBlue;
+        }
+        </style>
+</head>
+<body>
+
+<h1>Directory Structure</h1>
+    <p>Manager: ./operations/managerapp/manager.html
+    <p>--------------------------------------------/assets
+    <p>------------------------------------------------/js
+    <p>----------------------------------------------------lTmanagerapp.js
+    <p>----------------------------------------------------LTMGR.js
+
+<h1>Mobile Manager Dashboard (MMD) API</h1>
+    <h2>Scripts</h2>
+    <ul>
+        <li>https://leashtime.com/mmd-login.php
+        <li>https://leashtime.com/mmd-sitters.php
+        <li>https://leashtime.com/mmd-clients.php
+        <li>https://leashtime.com/mmd-visits.php
+        <li>https://leashtime.com/mmd-environment.php
+        <li>This API is session based.  That is, it requires a login by a manager or dispatcher initially, but for later requests a session ID needs to be supplied by the browser (via request header, I imagine) for security and context.
+    </ul>
+        <h3>mmd-login.php</h3>
+
+            <h4>parameters:</h4>
+                <ul>
+                    <li>user_name
+                    <li>user_pass
+                    <li>expected_role = m (an owner or dispatcher), p (a provider, or sitter), c (a client)
+                </ul>  
+
+            <h4> returns:</h4>
+                <ul>
+                    <li>status: 'ok' or 'failed'
+                    <li>failurecode: only on failure, single character (see below)
+                    <li>message: only on failure, drawn from failure code table
+                    <li>Failure codes:
+                        <ul>
+                            <li>P - bad password
+                            <li>U - unknown user
+                            <li>I - inactive user
+                            <li>F - No Business Found
+                            <li>B - Business Inactive
+                            <li>M - Missing Organization
+                            <li>O - Organization inactive
+                            <li>R - rights are missing or mismatched
+                            <li>C - No cookie
+                            <li>L - account locked
+                            <li>S - not enableNativeSitterAppAccess
+                            <li>X - user is not expected role
+                            <li>T - Temp password was presented
+                            <li>E - empty parameter list supplied (you will see this if you try GET instead of POST)
+                    </ul>
+                </ul>
+
+        <h3>mmd-sitters.php</h3>
+            <h4>parameters</h4>
+                <ul>
+                    <li>activeOnly: (optional) 1 or 0.  When 1, only active sitters are included in the results.
+                returns JSON with keys:
+                </ul>
+            <h4>returns:</h4>
+                <ul>
+                    <li>sittercount: number of sitters returned
+                    <li>sitters: array of sitter objects
+                </ul>
+            <p>sitter example:
+
+                providerid    "1345"<br>
+                sitter    "System Admin" -- this is the sitter's nickname, or the sitter's full name if no nickname is supplied<br>
+                fname    "System"<br>
+                lname    "Admin"<br>
+                active    "1"<br>
+                street1    "708 Pendleton St."<br>
+                city    "ALEXANDRIA"<br>
+                state    "VA"<br>
+                zip    "22314"<br>
+                lat    "38.8106"<br>
+                lon    "-77.0464"<br>
+
+        <h3>mmd-clients.php</h3>
+            <p>This script returns a list of clients for the client IDs supplied.  Use the changedsince option if you need only clients that have been updated.
+
+             <h4>parameters:</h4>
+
+            <ul>
+                <li>clientids: comma-separated client ids
+                <li>changedsince: OPTIONAL, a datetime formatted YYYY-mm-dd HH:ii:ss  (e.g.,  2018-03-27 14:32:45)
+                <p>when present, only clients (in clientids) that have been saved since that time will be returned for refreshing only those clients that need it
+            </ul>
+       
+
+            <h4>returns:</h4>
+
+            <ul>
+                <li>clientcount: number of clients returned
+                <li>clients: array of clientsobjects
+                    <p>Each client object will have an additional field you have not seen before, "displayname", which identifies the client according to the scheme selected by the logged-in manager (for example: "Fluffy, Biscuit (Smith)"
+            </ul>
+            <h4>error handling</h4>
+                <p>if no ids supplied, {"error":     "no clientids supplied"} for any client ids for which no client is found, the client will look like:
+                    error: "not found"
+                        client id: "12345"
+
+        <h3>mmd-visits.php</h3>
+
+            <p>This script returns a list of visits and times off for the dates supplied.  Times off may be omitted with withtimeoff=0.  Visits can be filtered by sitters and clients.  Visit list is sortable.
+
+            <h4>parameters</h4>
+            <ul>
+                <li>start - start date formatted YYYY-mm-dd
+                <li>end - end date formatted YYYY-mm-dd
+                <li>withtimeoff - OPTIONAL, when "1", include sitter time off instances, default: "1"
+                <li>sitterids - OPTIONAL, comma-separated list of sitter IDs, return ONLY items for sitters indicated
+                <li>clientids - OPTIONAL, comma-separated list of client IDs, return ONLY visits for clients indicated
+                <li>sortby  - OPTIONAL, sitter|client|time, default: "time"
+            </ul>
+            <h4>returns</h4>
+            <ul>
+                <li>[] if no visits (or times off) found
+                <li>else array of visit and timeoff objects
+                <li>timeoff objects are distinguishable by their "timeoffid" field and their service field, which is always "TIME OFF"
+                <li>visit objects are very similar to the rich visit objects returned by native-provider-multiday.php, but they also include "clientdisplay", the preferred mode of representing a client, which may include all petnames
+            </ul>
+            <p>
+            <h4>error handling:</h4>
+            <ul>
+                <li>error object returned, e.g., {"error":    "start parameter is required"} when
+                <li>start parameter omitted
+                <li>start parameter invalid
+                <li>end parameter omitted
+                <li>end parameter invalid
+                <li>sortby parameter is supplied, but invalid
+            </ul>
+
+        <h3>mmd-environment.php</h3>
+
+            <p>Similar to client-own-scheduler-data.php.  However, "servicetypes" list returns the system Service List (active only), NOT the Client Service List.
+
+            <h4>parameters</h4>
+            <ul>
+                <li>timeframes - OPTIONAL, 1 or 0
+                <li>servicetypes - OPTIONAL, 1 or 0
+                <li>surchargetypes - OPTIONAL, 1 or 0
+            </ul>
+
+            <h4>returns JSON with keys corresponding to supplied parameters:</h4>
+
+            <ul>
+                <li>timeframes
+                <li>servicetypes
+                <li>surchargetypes
+            </ul>
+
+            <h4>error handling:</h4>
+
+                <p>when no parameters supplied, {"error": "No environment lists requested."}
+
+<h1>Visit Report</h1>
+
+<h1>Pet Owner Requests</h1>
+
+        <h3>client-own-scheduler-data.php</h3>
+            <p>You must be logged in as a client to use this script.
+            <p>This script returns between one and four lists, keyed by "timeframes", "servicetypes", "surchargetypes", and "visits".
+            <h4>parameters</h4>
+                <ul>
+                    <li>start
+                    <li>end
+                    <li>timeframes - OPTIONAL, 1 or 0
+                    <li>servicetypes - OPTIONAL, 1 or 0
+                    <li>surchargetypes - OPTIONAL, 1 or 0
+                </ul>
+
+        <H3>PET PHOTOS</H3>
+        <P>To get pet photos, use:
+
+        <P>https://leashtime.com/pet-photo.php?id={petid}&version=display
+
+        <p>{petid} is the petid field found in each the pet.
+
+        <p>The version=display parameter tells LT to return the server-cached display version whose max dimension is 300px.  Omit this parameter to retrieve the full sized image.  Not recommended.
+
+Version 2 Changes
+
+New Parameters:
+
+version - should be "2" for this round
+photosent - one or zero
+arrived - a coordinate with "arrive" or "arrived" as the event (whichever one you use).
+complete - a coordinate with "complete" or "completed" as the event (whichever one you use).
+If arrive and/or complete is supplied, the coordinate is registered (registerVisitTrack($coord)), a billable is created, and the status change is registered (possibly again) in the visit and log, but no notifications are generated for the arrival/completion event.  This will require close scrutiny during testing.
+New Output on Success
+
+A JSON array with:
+
+received -  a datetime in YYYY-mm-dd HH:mm:ss (24 hour)
+photoreceived - one or zero
+mapreceived - one or zero
+status - the current status of the visit
+
+
+native-log-change.php
+
+log a change from the native sitter app
+
+parameters:
+loginid
+password
+type -- for visit, "tblappointment" is recommended.
+id -- for visit, this would be the visit ID (appointmentid)
+operation -- one character.  'e' (for event) is recommended
+note - string, 255 chars max
+
+https://leashtime.com/native-log-change.php?loginid=dlifebri&password=pass&type=tblappointment&id=206128&operation=e&note=This+is+a+note+from+the+native+sitter+app
+
+If you specify "tblappointment" for type, you can review any events associated with the visit when you click "Analyze" in the visit editor (when logged in as manager).  Events are listed at the end.
+
+<h1>VISIT REPORTS</h1>
+
+More to come...
+
+<h3>visit-report-list-ajax.php</h3>
+
+returns a list of visit reports for one client
+requires a pre-existing session
+callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
+
+<h3>parameters</h3>
+
+clientid (for manager UI use only)
+start - optional - YYYY-MM-DD
+end - optional - YYYY-MM-DD
+returns JSON array 
+or {"error":"no reports found"} 
+or {"error":"session not active"} if expired session/no session/insufficient access rights
+see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
+
+<h3>visit-report-data.php</h3>
+
+returns visit report data in JSON form for what may be a non-logged-in client
+or {"error":"session not active"} if expired session/no session/insufficient access rights
+can be called in three different modes
+with a "nugget" if there is no session extant
+e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
+to generate a URL with a nugget in the context of a logged in manager, as in example above
+e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
+with simply a visit id to get the data when a session is extant
+e.g., https://leashtime.com/visit-report-data.php?id=207526
+So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+
+If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
+
+<h3>The "generate" option is primarily for testing</h3>
+
+Here is a sample VR JSON array:
+
+BIZNAME "Dog's Life"
+BIZSHORTNAME    "Dog's Life"
+BIZEMAIL    "dogslife69@yahoo.com"
+BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
+BIZPHONE    "703 555 1212"
+BIZADDRESS1 "123 Main Street "
+BIZADDRESS2 "  "
+BIZCITY " Vienna "
+BIZSTATE    " VA "
+BIZZIP  " 22180"
+BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
+CLIENTID    "2025"
+CLIENTFNAME "Carly"
+CLIENTLNAME "Carolina"
+SITTERID    "2"
+SITTER  "Ben Ball"
+ARRIVED "2018-11-07 11:15:30"
+COMPLETED   "2018-11-07 11:23:49"
+MOODBUTTON  
+cat "0"
+happy   "1"
+hungry  "0"
+litter  "0"
+pee "1"
+play    "0"
+poo "1"
+sad "0"
+shy "0"
+sick    "0"
+MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
+VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
+NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
+PETS    "Lilly"
+PETSENGLISH "Lilly"
+
+
+<p>I augmented the visit-report-data.php script with nugget-flavored photo and map URLs.  See below.
+visit-report-list-ajax.php
+
+<p>returns a list of visit reports for one client
+<p>requires a pre-existing session
+<p>callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
+parameters
+clientid (for manager UI use only)
+start - optional - YYYY-MM-DD
+end - optional - YYYY-MM-DD
+returns JSON array 
+or {"error":"no reports found"} 
+or {"error":"session not active"} if expired session/no session/insufficient access rights
+see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
+visit-report-data.php
+
+<p>returns visit report data in JSON form for what may be a non-logged-in client
+or {"error":"session not active"} if expired session/no session/insufficient access rights
+can be called in three different modes
+with a "nugget" if there is no session extant
+e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
+to generate a URL with a nugget in the context of a logged in manager, as in example above
+e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
+with simply a visit id to get the data when a session is extant
+e.g., https://leashtime.com/visit-report-data.php?id=207526
+So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
+
+<p>The "generate" option is primarily for testing
+Notes on the VR JSON array
+MAPROUTEURL  - should be used only when the client is logged in.
+VISITPHOTOURL  - should be used only when the client is logged in.
+MAPROUTENUGGETURL  - should be used only when the client is NOT logged in.
+VISITPHOTONUGGETURL  - should be used only when the client is NOT logged in.
+Here is a sample VR JSON array:
+ 
+
+
+BIZNAME "Dog's Life"
+BIZSHORTNAME    "Dog's Life"
+BIZEMAIL    "dogslife69@yahoo.com"
+BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
+BIZPHONE    "703 555 1212"
+BIZADDRESS1 "123 Main Street"
+BIZADDRESS2 ""
+BIZCITY "Vienna "
+BIZSTATE    "VA "
+BIZZIP  "22180"
+BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
+CLIENTID    "2025"
+CLIENTFNAME "Carly"
+CLIENTLNAME "Carolina"
+SITTERID    "2"
+SITTER  "B.B."
+ARRIVED "2018-11-07 11:15:30"
+COMPLETED   "2018-11-07 11:23:49"
+MOODBUTTON  
+cat "0"
+happy   "1"
+hungry  "0"
+litter  "0"
+pee "1"
+play    "0"
+poo "1"
+sad "0"
+shy "0"
+sick    "0"
+MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
+MAPROUTENUGGETURL   "https://LeashTime.com/appointment-map.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
+VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
+VISITPHOTONUGGETURL "https://LeashTime.com/appointment-photo.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
+NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
+PETS    "Lilly"
+PETSENGLISH "Lilly"
+
+client-own-schedule-change.php
+
+GET or POST supported.
+Supports cancel/uncancel/change operations on multiple visits across many days.
+Requires an active client session
+Parameters
+changetype: required cancel|uncancel|change
+groupnote: optional text
+visits: required JSON
+[{"id":<required visit id>, "note":<optional text>}, {"id":...}, ...]
+Returns JSON
+{"status":"ok", "requestid":<a request id}
+{"error":"no active session"}
+NOTES
+
+This script generates a new type of client request: schedulechange.  The editor for this request type is under construction.
+
+Besides allowing multiple visits across many days to be altered in one server call, this new request type preserves a record of the state of the visits at the time the request was created.  This will allow for review of pre-request states and preserve the state of visits which are later deleted.  The preserved details are:
+
+date
+timeofday
+servicecode
+appointmentid
+providerptr
+note
+charge
+adjustment
+rate
+bonus
+When the schedulechange has been built, I will write scripts that return (as JSON) client request history (for one client or all clients, for a date range, with a limit), and request details.
+
+
+</body>
+</html>
+
+

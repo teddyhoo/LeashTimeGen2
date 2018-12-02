@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>CAREREPORTS™ HEALTH & WELLNESS</title>
+    <!-- BEGIN META -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="per_sitting_businesses, dog_walk, Pet_Care, Visit_Report, ">
+    <meta name="description" content="PetOwner Care Portal | PetCare Management for Health & Wellness.  ">
+    <!-- END META -->
+
+    <!-- BEGIN STYLESHEETS -->
+    <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300italic,400italic,300,400,500,700,900"/>
+    <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/bootstrap.css?1422792965" />
+    <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/materialadmin.css?1425466319" />
+    <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/font-awesome.min.css" />
+    <link type="text/css" rel="stylesheet" href="../../assets/css/theme-default/material-design-iconic-font.min.css?1421434286" />
+    <link href="../../assets/css/leashtime-theme/colors.css" rel="stylesheet" type="text/css">
+    <link href="../../assets/css/leashtime-theme/layout.css" rel="stylesheet" type="text/css">
+    <link href="../../assets/css/leashtime-theme/vivify.min.css" rel="stylesheet" type="text/css">
+    <!-- END STYLESHEETS -->
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header style="border-left:solid 12px #2b323a;border-right:solid 12px #2b323a; background-color:#2f2f2f;" class="">
+  <div class="pull-right">
+    <ul class="header-nav header-nav-toggle style-default-dark">
+      <li class="">
+        <a class="btn btn-icon-toggle" href="#offcanvas-main" data-toggle="offcanvas">
+          <i class="text-lg fa fa-ellipsis-v white-text "></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="m-b-0 style-default-dark">
+    <ul style="line-height: 4;list-style: none">
+      <li class="m-r-10 m-t-5" style="float: left;">
+        <a class="btn btn-icon-toggle menubar-toggle" data-toggle="menubar" href="javascript:void(0);">
+          <i class=" fa fa-paw white-text fa-2x"></i>
+        </a>
+      </li>
+      <li style="line-height:1;padding:24px 0">
+        <div class="brand-holder">
+          <span class="text-lg white-text " style="margin-bottom: 0">CARE<strong>REPORT</strong>™ <small>FROM #ENHANCED_REPORT_BIZ_NAME#</small></span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<!-- PAGE CONTENT -->
+<div id="base" style="margin-top: -12px; border-left: solid #2b323a 12px;border-right: solid #2b323a 12px; border-bottom: solid #2b323a 12px; padding-left: 0;">
+
+    <!-- OFF CANVAS LEFT-->
+    <div class="offcanvas"></div>
+
+    <!-- MAIN CONTENT -->
+    <div style="force-padding">
+      <div class="row">
+        <div class="col-xs-12 card" style="margin-top:0;">
+
+        <!-- PAGE -->
+        <div style="background-color:#fcf9f0;font-size:18px">
+          <div style="margin:0;padding:0;">
+
+            <!-- MAIN PAGE -->
+            <div class="row">
+
+                <!-- LEFT CAREREPORT-->
+                <div class="col-xs-12 col-sm-8 force-padding p-r-0">
+ <button>CLICK</button>
+
+                </div><!-- END LEFT -->
+
+                <!-- RIGHT -->
+                <div class="col-xs-12 col-sm-4 p-t-25" style="line-height: 1;">
+                    <div class="m-l-10 m-r-10">
+                    </div><!--end .card-body -->
+                 </div>
+
+
+
+                    </div>
+                </div><!-- END RIGHT -->
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="row" style="position:relative;vertical-align: middle;padding-bottom: 40px;margin-bottom: -12px">
+                <div class="col-xs-1 no-padding" style="text-align: right;">
+                    <img src="http://mediaflux.com/leashtime/img/dog-logo.png" width="auto" height="30" alt="Leashtime"/>
+                </div>
+                <div class="col-xs-11 no-margin sm-padding p-t-5" style="font-size:12px;line-height: 1;vertical-align: middle;">
+                    <span>POWERED BY LEASHTIME™ SOFTWARE</span><br />
+                    <span style="font-size: 10px;color: #886432">
+                        <a style="text-decoration:underline;color: #886432;text-transform: uppercase;" href="http://leashtime.com" lang="en" target="_blank" data-saferedirecturl="#ENHANCED_REPORT_BIZ_URL#">VISIT #ENHANCED_REPORT_BIZ_NAME# ONLINE</a> </span>
+                </div>
+            </div>
+
+          </div>
+        </div>
+
+        </div>
+      </div>
+
+
+    <!-- BREAKPOINTS -->
+    <div id="device-breakpoints">
+      <div class="device-xs visible-xs" data-breakpoint="xs"></div>
+      <div class="device-sm visible-sm" data-breakpoint="sm"></div>
+      <div class="device-md visible-md" data-breakpoint="md"></div>
+      <div class="device-lg visible-lg" data-breakpoint="lg"></div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="../../assets/js/libs/jquery/jquery-1.11.2.min.js"></script>
+    <script src="../../assets/js/libs/jquery/jquery-migrate-1.2.1.min.js"></script>
+    <script src="../../assets/js/libs/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../../assets/js/libs/bootstrap/bootstrap.min.js"></script>
+    <script src="../../assets/js/libs/autosize/jquery.autosize.min.js"></script>
+    <script>
+    $("button").click(function(){
+    $.getJSON("./assets/data/leastime_vr.json", function(result){
+        $.each(result, function(i, field){
+            $("div.json").append(field + " ");
+        });
+    });
+});
+    </script>
+
+
+    <!-- END JAVASCRIPT -->
+</body>
+</html>
