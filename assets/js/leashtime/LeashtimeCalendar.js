@@ -485,12 +485,16 @@
 
             });
     }
+
+    function selectService(serviceID) {
+        console.log(serviceID);
+    }
     function displayCancelChangeRequestPicker(calEvent, datePicked) {
         const displayCancelChangeRequestPicker = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header blue white-text">
-                    <img src="../../../images/dog0.jpg" width=50 height=60>
+                    <img src="./assets/img/dog0.jpg" width=50 height=60>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
                 </div>
@@ -520,7 +524,12 @@
         let changeButton = document.getElementById('changeServiceButton');
         let cancelVisitsUntilButton = document.getElementById('cancelUntilVisitButton');
 
-        cancelVisitsUntilButton.addEventListener("click", function(event) {
+        cancelVisitsButton.addEventListener("click", function(event) {
+            console.log('Cancel visit on '  + calEvent.getMonth() + ' ' + calEvent.getDate());
+
+            //sendCancelRequest(calEvent.id);
+        });
+       /* cancelVisitsUntilButton.addEventListener("click", function(event) {
             console.log('Cancel service until button clicked for event: ' + calEvent.id);
             let cancelB = document.getElementById('cancelVisitButton');
             let changeB = document.getElementById('changeServiceButton');
@@ -550,7 +559,7 @@
             cancelUntilConfirm.addEventListener("click", function(event) {
                 console.log('confirm from: ' + calEvent.start.date() + calEvent.start.month() + calEvent.start.day() + ' ' + untilDate2.value);       
             })
-        });
+        });*/
 
         changeButton.addEventListener("click", function(event) {
             console.log('Change service for event: ' + calEvent.id);
@@ -558,24 +567,14 @@
             cancelVisitsUntilButton.parentNode.removeChild(cancelVisitsUntilButton);
         });
 
-        cancelVisitsButton.addEventListener("click", function(cancelEvent) {
-            event_visits.forEach((event)=> {
-                if (event.id == cancelEvent.id) {
-                    console.log('Cancel service button clicked for event: ' + calEvent.id);
-                    event.status == 'canceled';
-                    $('#calendar').fullCalendar('renderEvent', event, true);
-
-                }
-            })
-            //sendCancelRequest(calEvent.id);
-        });
+            
     }
     function displayChangePicker(withButtons) {
             const cancelChangePanel =  `
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header blue white-text">
-                            <img src="../../../images/dog0.jpg" width=50 height=60>
+                            <img src="./assets/img/dog0.jpg" width=50 height=60>
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                                     <h4 class="modal-title" id="scheduledVisitAction">
                                         Change: &nbsp&nbsp&nbsp${withButtons[0].service}
