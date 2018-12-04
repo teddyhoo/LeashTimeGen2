@@ -284,10 +284,12 @@
                 }
                 let apptStatus = event.status;
                 console.log(apptStatus);
-                let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
                 if (apptStatus == 'canceled') {
+                    let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
                     displayUncancel(event, titleString);
                 } else if (apptStatus == 'completed') {
+                    let titleString = ' VISIT REPORT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title; 
+
                     let visitNote = event.note;
                     let arrivalTime = event.arrivalTime;
                     let completeTime = event.completionTime;
@@ -441,6 +443,11 @@
         let eventEndMoment = moment(calEvent. end);
         let startMonth = eventStartMoment.month();
         let startDate = eventStartMoment.date();
+        let momentArrive = moment(arrive);
+        let momentComplete = moment(complete);
+        momentArrive  = moment(momentArrive, 'HH:mm').format('hh:mm a');
+        momentComplete = moment(momentComplete, 'HH:mm').format('hh:mm a');
+
         const uncancelHTML = `
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -448,17 +455,17 @@
                         <img src="./assets/img/dog0.jpg" width=50 height=60>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
-                        <h4>VISIT REPORT</h4>
-                        <h4>Arrival time: ${arrive}, Completion time: ${complete}</h4>
+                        <h4>${momentArrive} - ${momentComplete}</h4>
                     </div>
                     <form class="form-horizontal" role="form">
                         <div class="modal-body">
                             <div class="input-group-content">
-                                <input type="text" class="form-control" id='cancelChangeText' size=100%>
+                                <img src="./assets/img/visit-report-2.jpg" id="visitreportpic1" width=140 height = 140>
+                                <img src="./assets/img/visit-report-3.jpg" id="visitreportpic2" width=140 height = 140>
                                 <label>Note: ${visitNote} </label>
                             </div>
-                            <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='seePhotos'>SEE PHOTOS</button>
+                            <div class="modal-footer grey lighten-2" id="visitReportPanel">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='prevReport'>PREVIOUS REPORTS</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal" id='seeGPS'>SEE ROUTE</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal" id='leaveGratuity'>LEAVE GRATUITY</button>
 
@@ -472,6 +479,37 @@
         let modalDiv = document.getElementById('formModal');
         modalDiv.innerHTML = uncancelHTML;
         $('#formModal').modal('show'); 
+
+        let visitReportPanel = document.getElementById('visitReportPanel');
+
+
+        let gratuityButton = document.getElementById('leaveGratuity');
+        gratuityButton.addEventListener("click" ,  function(event) {
+            let prevReportButton = document.getElementById('prevReport');
+            let seeGPSbutton = document.getElementById('seeGPS');
+            let gratuityButton = document.getElementById('leaveGratuity');
+            prevReportButton.parentNode.removeChild(prevReportButton);
+            seeGPSbutton.parentNode.removeChild(seeGPSbutton);
+            gratuityButton.parentNode.removeChild(gratuityButton);
+
+            const gratuityHTML = `
+
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id='tenpercent'>10%</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id='twentypercent'>20%</button>
+                <input type="text" class="form-control" id='grautuityAmt' size=100%>
+                <label>Custom amount ($): </label>
+
+            `;
+
+            visitReportPanel.innerHTML = gratuityHTML;
+
+            let tenPbutton = document.getElementById('tenpercent');
+            let twentypercent = document.getElementById('twentypercent');
+            tenPbutton.addEventListener("click", function(event) {
+
+
+            })
+        })
     }
 
     function displayUncancel(calEvent, datePicked) {
@@ -495,7 +533,6 @@
                                 <label>Note: </label>
                             </div>
                             <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
-
                                 <button type="button" class="btn btn-danger" data-dismiss="modal" id='uncancelButton'>UNCANCEL VISIT</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeServiceButton'>CHANGE SERVICE</button>
                             </div>
@@ -513,7 +550,6 @@
         uncancelB.addEventListener("click", function(event) {
             console.log('Uncancel visit: ' + appointmentid + ' on date: ' + startMonth + '/' + startDate); 
         })
-
     }
     function displayVisitRequest(dateString) {
         // <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
@@ -554,13 +590,12 @@
                                         let buttonHTML =  "<a href=# class=btn btn-default-bright type=checkbox role=checkbox id=tw" + tw.indexVal + ">" + tw.label + "</a>";
                                         return buttonHTML
                                     })}
-                                </div>
+                                </div> 
                                 <br>
                                 <label class="text-default-light">SELECT PETS</label>
                                 <div class="btn-group btn-group-justified" id='petPicker' role="group" aria-label="Justified button group">
                                     ${petOwnerProfile.pets.map(function(pet) {
-                                        console.log(pet.petName);
-                                        return "<a href=# class=btn btn-default-brigth type=checkbox role=checkbox id=pet" + pet.petID + ">" + pet.petName + "</a>"
+                                        return "<a href=# class=btn btn-default-bright type=checkbox role=checkbox id=pet" + pet.petID + ">" + pet.petName + "</a>"
                                     })}
                                 </div>
                                 <br>
@@ -581,11 +616,9 @@
             let childNodeServiceItems = sPicker.childNodes; 
             childNodeServiceItems.forEach((node)=> {
                 if (node.id != null){
-                    console.log(node.id + ' ' + node.innerHTML);
                     node.addEventListener("click", function(event) {
-                        let re=/(service)([0-9])+/;
+                        let re=/(service)([0-9]+)/;
                         currentServiceChosen = re.exec(node.id)[2];
-                        console.log(currentServiceChosen);
                     })
                 }
             });
@@ -594,7 +627,7 @@
             childNodeTW.forEach((node)=> {
                 if(node.id != null) {
                     node.addEventListener("click",function(event) {
-                        let re=/(tw)([0-9])+/;
+                        let re=/(tw)([0-9]+)/;
                         let timeWindowNormal = re.exec(node.id)[2];
                         let timeWindowObj = timeWindowList[timeWindowNormal]
                         currentTimeWindowBegin = timeWindowObj.label;
@@ -608,8 +641,40 @@
             childNodePet.forEach((node)=> {
                 if(node.id != null) {
                     node.addEventListener("click",function(event) {
+
                         console.log(node.id);
-                    })
+
+                        let re=/(pet)([0-9]+)/;
+                        let petNormal = re.exec(node.id)[2];
+                        let index = 0;
+                        let popIndex = 0;
+                        let isPetUnchose = false;
+
+                        currentPetsChosen.forEach((chosenPet) => {
+                            if (petNormal == chosenPet) {
+                                console.log('Found pet in currentChosen: ' + petNormal);
+                                isPetUnchose = true;
+                                popIndex = index;
+                                index = index+1;
+                            }
+                        })
+
+                        if (!isPetUnchose) {
+                            console.log('Adding pet:  ' + petNormal);
+                            currentPetsChosen.push(petNormal);
+
+                        } else {
+                            console.log('Removing pet: ' + petNormal);
+                            currentPetsChosen.splice(popIndex,1);
+                        }
+
+                        currentPetsChosen.forEach((pet)=> {
+                            console.log('Current pet chose: ' + pet);
+                        })
+
+                    });
+
+
                 }
             })
 
@@ -631,7 +696,11 @@
         let eventEndMoment = moment(calEvent. end);
         let startMonth = eventStartMoment.month();
         let startDate = eventStartMoment.date();
-        console.log('Month: ' + startMonth + '/' + startDate);
+        let startYear = eventStartMoment.year();
+
+        console.log('Month: ' + startMonth + '/' + startDate + '/' + startYear);
+
+
         const displayCancelChangeRequestPicker = `
         <div class="modal-dialog">
             <div class="modal-content">
@@ -666,12 +735,34 @@
         let changeButton = document.getElementById('changeServiceButton');
         let cancelVisitsUntilButton = document.getElementById('cancelUntilVisitButton');
 
+        changeButton.addEventListener("click", function(event) {
+            cancelVisitButton.parentNode.removeChild(cancelVisitButton);
+            cancelVisitsUntilButton.parentNode.removeChild(cancelVisitsUntilButton);
+
+            const changeHTML = `
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeType'>CHANGE TYPE</button>  
+                    <strong>Date:</strong> <span class="blue-text" id="${datePicked}"></span>
+                    <div class="form-group pull-right control-width-normal">
+                        <div class="input-group date" id="demo-date">
+                            <div class="input-group-content">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='dateChange'>CHANGE DATE</button>  
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='timeDayChange'>CHANGE TIME OF DAY</button>  
+
+                            </div>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                        </div>
+                    <br>
+            `;
+
+        })
         cancelVisitsButton.addEventListener("click", function(event) {
 
             console.log('Cancel visit on '  + startMonth + ' ' + startDate);
 
-            //sendCancelRequest(calEvent.id);
         });
+
+
         cancelVisitsUntilButton.addEventListener("click", function(event) {
             console.log('Cancel service until button clicked for event: ' + calEvent.id);
             let cancelB = document.getElementById('cancelVisitButton');
@@ -695,7 +786,6 @@
             `;
 
             panel.innerHTML = cancelUntilHTML;
-
             let cancelUntilConfirm = document.getElementById('confirmCancelUntil');
             let untilDate = document.getElementById('untilDate2');
 
@@ -703,12 +793,6 @@
                 console.log('confirm from: ' + calEvent.start.date() + calEvent.start.month() + calEvent.start.day() + ' ' + untilDate2.value);       
             })
         });
-
-        changeButton.addEventListener("click", function(event) {
-            console.log('Change service for event: ' + calEvent.id);
-            cancelVisitButton.parentNode.removeChild(cancelVisitButton);
-            cancelVisitsUntilButton.parentNode.removeChild(cancelVisitsUntilButton);
-        });        
     }
     function displayChangePicker(withButtons) {
             const cancelChangePanel =  `
@@ -788,7 +872,6 @@
         return pickedService;
     }
     function processServiceRequest (eventItem) {
-        console.log('Process Service Request function called');
         let invoice = document.getElementById('invoice');
         let pickedService = createTableServiceRow(invoice);
         if (endDateService != null) {
@@ -835,7 +918,6 @@
     }
 
     var calendar = $('#calendar').fullCalendar('getCalendar');
-
     namespace.LeashtimeCal = new LeashtimeCal;
 
 }(this.materialadmin, jQuery)); 
