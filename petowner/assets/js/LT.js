@@ -147,7 +147,7 @@ var LT = (function() {
 		}
 	}
 	class Visit {
-		constructor(appointmentid, 
+		/*constructor(appointmentid, 
 							date, 
 							start_time, 
 							end_time,
@@ -161,7 +161,7 @@ var LT = (function() {
 							tax_amt,
 							adjust_amt
 			) {
-
+			console.log('Arrive:  ' + arrival_time + ' Completion time: ' + completion_time);
 			this.appointmentid = appointmentid;
 			this.status = status;						// completed, INCOMPLETE,  arrived, canceled
 			this.service = service_label;
@@ -174,9 +174,6 @@ var LT = (function() {
 			this.completion_time = completion_time; // YYYY-MM-DD HH:MM:SS
 			this.visitReport = visit_report;			// YYYY-MM-DD HH:MM:SS
 			this.visitNote = '';
-
-			// charge + adjustment + tax + surcharge = TOTAL VISIT CHARGE
-			// no discount calculated
 
 			this.charge = parseFloat(charge);
 			this.surchargeAmount = parseFloat(0);
@@ -194,6 +191,41 @@ var LT = (function() {
 				this.tax = parseFloat(0);
 			}
 		}
+
+			*/
+
+			constructor(visitDictionary) {
+				this.appointmentid = visitDictionary['appointmentid'];
+				this.status = visitDictionary['status'];						// completed, INCOMPLETE,  arrived, canceled
+				this.service = visitDictionary['servicelabel'];
+				this.service_code = visitDictionary['servicecode'];
+
+				this.date = visitDictionary['date'];     						// YYYY-MM-DD
+				this.time_window_start = visitDictionary['starttime'];		// HH:MM:SS
+				this.time_window_end = visitDictionary['endtime'];		// HH:MM:SS
+				this.arrival_time = visitDictionary['arrived'];			 // YYYY-MM-DD HH:MM:SS
+				this.completion_time = visitDictionary['completed']; // YYYY-MM-DD HH:MM:SS
+				this.visitReport = visitDictionary['visit_report'];			// YYYY-MM-DD HH:MM:SS
+				this.visitNote = visitDictionary['note'];
+				console.log(this.visitNote);
+				this.charge = parseFloat(visitDictionary['charge']);
+				this.surchargeAmount = parseFloat(0);
+				this.isSurchargable = false;
+
+				if (visitDictionary['adjustment'] != null) {
+					this.adjustment = parseFloat(adjust_amt);
+				} else {
+					this.adjustment = parseFloat(0);
+				}
+			
+				if (visitDictionary['tax'] != null) {
+					this.tax = parseFloat(tax_amt);
+				} else {
+					this.tax = parseFloat(0);
+				}
+			}
+
+
 
 		mergeSitterVisitInfo(sitter_visit_dict) {
 			this.clientptr = sitter_visit_dict['clientptr'];
@@ -326,7 +358,8 @@ var LT = (function() {
 			let num_visits = obj.length;
 			for (let i =0; i < num_visits; i++) {
 				let visit_dict = obj[i];
-				const visit = new Visit(visit_dict['appointmentid'],
+				const visit = new Visit(visit_dict);
+				/*const visit = new Visit(visit_dict['appointmentid'],
 					visit_dict['date'], 
 					visit_dict['starttime'],
 					visit_dict['endtime'],
@@ -338,7 +371,7 @@ var LT = (function() {
 					visit_dict['completed'],
 					visit_dict['visitreport'],
 					visit_dict['tax'],
-					visit_dict['adjustment']);
+					visit_dict['adjustment']);*/
 				visit_list.push(visit);
 			}
 			for (let i =0; i < num_visits; i++) {

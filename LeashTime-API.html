@@ -205,40 +205,47 @@
 
         <p>The version=display parameter tells LT to return the server-cached display version whose max dimension is 300px.  Omit this parameter to retrieve the full sized image.  Not recommended.
 
-Version 2 Changes
+<h3>Version 2 Changes</h3>
 
-New Parameters:
+<h4>New Parameters:</h4>
 
-version - should be "2" for this round
-photosent - one or zero
-arrived - a coordinate with "arrive" or "arrived" as the event (whichever one you use).
-complete - a coordinate with "complete" or "completed" as the event (whichever one you use).
-If arrive and/or complete is supplied, the coordinate is registered (registerVisitTrack($coord)), a billable is created, and the status change is registered (possibly again) in the visit and log, but no notifications are generated for the arrival/completion event.  This will require close scrutiny during testing.
-New Output on Success
-
-A JSON array with:
-
-received -  a datetime in YYYY-mm-dd HH:mm:ss (24 hour)
-photoreceived - one or zero
-mapreceived - one or zero
-status - the current status of the visit
+<ul>
+    <li>version - should be "2" for this round
+    <li>photosent - one or zero
+<li>arrived - a coordinate with "arrive" or "arrived" as the event (whichever one you use).
+<li>complete - a coordinate with "complete" or "completed" as the event (whichever one you use).
+<li>If arrive and/or complete is supplied, the coordinate is registered (registerVisitTrack($coord)), a billable is created, and the status change is registered (possibly again) in the visit and log, but no notifications are generated for the arrival/completion event.  This will require close scrutiny during testing.
+</ul>
 
 
-native-log-change.php
+<h4>New Output on Success</h4>
 
-log a change from the native sitter app
+<p>A JSON array with:
 
-parameters:
-loginid
-password
-type -- for visit, "tblappointment" is recommended.
-id -- for visit, this would be the visit ID (appointmentid)
-operation -- one character.  'e' (for event) is recommended
-note - string, 255 chars max
+<ul>
+<li>received -  a datetime in YYYY-mm-dd HH:mm:ss (24 hour)
+<li>photoreceived - one or zero
+<li>mapreceived - one or zero
+<li>status - the current status of the visit
+</ul>
 
-https://leashtime.com/native-log-change.php?loginid=dlifebri&password=pass&type=tblappointment&id=206128&operation=e&note=This+is+a+note+from+the+native+sitter+app
+<h3>native-log-change.php</h3>
 
-If you specify "tblappointment" for type, you can review any events associated with the visit when you click "Analyze" in the visit editor (when logged in as manager).  Events are listed at the end.
+<p>log a change from the native sitter app
+
+<h4>parameters:</h4>
+<ul>
+<li>loginid
+<li>password
+<li>type -- for visit, "tblappointment" is recommended.
+<li>id -- for visit, this would be the visit ID (appointmentid)
+<li>operation -- one character.  'e' (for event) is recommended
+<li>note - string, 255 chars max
+</ul>
+
+<p>https://leashtime.com/native-log-change.php?loginid=dlifebri&password=pass&type=tblappointment&id=206128&operation=e&note=This+is+a+note+from+the+native+sitter+app
+
+<p>If you specify "tblappointment" for type, you can review any events associated with the visit when you click "Analyze" in the visit editor (when logged in as manager).  Events are listed at the end.
 
 <h1>VISIT REPORTS</h1>
 
@@ -252,7 +259,8 @@ callable by manager (with clientid parameter supplied) or by client (client's se
 
 <h3>parameters</h3>
 
-clientid (for manager UI use only)
+<ul>
+<li>clientid (for manager UI use only)
 start - optional - YYYY-MM-DD
 end - optional - YYYY-MM-DD
 returns JSON array 
@@ -262,93 +270,107 @@ see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/
 
 <h3>visit-report-data.php</h3>
 
-returns visit report data in JSON form for what may be a non-logged-in client
+<p>returns visit report data in JSON form for what may be a non-logged-in client
 or {"error":"session not active"} if expired session/no session/insufficient access rights
 can be called in three different modes
-with a "nugget" if there is no session extant
-e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
-to generate a URL with a nugget in the context of a logged in manager, as in example above
-e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
-with simply a visit id to get the data when a session is extant
-e.g., https://leashtime.com/visit-report-data.php?id=207526
-So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+<ul>
+    <li>with a "nugget" if there is no session extant <br>e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
+    <li>to generate a URL with a nugget in the context of a logged in manager, as in example above <br>e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
+<li>with simply a visit id to get the data when a session is extant<br>e.g., https://leashtime.com/visit-report-data.php?id=207526
 
-If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
+<p>So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+
+<p>If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
 
 <h3>The "generate" option is primarily for testing</h3>
 
-Here is a sample VR JSON array:
+<p>Here is a sample VR JSON array:
 
-BIZNAME "Dog's Life"
-BIZSHORTNAME    "Dog's Life"
-BIZEMAIL    "dogslife69@yahoo.com"
-BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
-BIZPHONE    "703 555 1212"
-BIZADDRESS1 "123 Main Street "
-BIZADDRESS2 "  "
-BIZCITY " Vienna "
-BIZSTATE    " VA "
-BIZZIP  " 22180"
-BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
-CLIENTID    "2025"
-CLIENTFNAME "Carly"
-CLIENTLNAME "Carolina"
-SITTERID    "2"
-SITTER  "Ben Ball"
-ARRIVED "2018-11-07 11:15:30"
-COMPLETED   "2018-11-07 11:23:49"
-MOODBUTTON  
-cat "0"
-happy   "1"
-hungry  "0"
-litter  "0"
-pee "1"
-play    "0"
-poo "1"
-sad "0"
-shy "0"
-sick    "0"
-MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
-VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
-NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
-PETS    "Lilly"
-PETSENGLISH "Lilly"
+<ul>
+<li>BIZNAME "Dog's Life"
+<li>BIZSHORTNAME    "Dog's Life"
+<li>BIZEMAIL    "dogslife69@yahoo.com"
+<li>BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
+<li>BIZPHONE    "703 555 1212"
+<li>BIZADDRESS1 "123 Main Street "
+<li>BIZADDRESS2 "  "
+<li>BIZCITY " Vienna "
+<li>BIZSTATE    " VA "
+<li>BIZZIP  " 22180"
+<li>BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
+<li>CLIENTID    "2025"
+<li>CLIENTFNAME "Carly"
+<li>CLIENTLNAME "Carolina"
+<li>SITTERID    "2"
+<li>SITTER  "Ben Ball"
+<li>ARRIVED "2018-11-07 11:15:30"
+<li>COMPLETED   "2018-11-07 11:23:49"
+<li>MOODBUTTON  
+<li>cat "0"
+<li>happy   "1"
+<li>hungry  "0"
+<li>litter  "0"
+<li>pee "1"
+<li>play    "0"
+<li>poo "1"
+<li>sad "0"
+<li>shy "0"
+<li>sick    "0"
+<li>MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
+<li>VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
+<li>NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
+<li>PETS    "Lilly"
+<li>PETSENGLISH "Lilly"
+</ul>
 
 
-<p>I augmented the visit-report-data.php script with nugget-flavored photo and map URLs.  See below.
-visit-report-list-ajax.php
+<p>I augmented the <b>visit-report-data.php</b> script with nugget-flavored photo and map URLs.  See below.
+
+<h3>visit-report-list-ajax.php</h3>
 
 <p>returns a list of visit reports for one client
 <p>requires a pre-existing session
 <p>callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
-parameters
-clientid (for manager UI use only)
-start - optional - YYYY-MM-DD
-end - optional - YYYY-MM-DD
-returns JSON array 
-or {"error":"no reports found"} 
-or {"error":"session not active"} if expired session/no session/insufficient access rights
-see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
-visit-report-data.php
+<h4>parameters</h4>
+
+<ul>
+<li>clientid (for manager UI use only)
+<li>start - optional - YYYY-MM-DD
+<li>end - optional - YYYY-MM-DD
+<li>returns JSON array 
+<li>or {"error":"no reports found"} 
+<li>or {"error":"session not active"} if expired session/no session/insufficient access rights
+<li>see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
+</ul>
+
+<h3>visit-report-data.php</h3>
 
 <p>returns visit report data in JSON form for what may be a non-logged-in client
 or {"error":"session not active"} if expired session/no session/insufficient access rights
-can be called in three different modes
-with a "nugget" if there is no session extant
-e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
+<p>can be called in three different modes
+<p>with a "nugget" if there is no session extant
+
+<p>e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
 to generate a URL with a nugget in the context of a logged in manager, as in example above
+
 e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
 with simply a visit id to get the data when a session is extant
+
 e.g., https://leashtime.com/visit-report-data.php?id=207526
+
+
 So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+
 If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
 
 <p>The "generate" option is primarily for testing
-Notes on the VR JSON array
-MAPROUTEURL  - should be used only when the client is logged in.
-VISITPHOTOURL  - should be used only when the client is logged in.
-MAPROUTENUGGETURL  - should be used only when the client is NOT logged in.
-VISITPHOTONUGGETURL  - should be used only when the client is NOT logged in.
+<p>Notes on the VR JSON array
+<ul>
+<li>MAPROUTEURL  - should be used only when the client is logged in.
+<li>VISITPHOTOURL  - should be used only when the client is logged in.
+<li>MAPROUTENUGGETURL  - should be used only when the client is NOT logged in.
+<li>VISITPHOTONUGGETURL  - should be used only when the client is NOT logged in.
+</ul>
 Here is a sample VR JSON array:
  
 
@@ -390,19 +412,26 @@ NOTE    "Just a nice little trip around Capitol Hill. This is sample visit repor
 PETS    "Lilly"
 PETSENGLISH "Lilly"
 
-client-own-schedule-change.php
+<h3>client-own-schedule-change.php</h3>
 
-GET or POST supported.
-Supports cancel/uncancel/change operations on multiple visits across many days.
-Requires an active client session
-Parameters
-changetype: required cancel|uncancel|change
-groupnote: optional text
-visits: required JSON
+<p>GET or POST supported.
+<p>Supports cancel/uncancel/change operations on multiple visits across many days.
+<p>Requires an active client session
+
+<h4>Parameters</h4>
+
+<ul>
+    <li>changetype: required cancel|uncancel|change
+    <li>groupnote: optional text
+    <li>visits: required JSON
+</ul>
 [{"id":<required visit id>, "note":<optional text>}, {"id":...}, ...]
-Returns JSON
+
+<p>Returns JSON
 {"status":"ok", "requestid":<a request id}
 {"error":"no active session"}
+
+
 NOTES
 
 This script generates a new type of client request: schedulechange.  The editor for this request type is under construction.

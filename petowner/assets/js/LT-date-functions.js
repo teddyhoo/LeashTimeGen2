@@ -1,5 +1,4 @@
     function day_of_the_month(startDate) {
-
     }
     function dayMonth(d) {
         console.log(d);
@@ -34,7 +33,6 @@
         let monthNum = d.getMonth() + 1;
         return (monthNum < 10 ? '0' : '') + monthNum;
     };
-
     function isDateAfter (d1, d2) {
         if (moment(d1).isAfter(d2)) {
             return true;
@@ -42,7 +40,6 @@
             return false;
         }
     }
-
     function isDateBefore(d1, d2) {
         if (moment(d1).isBefore(d2)) {
             return true;

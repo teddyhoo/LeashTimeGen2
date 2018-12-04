@@ -6,17 +6,21 @@
     var currentTimeWindowBegin;
     var currentTimeWindowEnd;
     var currentServiceChosen;
-    var currentPetsChosen = [];
-    var schedule_request = [];
-    var pendingVisits = [];
     var dragStartDate;
     var dragStopDate;
     var dragDropServiceID;
+
+
+    var all_visits = [];
     var surchargeItems =[];
     var serviceList = [];
     var timeWindowList =[];
-    var all_visits = [];
     var event_visits = [];
+
+    var currentPetsChosen = [];
+    var schedule_request = [];
+    var pendingVisits = [];
+
     const  dayArrStr = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
     const monthsArrStr = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
@@ -25,6 +29,10 @@
         // |                            LeashtimeCal var                                            | 
         // -------------------------------------------------------------------------
  
+    function fPickService(serviceID) {
+        console.log(serviceID);
+    }
+
     var LeashtimeCal = function () {
         var o = this;
         var todayDate = new Date();
@@ -61,9 +69,9 @@
         // -------------------------------------------------------------------------
 
     var p = LeashtimeCal.prototype;
-    p.selectService = function() {
-        console.log('service selected');
-    }
+    p.selectService = function(serviceID) {
+        console.log('service selected with service id: ' + serviceID);
+    };
     p.initialize = function () {
         this._enableEvents();
         this._initEventslist();
@@ -95,6 +103,7 @@
         this._displayDate();
     };
     p._handleCalendarMode = function (e) {
+
         $('#calendar').fullCalendar('changeView', $(e.currentTarget).data('mode'));
     };
     p._displayDate = function () {
@@ -157,8 +166,12 @@
             let eventEnd = visit.time_window_end;
             let eventDateStart = visit.date + ' ' + eventStart;
             let eventDateEnd = visit.date + ' ' + eventEnd;
+            let momentStart = moment(eventDateStart);
+            let momentEnd = moment(eventDateEnd);
+
             let visitColor = '';
             let visitURL = '';
+
             if(visit.status == 'canceled') {
                 visitColor = 'red';
             } else if (visit.status == 'completed') {
@@ -177,10 +190,12 @@
             let event = {
                 id : visit.appointmentid,
                 title: eventTitle,
-                note: visit.note,
+                note: visit.visitNote,
                 timeWindow : visit.time_window_start + ' - ' + visit.time_window_end,
-                start : eventDateStart,
-                end : eventDateEnd,
+                start : momentStart,
+                end : momentEnd,
+                arrivalTime : visit.arrival_time,
+                completionTime: visit.completion_time,
                 color : visitColor,
                 status : visit.status,
                 sitter: visit.sitter,
@@ -191,7 +206,9 @@
         });
     };
     p._clickModal = function() {
+
         var selectedDate = $('#calendar').fullCalendar('getDate');
+
     };
     p._initEventslist = function () {
 
@@ -214,7 +231,6 @@
                 revertDuration: 0, 
             });
         });
-
     };
     p._initCalendar = function (e) {
         if (!$.isFunction($.fn.fullCalendar)) {
@@ -226,7 +242,7 @@
         var y = date.getFullYear();
         var o = this;
 
-        calendar = $('#calendar').fullCalendar('getCalendar');
+        //calendar = $('#calendar').fullCalendar('getCalendar');
         calendar.fullCalendar({
             height: 700,
             header: true,
@@ -267,10 +283,18 @@
                     endMin = '00';
                 }
                 let apptStatus = event.status;
-
+                console.log(apptStatus);
                 let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
-                    
-                displayCancelChangeRequestPicker(event, titleString)           
+                if (apptStatus == 'canceled') {
+                    displayUncancel(event, titleString);
+                } else if (apptStatus == 'completed') {
+                    let visitNote = event.note;
+                    let arrivalTime = event.arrivalTime;
+                    let completeTime = event.completionTime;
+                    displayVisitReport(event, titleString, visitNote, arrivalTime, completeTime);
+                }  else {
+                    displayCancelChangeRequestPicker(event, titleString);           
+                }
             },
             eventRender: function(event, element){
                 $(element).find(".fc-content").append("");
@@ -411,7 +435,86 @@
     // |                           Global functions                                              | 
     // ----------------------------------------------------------------------------
 
-    
+    function displayVisitReport(calEvent, datePicked, visitNote, arrive, complete) {
+        console.log(visitNote);
+        let eventStartMoment = moment(calEvent.start);
+        let eventEndMoment = moment(calEvent. end);
+        let startMonth = eventStartMoment.month();
+        let startDate = eventStartMoment.date();
+        const uncancelHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header blue white-text">
+                        <img src="./assets/img/dog0.jpg" width=50 height=60>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
+                        <h4>VISIT REPORT</h4>
+                        <h4>Arrival time: ${arrive}, Completion time: ${complete}</h4>
+                    </div>
+                    <form class="form-horizontal" role="form">
+                        <div class="modal-body">
+                            <div class="input-group-content">
+                                <input type="text" class="form-control" id='cancelChangeText' size=100%>
+                                <label>Note: ${visitNote} </label>
+                            </div>
+                            <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='seePhotos'>SEE PHOTOS</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='seeGPS'>SEE ROUTE</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='leaveGratuity'>LEAVE GRATUITY</button>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        let modalDiv = document.getElementById('formModal');
+        modalDiv.innerHTML = uncancelHTML;
+        $('#formModal').modal('show'); 
+    }
+
+    function displayUncancel(calEvent, datePicked) {
+        let appointmentid = calEvent.id;
+        let eventStartMoment = moment(calEvent.start);
+        let eventEndMoment = moment(calEvent. end);
+        let startMonth = eventStartMoment.month();
+        let startDate = eventStartMoment.date();
+        const uncancelHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header blue white-text">
+                        <img src="./assets/img/dog0.jpg" width=50 height=60>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
+                    </div>
+                    <form class="form-horizontal" role="form">
+                        <div class="modal-body">
+                            <div class="input-group-content">
+                                <input type="text" class="form-control" id='cancelChangeText' size=100%>
+                                <label>Note: </label>
+                            </div>
+                            <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
+
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='uncancelButton'>UNCANCEL VISIT</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeServiceButton'>CHANGE SERVICE</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        let modalDiv = document.getElementById('formModal');
+        modalDiv.innerHTML = uncancelHTML;
+        $('#formModal').modal('show'); 
+
+        let uncancelB = document.getElementById('uncancelButton');
+        uncancelB.addEventListener("click", function(event) {
+            console.log('Uncancel visit: ' + appointmentid + ' on date: ' + startMonth + '/' + startDate); 
+        })
+
+    }
     function displayVisitRequest(dateString) {
         // <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
 
@@ -439,23 +542,25 @@
                                     <br>
                                 </div>
                                 <label class="text-default-light">SERVICE</label>
-                                <div class="btn-group btn-group-justified" id="pickService" role="group" aria-label="Justified button group">
+                                <div class="btn-group btn-group-justified" id="chooseService" role="group" aria-label="Justified button group">
                                     ${serviceList.map(function(service){
-                                        return "<a href=# class=btn btn-default-bright type=checkbox role=checkbox onclick=selectService(" + service.serviceCode + ") id=" +service.serviceCode+">" + service.serviceName + "</a>"
+                                         return "<a href=# class=btn btn-default-bright type=checkbox role=checkbox id=service" +service.serviceCode+">" + service.serviceName + "</a>"
                                     })}
                                 </div>
                                 <br>
                                 <label class="text-default-light">TIME WINDOW</label>
-                                <div class="btn-group btn-group-justified" id='chooseTimeWindow' role="group" aria-label="Justified button group">
+                                <div class="btn-group btn-group-justified" id="chooseTimeWindow" role="group" aria-label="Justified button group">
                                     ${timeWindowList.map(function(tw){
-                                        return "<a href=# class=btn btn-default-bright type=checkbox role=checkbox onclick=this.selectTimeWindow(" + tw.indexVal + ") id=" +tw.indexVal+">" + tw.label + "</a>"
+                                        let buttonHTML =  "<a href=# class=btn btn-default-bright type=checkbox role=checkbox id=tw" + tw.indexVal + ">" + tw.label + "</a>";
+                                        return buttonHTML
                                     })}
                                 </div>
                                 <br>
                                 <label class="text-default-light">SELECT PETS</label>
                                 <div class="btn-group btn-group-justified" id='petPicker' role="group" aria-label="Justified button group">
                                     ${petOwnerProfile.pets.map(function(pet) {
-                                        return "<a href=# class=btn btn-default-brigth type=checkbox role=checkbox id=" + pet.petID + ">" + pet.petName + "</a>"
+                                        console.log(pet.petName);
+                                        return "<a href=# class=btn btn-default-brigth type=checkbox role=checkbox id=pet" + pet.petID + ">" + pet.petName + "</a>"
                                     })}
                                 </div>
                                 <br>
@@ -472,30 +577,61 @@
 
             let servicePickerModal = document.getElementById('formModal');
             servicePickerModal.innerHTML = visitRequestHTML;
+            let sPicker = document.getElementById('chooseService');
+            let childNodeServiceItems = sPicker.childNodes; 
+            childNodeServiceItems.forEach((node)=> {
+                if (node.id != null){
+                    console.log(node.id + ' ' + node.innerHTML);
+                    node.addEventListener("click", function(event) {
+                        let re=/(service)([0-9])+/;
+                        currentServiceChosen = re.exec(node.id)[2];
+                        console.log(currentServiceChosen);
+                    })
+                }
+            });
+            let twPicker = document.getElementById('chooseTimeWindow');
+            let childNodeTW = twPicker.childNodes;
+            childNodeTW.forEach((node)=> {
+                if(node.id != null) {
+                    node.addEventListener("click",function(event) {
+                        let re=/(tw)([0-9])+/;
+                        let timeWindowNormal = re.exec(node.id)[2];
+                        let timeWindowObj = timeWindowList[timeWindowNormal]
+                        currentTimeWindowBegin = timeWindowObj.label;
+                        currentTimeWindowEnd = timeWindowObj.label;
+                        console.log(currentTimeWindowBegin + '  ' + currentTimeWindowEnd);
+                    })
+                }
+            })
+            let pickPet = document.getElementById('petPicker');
+            let childNodePet = pickPet.childNodes;
+            childNodePet.forEach((node)=> {
+                if(node.id != null) {
+                    node.addEventListener("click",function(event) {
+                        console.log(node.id);
+                    })
+                }
+            })
 
             $('#formModal').modal('show');
 
-            let servicePicker = document.getElementById('pickService');
-            servicePicker.addEventListener("click", function(event) {
-                console.log(event);
-            })
-
-
+           
             let requestServiceButton = document.getElementById('requestServiceButton');
             requestServiceButton.addEventListener("click", function(event) {
-
+                let selectDate = document.getElementById("todayDate");
+                console.log(selectDate);
                 processServiceRequest();
 
             });
     }
-
     function displayCancelChangeRequestPicker(calEvent, datePicked) {
         console.log('display cancel change request picker: ' + calEvent + ' ' + datePicked);
-        let appointmentid = event.id;
-        let eventStartMoment = moment(event.start);
-        let eventEndMoment = moment(event. end);
+        let appointmentid = calEvent.id;
+        let eventStartMoment = moment(calEvent.start);
+        let eventEndMoment = moment(calEvent. end);
         let startMonth = eventStartMoment.month();
         let startDate = eventStartMoment.date();
+        console.log('Month: ' + startMonth + '/' + startDate);
         const displayCancelChangeRequestPicker = `
         <div class="modal-dialog">
             <div class="modal-content">
@@ -572,9 +708,7 @@
             console.log('Change service for event: ' + calEvent.id);
             cancelVisitButton.parentNode.removeChild(cancelVisitButton);
             cancelVisitsUntilButton.parentNode.removeChild(cancelVisitsUntilButton);
-        });
-
-            
+        });        
     }
     function displayChangePicker(withButtons) {
             const cancelChangePanel =  `
@@ -699,16 +833,9 @@
             serviceEl.appendChild(listEl);
         });
     }
-    function selectService(serviceID) {
-        console.log(serviceID);
-        currentServiceChosen = serviceID;
-    }
-    function selectTimeWindow(twindow) {
-        console.log(twindow);
-        console.log(twindow);
-    }
 
     var calendar = $('#calendar').fullCalendar('getCalendar');
+
     namespace.LeashtimeCal = new LeashtimeCal;
 
 }(this.materialadmin, jQuery)); 
