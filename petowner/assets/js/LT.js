@@ -147,85 +147,35 @@ var LT = (function() {
 		}
 	}
 	class Visit {
-		/*constructor(appointmentid, 
-							date, 
-							start_time, 
-							end_time,
-							service_label, 
-							charge, 
-							service_code, 
-							status, 
-							arrival_time, 
-							completion_time,
-							visit_report,
-							tax_amt,
-							adjust_amt
-			) {
-			console.log('Arrive:  ' + arrival_time + ' Completion time: ' + completion_time);
-			this.appointmentid = appointmentid;
-			this.status = status;						// completed, INCOMPLETE,  arrived, canceled
-			this.service = service_label;
-			this.service_code = service_code;
+		constructor(visitDictionary) {
+			this.appointmentid = visitDictionary['appointmentid'];
+			this.status = visitDictionary['status'];						// completed, INCOMPLETE,  arrived, canceled
+			this.service = visitDictionary['servicelabel'];
+			this.service_code = visitDictionary['servicecode'];
 
-			this.date = date;     						// YYYY-MM-DD
-			this.time_window_start = start_time;		// HH:MM:SS
-			this.time_window_end = end_time;		// HH:MM:SS
-			this.arrival_time = arrival_time;			 // YYYY-MM-DD HH:MM:SS
-			this.completion_time = completion_time; // YYYY-MM-DD HH:MM:SS
-			this.visitReport = visit_report;			// YYYY-MM-DD HH:MM:SS
-			this.visitNote = '';
-
-			this.charge = parseFloat(charge);
+			this.date = visitDictionary['date'];     						// YYYY-MM-DD
+			this.time_window_start = visitDictionary['starttime'];		// HH:MM:SS
+			this.time_window_end = visitDictionary['endtime'];		// HH:MM:SS
+			this.arrival_time = visitDictionary['arrived'];			 // YYYY-MM-DD HH:MM:SS
+			this.completion_time = visitDictionary['completed']; // YYYY-MM-DD HH:MM:SS
+			this.visitReport = visitDictionary['visit_report'];			// YYYY-MM-DD HH:MM:SS
+			this.visitNote = visitDictionary['note'];
+			this.charge = parseFloat(visitDictionary['charge']);
 			this.surchargeAmount = parseFloat(0);
 			this.isSurchargable = false;
 
-			if (adjust_amt != null) {
+			if (visitDictionary['adjustment'] != null) {
 				this.adjustment = parseFloat(adjust_amt);
 			} else {
 				this.adjustment = parseFloat(0);
 			}
 			
-			if (tax_amt != null) {
+			if (visitDictionary['tax'] != null) {
 				this.tax = parseFloat(tax_amt);
 			} else {
 				this.tax = parseFloat(0);
 			}
 		}
-
-			*/
-
-			constructor(visitDictionary) {
-				this.appointmentid = visitDictionary['appointmentid'];
-				this.status = visitDictionary['status'];						// completed, INCOMPLETE,  arrived, canceled
-				this.service = visitDictionary['servicelabel'];
-				this.service_code = visitDictionary['servicecode'];
-
-				this.date = visitDictionary['date'];     						// YYYY-MM-DD
-				this.time_window_start = visitDictionary['starttime'];		// HH:MM:SS
-				this.time_window_end = visitDictionary['endtime'];		// HH:MM:SS
-				this.arrival_time = visitDictionary['arrived'];			 // YYYY-MM-DD HH:MM:SS
-				this.completion_time = visitDictionary['completed']; // YYYY-MM-DD HH:MM:SS
-				this.visitReport = visitDictionary['visit_report'];			// YYYY-MM-DD HH:MM:SS
-				this.visitNote = visitDictionary['note'];
-				console.log(this.visitNote);
-				this.charge = parseFloat(visitDictionary['charge']);
-				this.surchargeAmount = parseFloat(0);
-				this.isSurchargable = false;
-
-				if (visitDictionary['adjustment'] != null) {
-					this.adjustment = parseFloat(adjust_amt);
-				} else {
-					this.adjustment = parseFloat(0);
-				}
-			
-				if (visitDictionary['tax'] != null) {
-					this.tax = parseFloat(tax_amt);
-				} else {
-					this.tax = parseFloat(0);
-				}
-			}
-
-
 
 		mergeSitterVisitInfo(sitter_visit_dict) {
 			this.clientptr = sitter_visit_dict['clientptr'];
@@ -359,19 +309,6 @@ var LT = (function() {
 			for (let i =0; i < num_visits; i++) {
 				let visit_dict = obj[i];
 				const visit = new Visit(visit_dict);
-				/*const visit = new Visit(visit_dict['appointmentid'],
-					visit_dict['date'], 
-					visit_dict['starttime'],
-					visit_dict['endtime'],
-					visit_dict['servicelabel'],
-					visit_dict['charge'],
-					visit_dict['servicecode'],
-					visit_dict['status'],
-					visit_dict['arrived'],
-					visit_dict['completed'],
-					visit_dict['visitreport'],
-					visit_dict['tax'],
-					visit_dict['adjustment']);*/
 				visit_list.push(visit);
 			}
 			for (let i =0; i < num_visits; i++) {

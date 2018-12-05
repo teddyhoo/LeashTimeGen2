@@ -299,6 +299,7 @@
                     let completeTime = event.completionTime;
                     displayVisitReport(event, titleString, visitNote, arrivalTime, completeTime);
                 }  else {
+                    let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
                     displayCancelChangeRequestPicker(event, titleString);           
                 }
             },
@@ -675,18 +676,33 @@
             let requestServiceButton = document.getElementById('requestServiceButton');
             let untilDate = document.getElementById('untilDate');
             requestServiceButton.addEventListener("click", function(event) {
+
                 let selectDate = document.getElementById("todayDate");
+
                 if (untilDate != '') {
+
                     let momentDate = moment(untilDate.value);
                     let beginDateMoment = moment(startDateService);
                     let dayDiff = momentDate.diff(beginDateMoment, 'days');
-                    console.log('Number of days: ' + dayDiff);
-                    for (let i = 0; i < dayDiff; i++) {
+                    let currentVisitRequestItems = [];
 
-                         let startDate = moment(beginDateMoment).add(i, "days");
-                         let event = {
-                            id : new Date(),
-                            title: currentServiceChosen,
+
+                    for (let i = 1; i <= dayDiff+1; i++) {
+
+                        let startDate = moment(beginDateMoment).add(i, "days");
+                        var now = Date.now() + i;
+                        let serviceName;
+                        let charge;
+                        serviceList.forEach((service) => { 
+                            if (service.serviceCode == currentServiceChosen) {
+                                serviceName = service.serviceName;
+                                charge = service.serviceCharge;
+                            }
+                        })
+
+                        let event = {
+                            id : now,
+                            title: serviceName,
                             note: 'visit note',
                             timeWindow : currentTimeWindowBegin,
                             start : startDate,
@@ -696,16 +712,22 @@
                             color : 'orange',
                             status : 'pending',
                             sitter: 'unassigned',
+                            serviceCharge : charge,
                             isPending: true
                         };
 
-                        console.log(event.start.date() + ' ' + event.end);
+                        console.log('event id: ' + event.id + ' start date: ' + event.start.month() + '/' + event.start.date()  + '/' + event.start.year());
+                        event_visits.push(event);
+                        pendingVisits.push(event);
+                        currentVisitRequestItems.push(event);
+                        $('#calendar').fullCalendar('renderEvent', event, true);
                     }
+                    processServiceRequest(currentVisitRequestItems);
+
                 } else {
                     let momentDate = moment(endDateService);
                     console.log(momentDate.month() + ' ' + momentDate.date() + ' ' + momentDate.year());
                 }
-                //processServiceRequest();
             });
     }
     function displayCancelChangeRequestPicker(calEvent, datePicked) {
@@ -860,37 +882,14 @@
                 event.preventDefault();
             });        
     }
-    function createTableServiceRow (invoiceTable) {
-        let pickedService = '';
-        let newRow = document.createElement('tr');
-        let newDateRow = document.createElement('td');
-        newDateRow.innerHTML = getMonthString(new Date(startDateService)) + ' ' + getTodayNum(new Date(startDateService));
-        let newServiceRow = document.createElement('td');
-        newServiceRow.setAttribute('class','text-center');
-        let newChargeRow = document.createElement('td');
-        newChargeRow.setAttribute('class','text-right');
 
-        serviceList.forEach((service)=> {
-            if (currentServiceChosen == service.serviceCode) {
-                newServiceRow.innerHTML = service.serviceName;
-                pickedService = service.serviceName;
-                newChargeRow.innerHTML = service.serviceCharge;
-            }
-        });
 
-        let newTimeWindowRow = document.createElement('td');
-        newTimeWindowRow.setAttribute('class','text-right');
-        newTimeWindowRow.innerHTML = currentTimeWindowBegin + '-' + currentTimeWindowEnd;
-        newRow.appendChild(newDateRow);
-        newRow.appendChild(newServiceRow);
-        newRow.appendChild(newTimeWindowRow);
-        newRow.appendChild(newChargeRow);
-        invoiceTable.appendChild(newRow);
 
-        return pickedService;
-    }
-    function processServiceRequest (eventItem) {
 
+
+    function processServiceRequest (eventItems) {
+
+        console.log(eventItems.length);
         const invoiceHTML = `
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -928,14 +927,24 @@
                                                         <table class="table">
                                                             <thead>
                                                                 <tr>
-                                                                    <th style="width:40px" class="text-left">DATE</th>
-                                                                    <th style="width:140px" class="text-center">SERVICE</th>
-                                                                    <th style="width:60" class="text-right">TIME</th>
-                                                                    <th style="width:50px" class="text-right">AMT</th>
+                                                                    <th style="width:100px" class="text-left">DATE</th>
+                                                                    <th style="width:100px" class="text-center">SERVICE</th>
+                                                                    <th style="width:30" class="text-right">TIME</th>
+                                                                    <th style="width:30px" class="text-right">AMT</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody id="invoice">
+                                                                ${eventItems.map(function(event) {
+                                                                    let startDate = event.start.date();
 
+                                                                    let startMonth = event.start.month();
+                                                                    let startMonthString = monthsArrStr[startMonth];
+
+                                                                    let startDay = dayArrStr[event.start.day()];
+                                                                    console.log(startDay);
+                                                                    console.log(startDate + ' ' + startMonth);
+                                                                    return "<tr><td>" + startDay + " " + startMonthString + " " + startDate + "</td><td>" + event.title + "</td><td>" + event.timeWindow + "</td><td>" + event.serviceCharge + "</td></tr>"; 
+                                                                })}
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -955,11 +964,8 @@
                     </div>
                 </div>
         `;
-        let invoice = document.getElementById('invoice');
-        let pickedService = createTableServiceRow(invoice);
-       
-
-        $('#calendar').fullCalendar('renderEvent', event, true);
+        let invoice = document.getElementById('formModal3');
+        invoice.innerHTML = invoiceHTML;
     }
     function populateServiceList  (serviceListItems) {
 
@@ -980,7 +986,35 @@
             serviceEl.appendChild(listEl);
         });
     }
+    function createTableServiceRow (invoiceTable) {
+        let pickedService = '';
+        let newRow = document.createElement('tr');
+        let newDateRow = document.createElement('td');
+        newDateRow.innerHTML = getMonthString(new Date(startDateService)) + ' ' + getTodayNum(new Date(startDateService));
+        let newServiceRow = document.createElement('td');
+        newServiceRow.setAttribute('class','text-center');
+        let newChargeRow = document.createElement('td');
+        newChargeRow.setAttribute('class','text-right');
 
+        serviceList.forEach((service)=> {
+            if (currentServiceChosen == service.serviceCode) {
+                newServiceRow.innerHTML = service.serviceName;
+                pickedService = service.serviceName;
+                newChargeRow.innerHTML = service.serviceCharge;
+            }
+        });
+
+        let newTimeWindowRow = document.createElement('td');
+        newTimeWindowRow.setAttribute('class','text-right');
+        newTimeWindowRow.innerHTML = currentTimeWindowBegin + '-' + currentTimeWindowEnd;
+        newRow.appendChild(newDateRow);
+        newRow.appendChild(newServiceRow);
+        newRow.appendChild(newTimeWindowRow);
+        newRow.appendChild(newChargeRow);
+        invoiceTable.appendChild(newRow);
+
+        return pickedService;
+    }
     var calendar = $('#calendar').fullCalendar('getCalendar');
     namespace.LeashtimeCal = new LeashtimeCal;
 
