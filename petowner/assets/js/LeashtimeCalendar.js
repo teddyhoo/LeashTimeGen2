@@ -56,7 +56,7 @@
                     "dataTYPE" : "JSON"
                 }).done((clientdata)=>{
                     petOwnerProfile = LT.getClientProfileInfo(clientdata);
-                    o.createEvents(data, petOwnerProfile);
+                    o.createEvents(data);
                     o.initialize();
                 })
             })
@@ -70,7 +70,9 @@
 
     var p = LeashtimeCal.prototype;
     p.selectService = function(serviceID) {
+
         console.log('service selected with service id: ' + serviceID);
+
     };
     p.initialize = function () {
         this._enableEvents();
@@ -119,14 +121,16 @@
         $('.selected-date').html(moment(selectedDate).format("DD MMMM YYYY"));
         $('.selected-year').html(moment(selectedDate).format("YYYY"));
     };
-    p.createEvents = function(eventData, petOwnerInfo) {
+    p.createEvents = function(eventData) {
+
+        console.log('Calling create events: ');
 
         all_visits = LT.getVisits(eventData);
         surchargeItems = LT.getSurchargeItems(eventData); 
         serviceList = LT.getServiceItems(eventData);
         timeWindowList = LT.getTimeWindows(eventData);
 
-        populateServiceList(serviceList);
+        //populateServiceList(serviceList);
 
         pendingVisits.forEach((pendingVisit) => {
             let eventTitle = pendingVisit.service;
@@ -511,7 +515,6 @@
             })
         })
     }
-
     function displayUncancel(calEvent, datePicked) {
         let appointmentid = calEvent.id;
         let eventStartMoment = moment(calEvent.start);
@@ -552,8 +555,8 @@
         })
     }
     function displayVisitRequest(dateString) {
-        // <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
-
+        
+        console.log(dateString);
         const visitRequestHTML = `
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -612,6 +615,7 @@
 
             let servicePickerModal = document.getElementById('formModal');
             servicePickerModal.innerHTML = visitRequestHTML;
+
             let sPicker = document.getElementById('chooseService');
             let childNodeServiceItems = sPicker.childNodes; 
             childNodeServiceItems.forEach((node)=> {
@@ -622,6 +626,7 @@
                     })
                 }
             });
+
             let twPicker = document.getElementById('chooseTimeWindow');
             let childNodeTW = twPicker.childNodes;
             childNodeTW.forEach((node)=> {
@@ -636,14 +641,12 @@
                     })
                 }
             })
+
             let pickPet = document.getElementById('petPicker');
             let childNodePet = pickPet.childNodes;
             childNodePet.forEach((node)=> {
                 if(node.id != null) {
                     node.addEventListener("click",function(event) {
-
-                        console.log(node.id);
-
                         let re=/(pet)([0-9]+)/;
                         let petNormal = re.exec(node.id)[2];
                         let index = 0;
@@ -652,7 +655,6 @@
 
                         currentPetsChosen.forEach((chosenPet) => {
                             if (petNormal == chosenPet) {
-                                console.log('Found pet in currentChosen: ' + petNormal);
                                 isPetUnchose = true;
                                 popIndex = index;
                                 index = index+1;
@@ -660,33 +662,50 @@
                         })
 
                         if (!isPetUnchose) {
-                            console.log('Adding pet:  ' + petNormal);
                             currentPetsChosen.push(petNormal);
-
                         } else {
-                            console.log('Removing pet: ' + petNormal);
                             currentPetsChosen.splice(popIndex,1);
                         }
-
-                        currentPetsChosen.forEach((pet)=> {
-                            console.log('Current pet chose: ' + pet);
-                        })
-
                     });
-
-
                 }
-            })
+            });
 
             $('#formModal').modal('show');
 
-           
             let requestServiceButton = document.getElementById('requestServiceButton');
+            let untilDate = document.getElementById('untilDate');
             requestServiceButton.addEventListener("click", function(event) {
                 let selectDate = document.getElementById("todayDate");
-                console.log(selectDate);
-                processServiceRequest();
+                if (untilDate != '') {
+                    let momentDate = moment(untilDate.value);
+                    let beginDateMoment = moment(startDateService);
+                    let dayDiff = momentDate.diff(beginDateMoment, 'days');
+                    console.log('Number of days: ' + dayDiff);
+                    for (let i = 0; i < dayDiff; i++) {
 
+                         let startDate = moment(beginDateMoment).add(i, "days");
+                         let event = {
+                            id : new Date(),
+                            title: currentServiceChosen,
+                            note: 'visit note',
+                            timeWindow : currentTimeWindowBegin,
+                            start : startDate,
+                            end : startDate,
+                            arrivalTime : 'none',
+                            completionTime: 'none',
+                            color : 'orange',
+                            status : 'pending',
+                            sitter: 'unassigned',
+                            isPending: true
+                        };
+
+                        console.log(event.start.date() + ' ' + event.end);
+                    }
+                } else {
+                    let momentDate = moment(endDateService);
+                    console.log(momentDate.month() + ' ' + momentDate.date() + ' ' + momentDate.year());
+                }
+                //processServiceRequest();
             });
     }
     function displayCancelChangeRequestPicker(calEvent, datePicked) {
@@ -754,7 +773,6 @@
                         </div>
                     <br>
             `;
-
         })
         cancelVisitsButton.addEventListener("click", function(event) {
 
@@ -872,28 +890,74 @@
         return pickedService;
     }
     function processServiceRequest (eventItem) {
+
+        const invoiceHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header green white-text">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="formModalLabel">SUBMIT PETCARE SERVICE REQUEST</h4>
+                    </div>
+                    <form class="form-horizontal" role="form">
+                        <div class="modal-body">
+                            <section>
+                            <div class="section-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="card card-printable style-default-light">
+                                            <div class="card-head">
+                                                <div class="tools">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-floating-action grey" href="javascript:void(0);" onclick="javascript:window.print();"><i class="md md-print"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body style-default-bright">
+                                                <div class="row">
+                                                    <div class="col-xs-8">
+                                                        <h1 class="text-light"><i class="fa fa-paw fa-fw fa-2x text-accent-dark"> </i> <strong class="text-accent-dark">LEASHTIME</strong></h1>
+                                                    </div>
+                                                    <div class="col-xs-4 text-right">
+                                                        <h1 class="text-light text-default-light">Invoice</h1>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                                           
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width:40px" class="text-left">DATE</th>
+                                                                    <th style="width:140px" class="text-center">SERVICE</th>
+                                                                    <th style="width:60" class="text-right">TIME</th>
+                                                                    <th style="width:50px" class="text-right">AMT</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="invoice">
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </section>
+                        </div>
+                        <div class="modal-footer grey lighten-2">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" id="cancelServiceRequest">CANCEL</button>
+                            <button type="button" class="btn green width-6 white-text" data-dismiss="modal" id="sendVisitRequest">SUBMIT SERVICE REQUEST</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+        `;
         let invoice = document.getElementById('invoice');
         let pickedService = createTableServiceRow(invoice);
-        if (endDateService != null) {
-            let endDateObj = new Date(endDateService);
-            let beginDateObj = new Date(startDateService);
-            let monthEndDate = endDateObj.getMonth()+1;
-            let monthBegDate = beginDateObj.getMonth()+1;
-            let dateMonthEnd = endDateObj.getDate();
-            let dateMonthBeg = beginDateObj.getDate();
-            let momDateMonthEnd = moment([endDateObj.getFullYear(), monthEndDate, dateMonthEnd]);
-            let momDateMonthBeg = moment([beginDateObj.getFullYear(), monthBegDate, dateMonthBeg]);
-            let dayDiff = momDateMonthEnd.diff(momDateMonthBeg, 'days');
-        }
-
-        let monthDay = dayMonth(startDateService);
-        let monthZero = month_zero(startDateService);
-        let yearZero = startDateService.getFullYear();
-        let cleanDate = new Date(yearZero + '-' + monthZero + '-' + monthDay + ' ' + currentTimeWindowBegin);
-        let hoursZero = clean_hour(cleanDate);
-        let minZero = clean_minute(cleanDate);
-        let dateTimeBegin = yearZero + '-' + monthZero + '-' + monthDay + ' ' + hoursZero + ':' + minZero + ':00';
-        let dateTimeBeginDate = new Date(dateTimeBegin);
+       
 
         $('#calendar').fullCalendar('renderEvent', event, true);
     }
