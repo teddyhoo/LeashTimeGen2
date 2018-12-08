@@ -743,31 +743,31 @@
 
 
         const displayCancelChangeRequestPicker = `
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header blue white-text">
-                    <img src="./assets/img/dog0.jpg" width=50 height=60>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
-                </div>
-                <form class="form-horizontal" role="form">
-                    <div class="modal-body">
-                        <div class="input-group-content">
-                            <input type="text" class="form-control" id='cancelChangeText' size=100%>
-                            <label>Note: </label>
-                        </div>
-                        <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
-
-                            <button type="button" class="btn btn-danger" data-dismiss="modal" id='cancelVisitButton'>CANCEL ONLY THIS VISIT</button>
-                            <button type="button" class="btn btn-danger" id='cancelUntilVisitButton'>CANCEL VISITS UNTIL</button>
-                            <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeServiceButton'>CHANGE SERVICE</button>
-
-                                        
-                        </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header blue white-text">
+                        <img src="./assets/img/dog0.jpg" width=50 height=60>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="scheduledVisitAction">${datePicked}</h4>
                     </div>
-                </form>
-            </div>
-        </div>`;
+                    <form class="form-horizontal" role="form">
+                        <div class="modal-body">
+                            <div class="input-group-content">
+                                <input type="text" class="form-control" id='cancelChangeText' size=100%>
+                                <label>Note: </label>
+                            </div>
+                            <div class="modal-footer grey lighten-2" id="cancelChangeButtonPanel">
+
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='cancelVisitButton'>CANCEL ONLY THIS VISIT</button>
+                                <button type="button" class="btn btn-danger" id='cancelUntilVisitButton'>CANCEL VISITS UNTIL</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" id='changeServiceButton'>CHANGE SERVICE</button>
+
+                                            
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>`;
         let modalDiv = document.getElementById('formModal');
         modalDiv.innerHTML = displayCancelChangeRequestPicker;
         $('#formModal').modal('show'); 
@@ -798,7 +798,13 @@
         })
         cancelVisitsButton.addEventListener("click", function(event) {
 
-            console.log('Cancel visit on '  + startMonth + ' ' + startDate);
+            console.log('Cancel: ' + calEvent.id + ' visit on '  + startMonth + ' ' + startDate);
+            event_visits.forEach((visitEvent) => {
+                if (visitEvent.id == calEvent.id) {
+                    console.log('found visit event');
+
+                }
+            })
 
         });
 
@@ -882,11 +888,6 @@
                 event.preventDefault();
             });        
     }
-
-
-
-
-
     function processServiceRequest (eventItems) {
 
         console.log(eventItems.length);
