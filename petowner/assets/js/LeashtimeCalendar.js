@@ -29,10 +29,6 @@
         // |                            LeashtimeCal var                                            | 
         // -------------------------------------------------------------------------
  
-    function fPickService(serviceID) {
-        console.log(serviceID);
-    }
-
     var LeashtimeCal = function () {
         var o = this;
         var todayDate = new Date();
@@ -156,6 +152,9 @@
                     chargeAmt : surcharge.charge,
                     status : surcharge.surchargeAutomatic                    
                 };
+
+                console.log(surcharge.surchargeLabel + ' ' + surcharge.surchargeType + ' automatic: ' + surcharge.isAutomatic);
+
                 event_visits.push(event);
             }
         });
@@ -268,7 +267,8 @@
                 $('#calendar').fullCalendar("unselect");
             },
             eventClick:  function(event, jsEvent, view) {
-                console.log('EVENT CLICK ' + event.status + ' with event id: ' + event.id + ' and status: ' + event.status);
+                console.log('EVENT CLICK ' +event.id+ ' start: ' + event.start + ' end: ' + event.end);
+
                 let apptID = event.id;
                 let startDate = moment(event.start)
                 let dateString = startDate.date();
@@ -283,24 +283,29 @@
                 let endDate = moment(event.end);
                 let endHour = endDate.hour();
                 let endMin = endDate.minute();
+
                 if (endMin == 0) {
                     endMin = '00';
                 }
-                let apptStatus = event.status;
-                console.log(apptStatus);
-                if (apptStatus == 'canceled') {
+
+                if (event.status == 'canceled') {
+
                     let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
                     displayUncancel(event, titleString);
-                } else if (apptStatus == 'completed') {
-                    let titleString = ' VISIT REPORT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title; 
 
+                } else if (event.status == 'completed') {
+
+                    let titleString = ' VISIT REPORT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title; 
                     let visitNote = event.note;
                     let arrivalTime = event.arrivalTime;
                     let completeTime = event.completionTime;
                     displayVisitReport(event, titleString, visitNote, arrivalTime, completeTime);
+
                 }  else {
+
                     let titleString = ' VISIT: ' + dayArrStr[dayOfWeek] + ', ' + monthsArrStr[monthStr] + '  '+ dateString +' <BR>  ' + event.title + '<BR> (' + startHour + ':' + startMin + '-' + endHour + ':' + endMin + ')'; 
-                    displayCancelChangeRequestPicker(event, titleString);           
+                    displayCancelChangeRequestPicker(event, titleString);   
+
                 }
             },
             eventRender: function(event, element){
@@ -716,7 +721,7 @@
                             isPending: true
                         };
 
-                        console.log('event id: ' + event.id + ' start date: ' + event.start.month() + '/' + event.start.date()  + '/' + event.start.year());
+                        //console.log('event id: ' + event.id + ' start date: ' + event.start.month() + '/' + event.start.date()  + '/' + event.start.year());
                         event_visits.push(event);
                         pendingVisits.push(event);
                         currentVisitRequestItems.push(event);
@@ -731,16 +736,20 @@
             });
     }
     function displayCancelChangeRequestPicker(calEvent, datePicked) {
-        console.log('display cancel change request picker: ' + calEvent + ' ' + datePicked);
+        console.log('raw date picked: ' + calEvent.start);
+        console.log('display cancel change request picker: ' + calEvent.start.date() + ' ' + datePicked);
+
+        let pickedDate = calEvent.start.date();
+        let pickedMonth = calEvent.start.month();
+        let pickedYear = calEvent.start.year();
+        let pickedBeginHour = calEvent.start.hour();
+        let pickedBeginMinute = calEvent.start.minute();
+
+        let pickedEndHour = calEvent.end.hour();
+        let pickedEndMinute = calEvent.end.minute();
         let appointmentid = calEvent.id;
-        let eventStartMoment = moment(calEvent.start);
-        let eventEndMoment = moment(calEvent. end);
-        let startMonth = eventStartMoment.month();
-        let startDate = eventStartMoment.date();
-        let startYear = eventStartMoment.year();
 
-        console.log('Month: ' + startMonth + '/' + startDate + '/' + startYear);
-
+        console.log('Picked date: ' + pickedMonth + ' ' + pickedDate + ' ' + pickedYear + ' ' + pickedBeginHour + ':' + pickedBeginMinute + ' --- ' + pickedEndHour + ':' + pickedEndMinute);
 
         const displayCancelChangeRequestPicker = `
             <div class="modal-dialog">
@@ -798,23 +807,22 @@
         })
         cancelVisitsButton.addEventListener("click", function(event) {
 
-            console.log('Cancel: ' + calEvent.id + ' visit on '  + startMonth + ' ' + startDate);
-            event_visits.forEach((visitEvent) => {
-                if (visitEvent.id == calEvent.id) {
-                    console.log('found visit event');
+            console.log('Cancel: ' + calEvent.id + ' visit on '  + calEvent.start.date() + ' ' + calEvent.start.month());
+            calEvent.status = 'canceled'
+            calEvent.isPending = true;
+            calEvent.color = 'red';
+            $('#calendar').fullCalendar('rerenderEvents');
 
-                }
-            })
 
         });
 
 
         cancelVisitsUntilButton.addEventListener("click", function(event) {
-            console.log('Cancel service until button clicked for event: ' + calEvent.id);
             let cancelB = document.getElementById('cancelVisitButton');
             let changeB = document.getElementById('changeServiceButton');
             cancelB.parentNode.removeChild(cancelB);
             changeB.parentNode.removeChild(changeB);
+
             let panel = document.getElementById('cancelChangeButtonPanel');
             const cancelUntilHTML = `
                     <button type="button" class="btn btn-danger" data-dismiss="modal" id='confirmCancelUntil'>CANCEL VISITS UNTIL</button>  
@@ -836,7 +844,29 @@
             let untilDate = document.getElementById('untilDate2');
 
             cancelUntilConfirm.addEventListener("click", function(event) {
-                console.log('confirm from: ' + calEvent.start.date() + calEvent.start.month() + calEvent.start.day() + ' ' + untilDate2.value);       
+                let cancelUntilMoment = moment(untilDate2.value);
+                let beginDateMoment = moment(calEvent.start);
+                let numDaysCancel = cancelUntilMoment.diff(beginDateMoment, "days");
+                console.log('Number cancel days: ' + numDaysCancel);
+
+                for (let i = 0; i <= numDaysCancel; i++) {
+                    let newDate = moment(beginDateMoment);
+                    newDate.add(i, 'day');
+                    event_visits.forEach((event) => {
+                        let startmoment = moment(event.start);
+                        if (startmoment.isSame(newDate)) {
+                            event.status = 'canceled';
+                            event.isPending = true;
+                            event.color = 'red';
+
+                            console.log(event);
+                        }
+                        
+                    });
+                }
+
+            $('#calendar').fullCalendar('rerenderEvents');
+
             })
         });
     }
@@ -1020,4 +1050,14 @@
     namespace.LeashtimeCal = new LeashtimeCal;
 
 }(this.materialadmin, jQuery)); 
+
+
+
+
+
+
+
+
+
+
 

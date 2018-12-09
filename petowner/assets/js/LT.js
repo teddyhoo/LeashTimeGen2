@@ -241,7 +241,25 @@ var LT = (function() {
 		}
 	}
 	class SurchargeItem {
-		constructor(surchargeTypeID, surchargeCharge, surchargeLabel, surchargeDescription, surchargeAutomatic, surchargePervisit,surchargeType, surchargeDate) {
+
+		constructor(surchargeDictionary) {
+			this.surchargeTypeID = surchargeDictionary['surchargetypeid'];
+			this.charge = surchargeDictionary['charge'];
+			this.surchargeLabel = surchargeDictionary['label'];
+			this.description = surchargeDictionary['description'];
+			this.surchargeAutomatic = surchargeDictionary['automatic'];
+			this.perVisit = surchargeDictionary['pervisit'];
+			this.surchargeType = surchargeDictionary['type'];
+			if(this.surchargeType != 'holiday' && this.surchargeType != 'other') {
+				let sKeys = Object.keys(surchargeDictionary);
+				sKeys.forEach((key) => {
+					console.log(key + '--> ' + surchargeDictionary[key]);
+				}) 
+			}
+			this.surchargeDate = surchargeDictionary['date'];
+
+		}
+		/*constructor(surchargeTypeID, surchargeCharge, surchargeLabel, surchargeDescription, surchargeAutomatic, surchargePervisit,surchargeType, surchargeDate) {
 			this.surchargeTypeID = surchargeTypeID;
 			this.charge = surchargeCharge;
 			this.surchargeLabel = surchargeLabel;
@@ -250,7 +268,17 @@ var LT = (function() {
 			this.surchargeDate = surchargeDate;
 			this.surchargeType = surchargeType;
 			this.perVisit = surchargePervisit;
-		}
+		}*/
+
+
+		/*const surcharge = new SurchargeItem(surcharge_dict['surchargetypeid'],
+		surcharge_dict['charge'],
+		surcharge_dict['label'],
+		surcharge_dict['description'], 
+		surcharge_dict['automatic'],
+		surcharge_dict['pervisit'],
+		surcharge_dict['type'],
+		surcharge_dict['date']);*/
 	}
 
 	// ********************************************************************************************
@@ -358,15 +386,13 @@ var LT = (function() {
 			let num_surcharge_items  = sObj.length;
 			for (let t = 0; t < num_surcharge_items ; t++) {
 				let surcharge_dict = sObj[t];
-				const surcharge = new SurchargeItem(surcharge_dict['surchargetypeid'],
-					surcharge_dict['charge'],
-					surcharge_dict['label'],
-					surcharge_dict['description'], 
-					surcharge_dict['automatic'],
-					surcharge_dict['pervisit'],
-					surcharge_dict['type'],
-					surcharge_dict['date']);
-
+				let surchargeDicKeys = Object.keys(surcharge_dict);
+				surchargeDicKeys.forEach((sKey) => {
+					//if (sKey == 'type'){
+						//console.log(sKey + ' ' + surcharge_dict[sKey]);
+					//}
+				});
+				const surcharge = new SurchargeItem(surcharge_dict);
 				surcharge_list.push(surcharge);
 			}
 		});
