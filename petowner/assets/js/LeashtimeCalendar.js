@@ -152,9 +152,6 @@
                     chargeAmt : surcharge.charge,
                     status : surcharge.surchargeAutomatic                    
                 };
-
-                console.log(surcharge.surchargeLabel + ' ' + surcharge.surchargeType + ' automatic: ' + surcharge.isAutomatic);
-
                 event_visits.push(event);
             }
         });
@@ -848,7 +845,7 @@
                 let beginDateMoment = moment(calEvent.start);
                 let numDaysCancel = cancelUntilMoment.diff(beginDateMoment, "days");
                 console.log('Number cancel days: ' + numDaysCancel);
-
+                let changedEvents = [];
                 for (let i = 0; i <= numDaysCancel; i++) {
                     let newDate = moment(beginDateMoment);
                     newDate.add(i, 'day');
@@ -858,15 +855,14 @@
                             event.status = 'canceled';
                             event.isPending = true;
                             event.color = 'red';
+                            changedEvents.push(event);
+                            //$('#calendar').fullCalendar('render');  
 
                             console.log(event);
                         }
-                        
                     });
+                    $('#calendar').fullCalendar('renderEvents', changedEvents);      
                 }
-
-            $('#calendar').fullCalendar('rerenderEvents');
-
             })
         });
     }

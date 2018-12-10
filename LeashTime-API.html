@@ -12,7 +12,7 @@
                 background-size: cover;
                 width: 320px;
                 height: 32px;
-                padding-left: 5px;
+                padding-left: 25px;
                 color:Tomato;
           }
         h4 {
@@ -22,6 +22,14 @@
                 height: 32px;
                 padding-left: 40px;
                 color:DodgerBlue;
+        }
+        h1 {
+                padding-left: 40px;
+                color:black;
+        }
+         h2 {
+                padding-left: 40px;
+                color:black;
         }
         </style>
 </head>
@@ -180,7 +188,6 @@
 
                 <p>when no parameters supplied, {"error": "No environment lists requested."}
 
-<h1>Visit Report</h1>
 
 <h1>Pet Owner Requests</h1>
 
@@ -249,99 +256,107 @@
 
 <h1>VISIT REPORTS</h1>
 
-More to come...
+<p>More to come...
 
 <h3>visit-report-list-ajax.php</h3>
 
-returns a list of visit reports for one client
-requires a pre-existing session
-callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
+<p> returns a list of visit reports for one client, requires a pre-existing session callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
 
 <h3>parameters</h3>
 
-<ul>
-<li>clientid (for manager UI use only)
-start - optional - YYYY-MM-DD
-end - optional - YYYY-MM-DD
-returns JSON array 
-or {"error":"no reports found"} 
-or {"error":"session not active"} if expired session/no session/insufficient access rights
-see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
+    <ul>
+        <li>clientid (for manager UI use only)
+        <li>start - optional - YYYY-MM-DD
+        <li>end - optional - YYYY-MM-DD
+    </ul>
+
+    <h4>returns</h4>
+    <ul>
+        <li>JSON array 
+        <li>or {"error":"no reports found"} 
+        <li>or {"error":"session not active"} if expired session/no session/insufficient access rights
+        <li>see also: https://leashtime.co
+    </ul>
 
 <h3>visit-report-data.php</h3>
 
-<p>returns visit report data in JSON form for what may be a non-logged-in client
-or {"error":"session not active"} if expired session/no session/insufficient access rights
-can be called in three different modes
-<ul>
-    <li>with a "nugget" if there is no session extant <br>e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
-    <li>to generate a URL with a nugget in the context of a logged in manager, as in example above <br>e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
-<li>with simply a visit id to get the data when a session is extant<br>e.g., https://leashtime.com/visit-report-data.php?id=207526
+    <h4>returns</h4> 
+        <ul>
+            <li>visit report data in JSON form for what may be a non-logged-in client
+            <li>or {"error":"session not active"} if expired session/no session/insufficient access rights
+            <li>can be called in three different modes
+            <li>with a "nugget" if there is no session extant <br>e.g., https:/LeashTime.com/visit-report-data.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95
+            <li>to generate a URL with a nugget in the context of a logged in manager, as in example above <br>e.g., https://leashtime.com/visit-report-data.php?id=207526&generate=1
+            <li>with simply a visit id to get the data when a session is extant<br>e.g., https://leashtime.com/visit-report-data.php?id=207526
+        </ul>
 
-<p>So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
+        <p>So... if you have a logged in client, passing in the id parameter is sufficient to retrieve the report JSON.
 
-<p>If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
+        <p>If you have a nugget that was received, perhaps, as part of an email message, you can supply that nugget to visit-report-data.php and get the JSON that way.
 
-<h3>The "generate" option is primarily for testing</h3>
+        <h4>The "generate" option is primarily for testing</h4>
 
-<p>Here is a sample VR JSON array:
+        <p>Here is a sample VR JSON array:
 
-<ul>
-<li>BIZNAME "Dog's Life"
-<li>BIZSHORTNAME    "Dog's Life"
-<li>BIZEMAIL    "dogslife69@yahoo.com"
-<li>BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
-<li>BIZPHONE    "703 555 1212"
-<li>BIZADDRESS1 "123 Main Street "
-<li>BIZADDRESS2 "  "
-<li>BIZCITY " Vienna "
-<li>BIZSTATE    " VA "
-<li>BIZZIP  " 22180"
-<li>BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
-<li>CLIENTID    "2025"
-<li>CLIENTFNAME "Carly"
-<li>CLIENTLNAME "Carolina"
-<li>SITTERID    "2"
-<li>SITTER  "Ben Ball"
-<li>ARRIVED "2018-11-07 11:15:30"
-<li>COMPLETED   "2018-11-07 11:23:49"
-<li>MOODBUTTON  
-<li>cat "0"
-<li>happy   "1"
-<li>hungry  "0"
-<li>litter  "0"
-<li>pee "1"
-<li>play    "0"
-<li>poo "1"
-<li>sad "0"
-<li>shy "0"
-<li>sick    "0"
-<li>MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
-<li>VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
-<li>NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
-<li>PETS    "Lilly"
-<li>PETSENGLISH "Lilly"
-</ul>
+        <ul>
+            <li>BIZNAME "Dog's Life"
+            <li>BIZSHORTNAME    "Dog's Life"
+            <li>BIZEMAIL    "dogslife69@yahoo.com"
+            <li>BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
+            <li>BIZPHONE    "703 555 1212"
+            <li>BIZADDRESS1 "123 Main Street "
+            <li>BIZADDRESS2 "  "
+            <li>BIZCITY " Vienna "
+            <li>BIZSTATE    " VA "
+            <li>BIZZIP  " 22180"
+            <li>BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
+            <li>CLIENTID    "2025"
+            <li>CLIENTFNAME "Carly"
+            <li>CLIENTLNAME "Carolina"
+            <li>SITTERID    "2"
+            <li>SITTER  "Ben Ball"
+            <li>ARRIVED "2018-11-07 11:15:30"
+            <li>COMPLETED   "2018-11-07 11:23:49"
+            <li>MOODBUTTON  
+            <li>cat "0"
+            <li>happy   "1"
+            <li>hungry  "0"
+            <li>litter  "0"
+            <li>pee "1"
+            <li>play    "0"
+            <li>poo "1"
+            <li>sad "0"
+            <li>shy "0"
+            <li>sick    "0"
+            <li>MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
+            <li>VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
+            <li>NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
+            <li>PETS    "Lilly"
+            <li>PETSENGLISH "Lilly"
+        </ul>
 
 
-<p>I augmented the <b>visit-report-data.php</b> script with nugget-flavored photo and map URLs.  See below.
+        <p>I augmented the <b>visit-report-data.php</b> script with nugget-flavored photo and map URLs.  See below.
 
-<h3>visit-report-list-ajax.php</h3>
+    <h3>visit-report-list-ajax.php</h3>
 
-<p>returns a list of visit reports for one client
-<p>requires a pre-existing session
-<p>callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
-<h4>parameters</h4>
+    <ul>
+        <li>returns a list of visit reports for one client
+        <li>requires a pre-existing session
+        <li>callable by manager (with clientid parameter supplied) or by client (client's session provides the clientid)
+    </ul>
+    
+    <h4>parameters</h4>
 
-<ul>
-<li>clientid (for manager UI use only)
-<li>start - optional - YYYY-MM-DD
-<li>end - optional - YYYY-MM-DD
-<li>returns JSON array 
-<li>or {"error":"no reports found"} 
-<li>or {"error":"session not active"} if expired session/no session/insufficient access rights
-<li>see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
-</ul>
+    <ul>
+        <li>clientid (for manager UI use only)
+        <li>start - optional - YYYY-MM-DD
+        <li>end - optional - YYYY-MM-DD
+        <li>returns JSON array 
+        <li>or {"error":"no reports found"} 
+        <li>or {"error":"session not active"} if expired session/no session/insufficient access rights
+        <li>see also: https://leashtime.com/visit-report-list-test.phphttps://leashtime.com/visit-report-list-test.php
+    </ul>
 
 <h3>visit-report-data.php</h3>
 
@@ -372,45 +387,46 @@ If you have a nugget that was received, perhaps, as part of an email message, yo
 <li>VISITPHOTONUGGETURL  - should be used only when the client is NOT logged in.
 </ul>
 Here is a sample VR JSON array:
- 
-
-
-BIZNAME "Dog's Life"
-BIZSHORTNAME    "Dog's Life"
-BIZEMAIL    "dogslife69@yahoo.com"
-BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
-BIZPHONE    "703 555 1212"
-BIZADDRESS1 "123 Main Street"
-BIZADDRESS2 ""
-BIZCITY "Vienna "
-BIZSTATE    "VA "
-BIZZIP  "22180"
-BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
-CLIENTID    "2025"
-CLIENTFNAME "Carly"
-CLIENTLNAME "Carolina"
-SITTERID    "2"
-SITTER  "B.B."
-ARRIVED "2018-11-07 11:15:30"
-COMPLETED   "2018-11-07 11:23:49"
-MOODBUTTON  
-cat "0"
-happy   "1"
-hungry  "0"
-litter  "0"
-pee "1"
-play    "0"
-poo "1"
-sad "0"
-shy "0"
-sick    "0"
-MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
-MAPROUTENUGGETURL   "https://LeashTime.com/appointment-map.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
-VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
-VISITPHOTONUGGETURL "https://LeashTime.com/appointment-photo.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
-NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
-PETS    "Lilly"
-PETSENGLISH "Lilly"
+<ul> 
+<li>BIZNAME "Dog's Life"
+<li>BIZSHORTNAME    "Dog's Life"
+<li>BIZEMAIL    "dogslife69@yahoo.com"
+<li>BIZHOMEPAGE "http://s179641890.onlinehome.us/test/dogslifehome.html"
+<li>BIZPHONE    "703 555 1212"
+<li>BIZADDRESS1 "123 Main Street"
+<li>BIZADDRESS2 ""
+<li>BIZCITY "Vienna "
+<li>BIZSTATE    "VA "
+<li>BIZZIP  "22180"
+<li>BIZLOGINPAGE    "http://leashtime.com/login-page.php?bizid=3"
+<li>CLIENTID    "2025"
+<li>CLIENTFNAME "Carly"
+<li>CLIENTLNAME "Carolina"
+<li>SITTERID    "2"
+<li>SITTER  "B.B."
+<li>ARRIVED "2018-11-07 11:15:30"
+<li>COMPLETED   "2018-11-07 11:23:49"
+<li>MOODBUTTON  
+    <ul>
+        <li>cat "0"
+        <li>happy   "1"
+        <li>hungry  "0"
+        <li>litter  "0"
+        <li>pee "1"
+        <li>play    "0"
+        <li>poo "1"
+        <li>sad "0"
+        <li>shy "0"
+        <li>sick    "0"
+    </ul>
+<li>MAPROUTEURL "https://LeashTime.com/appointment-map.php?id=207526"
+<li>MAPROUTENUGGETURL   "https://LeashTime.com/appointment-map.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
+<li>VISITPHOTOURL   "https://LeashTime.com/appointment-photo.php?id=207526"
+<li>VISITPHOTONUGGETURL "https://LeashTime.com/appointment-photo.php?nugget=jtFZXCCTeOeZ4kGwLcoAMkzTdRrf%2BP95"
+<li>NOTE    "Just a nice little trip around Capitol Hill. This is sample visit report with new template."
+<li>PETS    "Lilly"
+<li>PETSENGLISH "Lilly"
+</ul>
 
 <h3>client-own-schedule-change.php</h3>
 
@@ -428,27 +444,29 @@ PETSENGLISH "Lilly"
 [{"id":<required visit id>, "note":<optional text>}, {"id":...}, ...]
 
 <p>Returns JSON
-{"status":"ok", "requestid":<a request id}
-{"error":"no active session"}
+<p>{"status":"ok", "requestid":request id}
+<p>{"error":"no active session"}
 
 
-NOTES
+<p>NOTES
 
-This script generates a new type of client request: schedulechange.  The editor for this request type is under construction.
+<p>This script generates a new type of client request: schedulechange.  The editor for this request type is under construction.
 
-Besides allowing multiple visits across many days to be altered in one server call, this new request type preserves a record of the state of the visits at the time the request was created.  This will allow for review of pre-request states and preserve the state of visits which are later deleted.  The preserved details are:
+<p>Besides allowing multiple visits across many days to be altered in one server call, this new request type preserves a record of the state of the visits at the time the request was created.  This will allow for review of pre-request states and preserve the state of visits which are later deleted.  The preserved details are:
 
-date
-timeofday
-servicecode
-appointmentid
-providerptr
-note
-charge
-adjustment
-rate
-bonus
-When the schedulechange has been built, I will write scripts that return (as JSON) client request history (for one client or all clients, for a date range, with a limit), and request details.
+    <ul>
+        <li>date
+        <li>timeofday
+        <li>servicecode
+        <li>appointmentid
+        <li>providerptr
+        <li>note
+        <li>adjustment
+        <li>rate
+        <li>bonus
+    </ul>
+
+<p>When the schedule change has been built, I will write scripts that return (as JSON) client request history (for one client or all clients, for a date range, with a limit), and request details.
 
 
 </body>

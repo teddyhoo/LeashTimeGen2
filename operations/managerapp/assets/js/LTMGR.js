@@ -221,6 +221,7 @@ var LTMGR = (function() {
 			this.customFields = customFieldsLocal;
 		}
 	};
+
 	function getSitters(){
 
 		return sitterList;
@@ -324,18 +325,18 @@ var LTMGR = (function() {
 		let total_duration_check= 0;
 		let route_index = 0;
 		route_legs.forEach((leg)=> {
-			console.log('---> Leg #' + num_legs);
-			console.log('Summary: ' + leg.summary);
-			console.log('Segment waypont: ' + waypoints[route_index].name);
+			//console.log('---> Leg #' + num_legs);
+			//console.log('Summary: ' + leg.summary);
+			//console.log('Segment waypont: ' + waypoints[route_index].name);
 			let waypointInfo = waypoints[route_index];
 			let waypointKeys = Object.keys(waypointInfo);
 			waypointKeys.forEach((wKey)=> {
-				console.log('------waypoint key-----> ' + wKey + ' -> ' + waypointInfo[wKey]);
+				//console.log('------waypoint key-----> ' + wKey + ' -> ' + waypointInfo[wKey]);
 			})
-			console.log('     --------> Distance: ' + leg.distance);
-			console.log('     --------> Duration: ' + leg.duration);
-			console.log('     --------> Weight: ' + leg.weight);
-			console.log('     --------> Steps: ' + leg.steps);
+			//console.log('     --------> Distance: ' + leg.distance);
+			//console.log('     --------> Duration: ' + leg.duration);
+			//console.log('     --------> Weight: ' + leg.weight);
+			//console.log('     --------> Steps: ' + leg.steps);
 
 			let step_arr = leg.steps;
 			let step_keys = Object.keys(step_arr);
@@ -354,7 +355,6 @@ var LTMGR = (function() {
 		});
 	}
 	function getDistanceMatrixPair(distanceMatrixLookupInfo) {
-
 	}
 
 	return {
