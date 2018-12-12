@@ -1,18 +1,12 @@
 ;(function(global, $) {
 
-  /*var VisitReport = function(vrdate,starttime,endtime,timeofday,appointmentid,providerptr,servicecode,charge,adjustment,rate,bonus,packagetype,vrstatus,hours,formattedhours,arrived,completed,servicelabel,tax,businessname,clientservicelabel,sitter,BIZEMAIL,BIZHOMEPAGE,BIZPHONE,BIZADDRESS1,BIZCITY,BIZSTATE,BIZZIP,BIZLOGINPAGE,SITTERID,SITTER,ARRIVED,COMPLETED,MAPROUTEURL,PHOTOURL,NOTE,PETS,service01,service02) {
-    return new VisitReport.init(vrdate,starttime,endtime,timeofday,appointmentid,providerptr,servicecode,charge,adjustment,rate,bonus,packagetype,vrstatus,hours,formattedhours,arrived,completed,servicelabel,tax,businessname,clientservicelabel,sitter,BIZEMAIL,BIZHOMEPAGE,BIZPHONE,BIZADDRESS1,BIZCITY,BIZSTATE,BIZZIP,BIZLOGINPAGE,SITTERID,SITTER,ARRIVED,COMPLETED,MAPROUTEURL,PHOTOURL,NOTE,PETS,service01,service02);
-
-
-  }*/
+  const  dayArrStr = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const monthsArrStr = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  
   var VisitReport = function(visitDictionary) {
       console.log(visitDictionary);
       return new VisitReport.init(visitDictionary);
-
   }
-
-  //Privates
-//  var currentStatus = ['complete','late', 'pending', 'canceled'];
   
   var statusMessages = {
       complete: 'Visit Complete',
@@ -20,7 +14,7 @@
       canceled: 'Service Canceled',
       late:     'Running Late'
   }
-   var MOODBUTTON = { 
+  var MOODBUTTON = { 
      cat : "0",
      happy : "1", 
      hungry : "0", 
@@ -31,7 +25,7 @@
      sad : "0", 
      shy : "0", 
      sick : "0" 
-   }
+  }
    
   VisitReport.prototype = {
     
@@ -46,15 +40,14 @@
     
     setPhoto : function() {
       var imgHolder = document.getElementById('imgHolder');
-      imgHolder.style.backgroundImage = 'url("' + this.PHOTOURL + '")';
+      imgHolder.style.backgroundImage = 'url("' + this.VISITPHOTOURL + '")';
     },
     
     setMap : function() {
       document.getElementById('vrMap').setAttribute('src', this.MAPROUTEURL);
     },
-    
     swapPhotoMap : function() {
-      vrPhoto = this.PHOTOURL;
+      vrPhoto = this.VISITPHOTOURL;
       vrMap = this.MAPROUTEURL;
       imgTracker = 'vrPhoto';
       imgHolder = document.getElementById('imgHolder');
@@ -68,35 +61,16 @@
          image_tracker='vrPhoto';
         }
       },
-    
-//    setStatusMessage : function(complete) {
-//      var msg;
-//      
-//      if(complete){
-//        this.statusMsg = setStatus();
-//      } else {
-//        this.statusMsg = 'Status Incomplete';
-//      }
-//      
-//      if (console){
-//        console.log(statusMsg);
-//      }
-//
-//      return statusMessages.vrStatus;
-//    },
-//    
     log : function(){
       if (console){
         console.log(this.vrID+': '+setStatus[this.vrStatus]);
       }
       return this;
     },
-    
     setNewStatusMessage: function(newStatus){
       this.vrstatus = newStatus;
       this.setStatusMessage();
-      return this;
-    
+      return this;  
     },
     
     HTMLContent : function(selector, status){
@@ -131,49 +105,53 @@
   VisitReport.init = function(visitDictionary) {
     
     var self = this;
+    this.BIZNAME = visitDictionary['BIZNAME'];
+    this.BIZSHORTNAME = visitDictionary['BIZSHORTNAME'];
+    this.BIZEMAIL = visitDictionary['BIZEMAIL'];
+    this.BIZHOMEPAGE = visitDictionary['BIZHOMEPAGE'];
+    this.BIZADDRESS1 = visitDictionary['BIZADDRESS1'];
+    this.BIZADDRESS2 = visitDictionary['BIZADDRESS2'];
+    this.BIZCITY = visitDictionary['BIZCITY'];
+    this.BIZSTATE = visitDictionary['BIZSTATE'];
+    this.BIZZIP = visitDictionary['BIZZIP'];
+    this.BIZLOGINPAGE = visitDictionary['BIZLOGINPAGE'];
+    this.CLIENTID = visitDictionary['CLIENTID'];
+    this.CLIENTFNAME = visitDictionary['CLIENTFNAME'];
+    this.CLIENTLNAME = visitDictionary['CLIENTLNAME'];
+    this.PETOWNER = this.CLIENTFNAME + ' ' + this.CLIENTLNAME;
+    let arriveRaw = visitDictionary['ARRIVED'];
+    let completeRaw = visitDictionary['COMPLETED'];
 
-    this.vrdate = visitDictionary['vrdate'];
-    this.starttime = visitDictionary['starttime'];
-    this.businessname = visitDictionary['businessname'];
-    self.endtime = visitDictionary['endtime'];
-    //self.timeofday = visitDictionary['timeofday'];
-    //self.appointmentid = visitDictionary['appointmentid'];
-    //self.providerptr = visitDictionary['providerptr'];
-    //self.servicecode = visitDictionary['servicecode'];
-    //self.charge = visitDictionary['charge'];
-    /*self.adjustment = adjustment || '';
-    self.rate = rate || '';
-    self.bonus = bonus || '';
-    self.packagetype = packagetype || '';
-    self.vrstatus = vrstatus || '';
-    self.hours = hours || '';
-    self.formattedhours = formattedhours || '';*/
-    self.arrived = visitDictionary['arrived'];
-    self.completed = visitDictionary['completed'];
-    self.servicelabel = visitDictionary['servicelabel'];
-    //self.tax = tax || '';
-    //self.clientservicelabel = clientservicelabel || '';
-    //self.sitter = sitter || '';
-    self.BIZEMAIL = visitDictionary['BIZEMAIL'];
-    self.BIZHOMEPAGE = visitDictionary['BIZHOMEPAGE'];
-    self.BIZPHONE = visitDictionary['BIZPHONE'];
-    self.BIZADDRESS1 = visitDictionary['BIZADDRESS1'];
-    self.BIZCITY = visitDictionary['BIZCITY'];
-    self.BIZSTATE = visitDictionary['BIZSTATE'];
-    self.BIZZIP = visitDictionary['BIZZIP'];
-    self.BIZLOGINPAGE = visitDictionary['BIZLOGINPAGE'];;
-    //self.SITTERID = SITTERID || '';
-    //self.SITTER = SITTER || '';
-    //self.ARRIVED = ARRIVED || '';
-    //self.COMPLETED = COMPLETED || '';
-    //self.MAPROUTEURL = MAPROUTEURL || '';
-    self.PHOTOURL = visitDictionary['PHOTOURL'];
-    self.NOTE = visitDictionary['note'];
-    self.PETS = visitDictionary['PETS'];
-    //self.service01 = service01 || '';
-    //self.service02 = service02 || '';
-    
-    self.statusMsg =  self.setStatus()
+    let reArrComp =/[0-9]+:[0-9]+/;
+    let re=/[0-9]+-[0-9]+-[0-9]+/;
+
+    this.ARRIVED = reArrComp.exec(arriveRaw);
+    this.COMPLETED = reArrComp.exec(completeRaw);
+    this.vrdate =re.exec(arriveRaw);
+
+
+    this.NOTE = visitDictionary['NOTE'];
+    this.PETS = visitDictionary['PETS'];
+    this.MAPROUTEURL = visitDictionary['MAPROUTEURL'];
+    this.MAPROUTENUGGETURL = visitDictionary['MAPROUTENUGGETURL'];
+    this.VISITPHOTOURL = visitDictionary['VISITPHOTOURL'];
+    this.VISITPHOTONUGGETURL = visitDictionary['VISITPHOTONUGGETURL'];
+
+    this.moodButtons = visitDictionary['MOODBUTTON'];
+    this.sitterDict = visitDictionary['SITTER'];
+
+    if (this.sitterDict.none == true) {
+      this.SITTER = this.BIZSHORTNAME;
+    } else {
+      this.SITTER = sitterDict.sittername;
+    }
+
+
+    this.serviceLabel = 'Service';
+
+
+
+    //self.statusMsg =  self.setStatus()
   }
   
   VisitReport.init.prototype = VisitReport.prototype;
@@ -181,3 +159,24 @@
   global.VisitReport = global.VR$ = VisitReport;
     
 }(window, jQuery));
+
+
+
+
+//    setStatusMessage : function(complete) {
+//      var msg;
+//      
+//      if(complete){
+//        this.statusMsg = setStatus();
+//      } else {
+//        this.statusMsg = 'Status Incomplete';
+//      }
+//      
+//      if (console){
+//        console.log(statusMsg);
+//      }
+//
+//      return statusMessages.vrStatus;
+//    },
+//    
+

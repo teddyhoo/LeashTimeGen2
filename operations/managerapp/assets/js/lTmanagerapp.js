@@ -104,11 +104,13 @@
                     });
             });
 
+            console.time('BeginPromise');
             loginPromise.then(function(done) {
                 console.log('Promise done');
                 LTMGR.getManagerData();
                 LTMGR.getManagerVisits();
                 LTMGR.getManagerClients();
+                console.timeEnd('BeginPromise');
                 console.log(done);
                 return done;
             })
@@ -265,7 +267,7 @@
 
             return popupBasicInfo;
         }
-        function createSitterPopupWithMileage(sitterInfo, mileageInfo) {
+        function createSitterPopupWithMileage(sitterInfo, mileageInfo, visitList) {
 
             let popupBasicInfo = '<h1>'+sitterInfo.sitterName+'</h1>';
             popupBasicInfo += '<p>'+sitterInfo.street1 +',  ' + sitterInfo.city + '</p>';
@@ -289,10 +291,10 @@
                 total_dist_check = total_dist_check + parseFloat(leg.distance);
                 total_duration_check = total_duration_check + parseFloat(leg.duration);
                 if (route_index == 0) {
-                first_distance = leg.distance;
+                    first_distance = leg.distance;
                 }
                 if (route_index == distanceResponse.legs.length - 1) {
-                last_distance = leg.distance
+                    last_distance = leg.distance
                 }
             });
             total_miles = total_miles + (total_distance * .62137);
@@ -300,8 +302,18 @@
             total_distance = total_distance * .62137;
             let per_visit_distance = total_distance / (waypoints.length-2);
             let per_visit_duration = total_duration / (waypoints.length-2);
-            popupBasicInfo += '<p>Total Miles: ' + total_distance + ', Duration: ' + total_duration;
-            popupBasicInfo += '<p>Number of visits: </p>';
+            popupBasicInfo += '<p>Total Miles: ' + total_distance + '<BR>';
+            popupBasicInfo += '<p> Duration: ' + total_duration + '<BR>';
+            popupBasicInfo += '<p>Number of visits: </p><BR>';
+            popupBasicInfo += '<ul>';
+            visitList.forEach((visit)=> {
+                popupBasicInfo += '<li>' + visit.clientName;
+                if(visit.sitterName == sitterInfo.sitterName) {
+                    createMapMarker(visit, "");
+                }
+            })
+            popupBasicInfo += '</ul>';
+
             popupBasicInfo += '<p><img src=\"./assets/img/postit\-20x20.png\" width=20 height=20>&nbsp&nbsp<input type=\"text\" name=\"messageSitter\" id=\"messageSitter\"></p>';
 
             return popupBasicInfo;
@@ -314,13 +326,13 @@
             return popupVR;
         }     
 
-        function createSitterMapMarkerWithMileage(sitterInfo, mileageInfo) {
+        function createSitterMapMarkerWithMileage(sitterInfo, mileageInfo, visitList) {
             let el = document.createElement('div');
             let latitude = parseFloat(sitterInfo.sitterLat);
             let longitude = parseFloat(sitterInfo.sitterLon);
             let popupView;
             if (latitude != null && longitude != null && latitude < 90 && latitude > -90) {
-                popupView = createSitterPopupWithMileage(sitterInfo, mileageInfo);
+                popupView = createSitterPopupWithMileage(sitterInfo, mileageInfo, visitList);
                 el.class = 'sitter';
                 el.id = 'sitter';
 
@@ -593,6 +605,7 @@
             removeAllMapMarkers();
             let sitterProfile;
             let hasVisits = false;
+            let showSitterVisitList = [];
 
             allSitters.forEach((sitter)=> {
                 if (sitter.status == 1) {
@@ -600,21 +613,16 @@
                     allVisits.forEach((visit) => {
                         if (visit.sitterID == sitter.sitterID) {
                             hasVisits = true;
-                            
+                            showSitterVisitList.push(visit);     
                         }
                     });
                     if (hasVisits) {
-                        console.log('SITTER: ' + sitter.sitterName + ' has visits');
                         trackSitterMileage.forEach((sitterMiles) => {
                             if (sitterMiles.sitterID == sitter.sitterID) {
-                                console.log('And has mileage: ');
-                                createSitterMapMarkerWithMileage(sitter, sitterMiles);
+                                createSitterMapMarkerWithMileage(sitter, sitterMiles,showSitterVisitList);
                                 let distanceResponse = sitterMiles.route;
                                 let waypoints = sitterMiles.waypoints;
                                 let sitterID = sitterMiles.sitterID;
-      
-
-
                                 let total_distance = distanceResponse.distance/1000;
                                 let total_duration = distanceResponse.duration/60;
                                 let route_legs = distanceResponse.legs;
@@ -645,11 +653,6 @@
                                 total_distance = total_distance * .62137;
                                 let per_visit_distance = total_distance / (waypoints.length-2);
                                 let per_visit_duration = total_duration / (waypoints.length-2);
-
-                                //console.log('Sitter Total Distance: ' + total_distance + ' avg: ' + per_visit_distance);
-                                //.log('First: ' + first_distance + ' Last: ' + last_distance);
-                                //console.log('Sitter Total Duration: ' + total_duration + ' avg: ' + per_visit_duration);
-                                //console.log('TOTAL MILES:  ' + total_miles);
 
                                 if (total_duration_all > 60) {
                                     let total_hr = parseInt(total_duration_all / 60);

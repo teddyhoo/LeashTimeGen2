@@ -69,7 +69,7 @@
                 <div class="divide"></div>
                 <div class="card style-info small-padding">
                   <div class="card-head card-head-xs">
-                    <header><span class="vrd text-lg" data-vrdata="businessname">[Business Name]</span></header>
+                    <header><span class="vrd text-lg" data-vrdata="BIZNAME">[BIZNAME]</span></header>
                   </div>
                   <div class="card-body p-t-5 p-b-5">
                     <div>
@@ -84,12 +84,12 @@
                   <div class="text-right">
                     <span> 
                   <a class="btn btn-info ink-reaction btn-raised btn-xs  m-r-5" role="button" style="background-color:rgba(0,0,0,.1)">
-                    <span class="vrd2" data-vrdata="BIZEMAILLINK">SEND EMAIL</span>
+                    <span class="vrd2" data-vrdata="BIZEMAIL">SEND EMAIL</span>
                     </a>
                     </span>
                     <span>
                   <a class="btn btn-info ink-reaction btn-raised btn-xs" role="button" style="background-color:rgba(0,0,0,.1)">
-                    <span class="vrd2" data-vrdata="BIZURL">VISIT WEBSITE</span>
+                    <span class="vrd2" data-vrdata="BIZHOMEPAGE">VISIT WEBSITE</span>
                     </a>
                     </span>
                   </div>
@@ -107,7 +107,7 @@
                     <!-- <span class="fa fa-user text-sm"></span> &nbsp;--> SERVICE PROVIDER<br>
                     </span>
 
-                    <h3 class="text-medium no-margin" style="display: inline-block">Ann Marie</h3>
+                    <h3 class="text-medium no-margin" style="display: inline-block" data-vrdata="">Ann Marie</h3>
 
                   </li>
                 </ul>
@@ -133,7 +133,12 @@
                   <section id="lt-vrCard" class="full-bleed " style="height: 60%">
                     <div class="section-body force-padding text-shadow" style="overflow: hidden;">
 
-                      <div id="imgHolder" modal-value="modal_a" class="img-backdrop responsive-image modal_button" style="background-image: url('https://leashtime.com/public/sandbox-new/email/visit-reports/assets/img/pic-dogsun.jpg');"></div>
+                      <!--<div id="imgHolder" modal-value="modal_a" class="img-backdrop responsive-image modal_button" style="background-image: url('https://leashtime.com/email/visit-reports/assets/img/pic-dogsun.jpg');"></div>-->
+                      <div id="imgHolder" modal-value="modal_a" class="img-backdrop responsive-image modal_button vrd" style="background-image: url('https://leashtime.com/email/visit-reports/assets/img/pic-dogsun.jpg');">
+
+                          <img data-vrdata="VISITPHOTOURL">
+
+                      </div>
 
                       <div class="overlay overlay-shade-top stick-top-left height-3"></div>
                       <div class="overlay overlay-shade-bottom stick-bottom-left text-right"></div>
@@ -148,9 +153,11 @@
 
                             <div class="">
                               <strong class="text-lg no-margin">
-                            <span class="vrd" data-vrdata="vrdate">[DATE]</span></strong><br>
+                              <span class="vrd" data-vrdata="vrdate">[DATE]</span></strong><br>
+                              <span class="vrd" data-vrdata="ARRIVED">[ARRIVE]</span></strong><br>
+                              <span class="vrd" data-vrdata="COMPLETED">[COMPLETE]</span></strong><br>
                               <span class=" text-xs text-light opacity-75">
-                            <span class="vrd" data-vrdata="servicelabel">[servicelabel]</span></span>
+                              <span class="vrd" data-vrdata="serviceLabel">[servicelabel]</span></span>
                             </div>
                           </div>
                         </div>
