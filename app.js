@@ -3,7 +3,6 @@ const https = require('https');
 const url = require('url'); 
 var request = require('request');
 
-
 const url_Base_MGR = 'https://leashtime.com';
 const mmdLogin = 'mmd-login.php';
 const mmdSitters = 'mmd-sitters.php';
@@ -16,7 +15,6 @@ var currentPass= '';
 
 const port = 3300;
 const maxLength = 10;
-
 
 var visitList =[];
 var sitterList = [];
@@ -31,6 +29,7 @@ var timeFrames = [];
 var serviceTypes = [];
 var surchargeTypes = [];
 var clientOwnVisits = [];
+var cookieVal = '';
 
 // https://leashtime.com/client-own-scheduler-data.php?timeframes=1
 
@@ -57,34 +56,22 @@ http.createServer((req, res) => {
 
 		mgrLoginURL = url_Base_MGR +'/'+ mmdLogin;
 
-		let username;
-		let password;
-
-		if (currentUser == '') {
-			username= typeRequest.username;
-		} else {
-			username = currentUser;
-		}
-		if (currentPass == '') {
-			password = typeRequest.password;
-		} else {
-			password = currentPass;
-		}
-		console.log('Username: ' + username + ' Password: ' + password);
+		let username = typeRequest.username;
+		let password = typeRequest.password;
+		
+		//console.log('Username: ' + username + ' Password: ' + password);
 		currentUser = username;
 		currentPass = password;
 
 		let user_role = typeRequest.role;
 		let start_date = typeRequest.startDate;
 		let end_date = typeRequest.endDate;
-		console.log(start_date + ' - ' + end_date);
 		visitList =[];
 		sitterList = [];
 		clientList = [];
 		timeOffList = [];
 	 	var j = request.jar();
 	 	request = request.defaults({jar: j});
-	 	// login request
 	 	request.post({
 	 			url: 'https://leashtime.com/mmd-login.php', 
 	 			form: {user_name:username, user_pass:password, expected_role:user_role},
@@ -98,8 +85,7 @@ http.createServer((req, res) => {
 	 			console.log(err);
 	 		} else {
 
-	 			let cookieVal = httpResponse.headers['set-cookie'];
-	 			// get sitters request
+	 			cookieVal = httpResponse.headers['set-cookie'];
 	 			request.post({
 	 				url: 'https://leashtime.com/mmd-sitters.php',
 	 				headers: {
@@ -119,9 +105,12 @@ http.createServer((req, res) => {
 			 			console.log('----------------------------------------------------');
 
 			 			sitterList.forEach((sitter) => {
-			 				listSitterID += sitter.id + ',';
+							 
+							 if(sitter.active == 1) {
+								console.log('Active Sitter: ' + sitter.sitter);
+								listSitterID += sitter.id + ',';
+							 }
 			 			});
-			 			// visit request
 						request.post({
 							url: 'https://leashtime.com/mmd-visits.php',
 							form: {'start' : start_date, 'end': end_date, 'sitterids':listSitterID},
@@ -136,20 +125,11 @@ http.createServer((req, res) => {
 							} else {
 								listSitterID = ''
 								visitList = JSON.parse(body3);
-								console.log('NUM VISIT: ' + visitList.length);
-								visitList.forEach((visit)=>{
-									console.log('Client: ' + visit.clientname + ', visit id: ' + visit.appointmentid);
-								})
 								let clientIDlist;
 								visitList.forEach((visitItem)=> {
-									console.log(visitItem.clientptr);
 									clientIDlist += visitItem.clientptr + ',';
 
 								})
-							 	console.log('----------------------------------------------------');
-								console.log('CALLING GET CLIENT DATA: ' + clientIDlist);
-								console.log('----------------------------------------------------');
-							 	// clients request
 							 	request.post({
 									url: 'https://leashtime.com/mmd-clients.php',
 									form: {'clientids':clientIDlist},
@@ -162,12 +142,8 @@ http.createServer((req, res) => {
 									if (err4 != null) {
 										console.log(err4);
 									} else {
-										console.log('----------------------------------------------------');
-										console.log('Recevied client data response');
 										let allClientInfo = JSON.parse(body4);	
 										clientList = allClientInfo.clients;
-										console.log('Client list num items: ' + clientList.length);
-								 		console.log('----------------------------------------------------');
 								 		res.write(JSON.stringify({managerData : "ok"}));
 								 		res.end();
 									}
@@ -194,7 +170,6 @@ http.createServer((req, res) => {
 		visitChange(typeRequest.visitid, typeRequest.note);
 		res.end();
 	} else if (theType == "poVisits") {
-
 		res.write(JSON.stringify(visitData));
 		res.end();
 	} else if (theType == "poClients") {
@@ -272,6 +247,64 @@ http.createServer((req, res) => {
     				}
 				})
 	 		}
+		});
+	} else if (theType == "visitReportList") { 
+
+		let clientID = typeRequest.clientID;
+		let start = typeRequest.startDate;
+		let end = typeRequest.endDate;
+
+		const visitReportRequest = require('request');
+
+		const options = {
+			url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
+			method: 'GET',
+			headers: {
+				'Cookie' : cookieVal,
+				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
+				'Accept' : 'application/json',
+				'Accept-Charset' : 'utf-8' 
+			}
+		};
+		console.log(options.url);
+		console.log('Cookie value: ' + cookieVal + ', ' + options)
+
+		visitReportRequest(options,function(error, httpResponse, body) {
+			if (error != null) {
+				console.log('Error on the visit report list request');
+			} else {
+				body.forEach((visitReport) => {
+					console.log(visitReport.appointmentid);
+				})
+				//let visitReportList = JSON.parse(body);
+				//let visitReportList = httpResponse.body;
+				//console.log('RESPONSE BODY: ' + visitReportList);
+			}
+		}); 
+		
+	} else if(theType == "visitReport") {
+		let visitReportID = typeRequest.visitReportID;
+		const getVisitReportRequest = require('request');
+		const getVisitReportOptions = {
+
+
+		}
+		request.post({
+			url : 'https://leashtime.com/visit-report-data.php',
+			form : {id : visitReportID},
+			headers: {
+				'Cookie' : cookieVal,
+				'Content-Type' : 'application/x-www-form-urlencoded',
+				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
+			}
+		}, function(error, httpResponse, body) {
+
+			if (error != null) {
+				console.log("Visit report reponse error");
+			} else {
+				let visitReportJSON = JSON.parse(body);
+				console.log('VISIT REPORT RAW JSON:  '+ visitReportJSON);
+			}
 		});
 	}
 }).listen(port);
@@ -370,66 +403,3 @@ function requestVisits(visitInfoArray) {
 
 	})
 }
-
-	/*} /*else if(theType == "managerVisits") {
-		let userName = 'dlife'; //typeRequest.username;
-		let password = 'pass'; //typeRequest.password;
-		let dateBegin = '2018-11-01'; //typeRequest.startdate;
-		let dateEnd = '2018-11-04'; //typeRequest.enddate;
-
-		let promiseArray = [];
-		let parsedData = '';
-
-		password = 'QVX992DISABLED';
-
-		sitter_login.forEach((sitter)=> {
-			let url_base = 'https://leashtime.com/native-prov-multiday-list.php?loginid='+sitter+'&password='+password+'&start='+dateBegin+'&end='+dateEnd;
-
-			let sitterVisitsPromise = new Promise((resolve,reject)=>{
-				let rawData = '';
-				https.get(url_base, (res) => {
-					res.on('data',(chunk)=> {
-						rawData += chunk;
-					});
-					res.on('end',()=> {
-						let parsedData = JSON.parse(rawData);
-						resolve(parsedData);
-					});
-				}).on("error", (err) => {
-						reject(err);
-				});
-			})
-			promiseArray.push(sitterVisitsPromise);
-		});
-
-		var allRequests = Promise.all(promiseArray);
-		allRequests.then((data) => {
-
-			let returnStream = [];
-			clientProfile = [];
-
-			data.forEach(function(visitInfo) {
-
-				let visitData = visitInfo.visits;
-				let clientProfileData = visitInfo.clients;
-				let flagData = visitInfo.flags;
-
-				visitData.forEach(function(visitDetails) {
-					returnStream.push(visitDetails);
-				});
-
-				let cProfKeys = Object.keys(clientProfileData);
-				cProfKeys.forEach((key)=> {
-					clientProfile.push(clientProfileData[key]);
-				});
-			});
-
-			let streamJson = JSON.stringify(returnStream);
-			res.write(JSON.stringify(streamJson));
-			res.end();
-		})
-		.catch((error) => {
-			console.log("Error executing all promises: " + error);
-		});*/
-
-

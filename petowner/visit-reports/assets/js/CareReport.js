@@ -14,18 +14,6 @@
       canceled: 'Service Canceled',
       late:     'Running Late'
   }
-  var MOODBUTTON = { 
-     cat : "0",
-     happy : "1", 
-     hungry : "0", 
-     litter : "0", 
-     pee : "1", 
-     play : "0", 
-     poo : "1", 
-     sad : "0", 
-     shy : "0", 
-     sick : "0" 
-  }
    
   VisitReport.prototype = {
     
@@ -119,24 +107,19 @@
     this.CLIENTFNAME = visitDictionary['CLIENTFNAME'];
     this.CLIENTLNAME = visitDictionary['CLIENTLNAME'];
     this.PETOWNER = this.CLIENTFNAME + ' ' + this.CLIENTLNAME;
-    let arriveRaw = visitDictionary['ARRIVED'];
+    let arriveRaw = visitDictionary['ARRIVED']; //yyyy-mm-dd hh:mm:ss
     let completeRaw = visitDictionary['COMPLETED'];
-
     let reArrComp =/[0-9]+:[0-9]+/;
     let re=/[0-9]+-[0-9]+-[0-9]+/;
-
     this.ARRIVED = reArrComp.exec(arriveRaw);
     this.COMPLETED = reArrComp.exec(completeRaw);
     this.vrdate =re.exec(arriveRaw);
-
-
     this.NOTE = visitDictionary['NOTE'];
     this.PETS = visitDictionary['PETS'];
     this.MAPROUTEURL = visitDictionary['MAPROUTEURL'];
     this.MAPROUTENUGGETURL = visitDictionary['MAPROUTENUGGETURL'];
     this.VISITPHOTOURL = visitDictionary['VISITPHOTOURL'];
     this.VISITPHOTONUGGETURL = visitDictionary['VISITPHOTONUGGETURL'];
-
     this.moodButtons = visitDictionary['MOODBUTTON'];
     this.sitterDict = visitDictionary['SITTER'];
 
@@ -146,11 +129,7 @@
       this.SITTER = sitterDict.sittername;
     }
 
-
     this.serviceLabel = 'Service';
-
-
-
     //self.statusMsg =  self.setStatus()
   }
   

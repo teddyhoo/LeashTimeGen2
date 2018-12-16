@@ -213,7 +213,7 @@
 
                 <div style="font-size:.8em;text-align:right;" class="small-padding m-b-0 p-b-0">
                   <p style="margin-bottom:-5px;"><strong><span class="vrd" data-vrdata="SITTER">[SITTER]</span></strong></p>
-                  <p style=""><span class="vrd" data-vrdata="businessname" style="text-transform: uppercase;">[BUSINESS]</span></p>
+                  <p style=""><span class="vrd" data-vrdata="BIZSHORTNAME" style="text-transform: uppercase;">[BUSINESS]</span></p>
                 </div>
                 <div style="text-align:left;padding:0 1.5em 1em 2em;color:#242424;font-size:1.15em;">
                   <p style="line-height:1.5em;margin-bottom:1.2em;"><span class="vrd" data-vrdata="PETOWNER">[PETOWNER]</span></p>
@@ -238,6 +238,7 @@
       <!-- -------------------------------------------------------- -->
     </div>
   </main>
+
 
   <style>
     #ReportView {}
@@ -310,6 +311,17 @@
 
   <script src="assets/js/CareReport.js"></script>
   <script src="assets/js/app-carereport.js"></script>
+
+    <script>
+    // ***************************************************************************
+    //
+    // PHP SCRIPT WRITES THIS HMTL, PASSING IN THE VISIT ID AS A PARAMETER
+    // THE FUNCTION DOES AJAX FETCH CALL FOR THE VISIT INFO JSON
+    //
+    // ***************************************************************************
+
+    getVisitReport(209158);
+  </script>
 </body>
 
 </html>

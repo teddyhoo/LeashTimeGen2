@@ -208,7 +208,6 @@
     p._clickModal = function() {
 
         var selectedDate = $('#calendar').fullCalendar('getDate');
-
     };
     p._initEventslist = function () {
 
@@ -684,21 +683,56 @@
                 if (untilDate != '') {
 
                     let momentDate = moment(untilDate.value);
+                    console.log('UNTIL DATE:' + momentDate.month() + '-' + momentDate.date() + '-' + momentDate.year());
+
                     let beginDateMoment = moment(startDateService);
+                    console.log('BEGIN DATE:' + beginDateMoment.month() + '-' + beginDateMoment.date() + '-' + beginDateMoment.year());
+
                     let dayDiff = momentDate.diff(beginDateMoment, 'days');
+
                     let currentVisitRequestItems = [];
 
 
                     for (let i = 1; i <= dayDiff+1; i++) {
 
                         let startDate = moment(beginDateMoment).add(i, "days");
-                        var now = Date.now() + i;
+                        console.log(startDate.month() + '-' + startDate.date() + '-' + startDate.year());
+                        let startDateCompare = startDate.month() + '-' + startDate.date() + '-' + startDate.year();
+                        let now = Date.now() + i;
                         let serviceName;
                         let charge;
                         serviceList.forEach((service) => { 
                             if (service.serviceCode == currentServiceChosen) {
                                 serviceName = service.serviceName;
                                 charge = service.serviceCharge;
+
+                            }
+                        })
+                        surchargeItems.forEach((surcharge)=> {
+                            let surchargeMoment = moment(surcharge.surchargeDate);
+                            let surchargeDateCompare = surchargeMoment.month() + '-' + surchargeMoment.date() + '-' + surchargeMoment.year()
+                            if (surchargeDateCompare == startDateCompare) {
+                                console.log('SURCHARGE: ' + surcharge.surchargeLabel + ' : ' + surchargeMoment.month() + '-' + surchargeMoment.date() + '-' + surchargeMoment.year());
+                                let surchargeEvent = {
+                                    id : now+1000,
+                                    title: 'SURCHARGE: ' + surcharge.surchargeLabel,
+                                    note: 'Surcharge',
+                                    timeWindow : currentTimeWindowBegin,
+                                    start : startDate,
+                                    end : startDate,
+                                    arrivalTime : 'none',
+                                    completionTime: 'none',
+                                    color : 'orange',
+                                    status : 'pending',
+                                    sitter: 'unassigned',
+                                    serviceCharge : surcharge.charge,
+                                    isPending: true
+                                };
+                                event_visits.push(surchargeEvent);
+                                pendingVisits.push(surchargeEvent);
+                                currentVisitRequestItems.push(surchargeEvent);
+                                $('#calendar').fullCalendar('renderEvent', surchargeEvent, true);
+
                             }
                         })
 
@@ -803,14 +837,11 @@
             `;
         })
         cancelVisitsButton.addEventListener("click", function(event) {
-
             console.log('Cancel: ' + calEvent.id + ' visit on '  + calEvent.start.date() + ' ' + calEvent.start.month());
             calEvent.status = 'canceled'
             calEvent.isPending = true;
             calEvent.color = 'red';
             $('#calendar').fullCalendar('rerenderEvents');
-
-
         });
 
 
@@ -841,29 +872,33 @@
             let untilDate = document.getElementById('untilDate2');
 
             cancelUntilConfirm.addEventListener("click", function(event) {
-                let cancelUntilMoment = moment(untilDate2.value);
+                let cancelUntilMoment = moment(untilDate2.value);                
                 let beginDateMoment = moment(calEvent.start);
                 let numDaysCancel = cancelUntilMoment.diff(beginDateMoment, "days");
                 console.log('Number cancel days: ' + numDaysCancel);
-                let changedEvents = [];
-                for (let i = 0; i <= numDaysCancel; i++) {
+
+                let cancelUntilMomentDay = cancelUntilMoment.date() + '-' + cancelUntilMoment.month() + '-' + cancelUntilMoment.year();
+                let cancelUntilMomentBegin = beginDateMoment.date() + '-' + beginDateMoment.month() + '-' + beginDateMoment.year();
+
+
+                for (let p = 0; p <= numDaysCancel; p++) {
                     let newDate = moment(beginDateMoment);
-                    newDate.add(i, 'day');
+                    newDate.add(p, 'day');
+                    console.log('New date: ' + newDate.date());
                     event_visits.forEach((event) => {
                         let startmoment = moment(event.start);
+                        //console.log('Event date: ' + startmoment + ' ---> compare:  ' + newDate);
                         if (startmoment.isSame(newDate)) {
+                            console.log('Canceling event: ' + newDate);
                             event.status = 'canceled';
                             event.isPending = true;
                             event.color = 'red';
-                            changedEvents.push(event);
-                            //$('#calendar').fullCalendar('render');  
-
-                            console.log(event);
                         }
+                        $('#calendar').fullCalendar('renderEvent', event, true);  
                     });
-                    $('#calendar').fullCalendar('renderEvents', changedEvents);      
                 }
             })
+            $('#calendar').fullCalendar('rerenderEvents');  
         });
     }
     function displayChangePicker(withButtons) {

@@ -243,6 +243,7 @@ var LT = (function() {
 	class SurchargeItem {
 
 		constructor(surchargeDictionary) {
+			
 			this.surchargeTypeID = surchargeDictionary['surchargetypeid'];
 			this.charge = surchargeDictionary['charge'];
 			this.surchargeLabel = surchargeDictionary['label'];
@@ -250,35 +251,18 @@ var LT = (function() {
 			this.surchargeAutomatic = surchargeDictionary['automatic'];
 			this.perVisit = surchargeDictionary['pervisit'];
 			this.surchargeType = surchargeDictionary['type'];
-			if(this.surchargeType != 'holiday' && this.surchargeType != 'other') {
-				let sKeys = Object.keys(surchargeDictionary);
-				sKeys.forEach((key) => {
-					console.log(key + '--> ' + surchargeDictionary[key]);
-				}) 
+			if (this.surchargeType == 'weekend') {
+				this.saturdayBool = surchargeDictionary['saturday'];
+				this.sundayBool = surchargeDictionary['sunday'];
+			} else if (this.surchargeType == 'after') {
+				this.afterTime = surchargeDictionary['time'];
+			} else if (this.surchargeType == 'before') {
+				this.beforeTime = surchargeDictionary['time']
 			}
 			this.surchargeDate = surchargeDictionary['date'];
 
 		}
-		/*constructor(surchargeTypeID, surchargeCharge, surchargeLabel, surchargeDescription, surchargeAutomatic, surchargePervisit,surchargeType, surchargeDate) {
-			this.surchargeTypeID = surchargeTypeID;
-			this.charge = surchargeCharge;
-			this.surchargeLabel = surchargeLabel;
-			this.description = surchargeDescription;
-			this.surchargeAutomatic = surchargeAutomatic;
-			this.surchargeDate = surchargeDate;
-			this.surchargeType = surchargeType;
-			this.perVisit = surchargePervisit;
-		}*/
 
-
-		/*const surcharge = new SurchargeItem(surcharge_dict['surchargetypeid'],
-		surcharge_dict['charge'],
-		surcharge_dict['label'],
-		surcharge_dict['description'], 
-		surcharge_dict['automatic'],
-		surcharge_dict['pervisit'],
-		surcharge_dict['type'],
-		surcharge_dict['date']);*/
 	}
 
 	// ********************************************************************************************

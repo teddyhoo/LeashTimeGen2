@@ -92,34 +92,33 @@
                 let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
                 fetch(url)
                     .then((response)=> {
-                        console.log('Fetch response');
                         return response.json();
                     })
                     .then((managerJSON)=> {
                         let keys = Object.keys(managerJSON);
                         if (managerJSON.managerData == 'ok') {
-                            console.log('MANAGER DATA OK');
+                            resolve('ok');
+                        } else {
+                            console.log('Error logging in');
                         }
-                        resolve('ok');
                     });
             });
 
-            console.time('BeginPromise');
+            //console.time('BeginPromise');
             loginPromise.then(function(done) {
                 console.log('Promise done');
                 LTMGR.getManagerData();
                 LTMGR.getManagerVisits();
                 LTMGR.getManagerClients();
-                console.timeEnd('BeginPromise');
-                console.log(done);
+                //console.timeEnd('BeginPromise');
                 return done;
             })
             .then(function(done) {
-                console.log('SECOND DONE ON REQUESTS');
+                //console.log('SECOND DONE ON REQUESTS');
                 var loginPanel = document.getElementById("lt-loginPanel");
                 loginPanel.setAttribute("style", "display:none");
                 var sitterNameVisits  = setInterval(()=> {
-                    console.log('GETTING FINISHED VISITS: ');
+                    //console.log('GETTING FINISHED VISITS: ');
                     allVisits = LTMGR.getVisitList();
                     allSitters = LTMGR.getSitters();
                     allClients = LTMGR.getClientList();
@@ -129,9 +128,23 @@
                     clearInterval(sitterNameVisits);
                     let loginButton = document.getElementById('login');
                     loginButton.innerHTML = "UPDATE";
+
                 }, 1000);
                 return(done);
             });          
+        }
+        function getVisitReportList(clientID) {
+            console.log('Getting visit report for: ' + clientID);
+            let visitListPromise = new Promise((resolve,reject)=> {
+                let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate=2018-12-11&endDate=2018-12-01';
+                fetch(url)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((vrList) => {
+                    console.log(vrList);
+                })
+            });''
         }
         function showLoginPanel() {
             var loginPanel = document.getElementById("lt-loginPanel");
@@ -302,9 +315,9 @@
             total_distance = total_distance * .62137;
             let per_visit_distance = total_distance / (waypoints.length-2);
             let per_visit_duration = total_duration / (waypoints.length-2);
-            popupBasicInfo += '<p>Total Miles: ' + total_distance + '<BR>';
-            popupBasicInfo += '<p> Duration: ' + total_duration + '<BR>';
-            popupBasicInfo += '<p>Number of visits: </p><BR>';
+            popupBasicInfo += '<p style="color:white">Total Miles: ' + total_distance + '<BR>';
+            popupBasicInfo += '<p style="color:white"> Duration: ' + total_duration + '<BR>';
+            popupBasicInfo += '<p style="color:white">Number of visits: </p'+ visitList.length +'<BR>';
             popupBasicInfo += '<ul>';
             visitList.forEach((visit)=> {
                 popupBasicInfo += '<li>' + visit.clientName;
@@ -317,15 +330,11 @@
             popupBasicInfo += '<p><img src=\"./assets/img/postit\-20x20.png\" width=20 height=20>&nbsp&nbsp<input type=\"text\" name=\"messageSitter\" id=\"messageSitter\"></p>';
 
             return popupBasicInfo;
-
         }
-
         function createVRPopup(VRInfo) {
-
             let popupVR = '<div class="card style-info"><div class="card-head"><section id="lt-vrCard" class="full-bleed force-padding"><div class="section-body style-default-dark force-padding text-shadow" style="overflow: hidden;"><div id="imgHolder" class="img-backdrop responsive-image" style="background-image: url("https://leashtime.com/public/sandbox-new/email/visit-reports/assets/img/pic-dogsun.jpg");" onclick="swapPhotoMap();"></div><div class="overlay overlay-shade-top stick-top-left height-3"></div><div class="stick-top-left"><div class="text-light force-padding"><i class="fa fa-photo"></i><strong> CARE</strong>REPORTS&trade;</div></div><div class="row"><div class="col-xs-12 no-padding"><div class="width-3 text-center pull-right" style="line-height:1;"><div class=""><strong class="text-lg no-margin"><span class="vrd" data-vrdata="vrdate">11/19/18</span></strong><br><span class=" text-xs text-light opacity-75"><span class="vrd" data-vrdata="servicelabel">30 Minute Walk</span></span></div></div></div></div><div class="overlay overlay-shade-bottom stick-bottom-left text-right"></div><div class="stick-bottom-right text-right force-padding"><div class="btn-group"><div class="btn-group"><a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="md md-map md-2x"></i></a><ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Peed</a></li></ul> </div><div class="btn-group"><a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="fa fa-paw "></i></a><ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Pooped</a></li></ul></div><div class="btn-group"> <a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="md md-colorize "></i></a> <ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Feeling Sick</a></li> </ul> </div></div> </div> <div class="stick-bottom-left force-padding"><img id="vrMap" class="large-box-shadow mg-responsive auto-width" src="https://LeashTime.com/appointment-map.php?token=pslvp"  style="width:18%;border-radius: 6px;" alt="Map "></div></div></section></div><header><strong>CARE</strong>VISIT™ COMPLETE</header></div><div class="card-body"><small>ADD VISIT NOTE</small><textarea class="form-control control-12-rows">12 rows</textarea></div><div class="card-actionbar"> <div class="card-actionbar-row text-white"><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left"><i class="fa fa-edit"></i></a><button href="javascript:void(0);" class="btn btn-flat ink-reaction btn-info">SEND VISIT REPORT</button> </div></div></div>'
             return popupVR;
         }     
-
         function createSitterMapMarkerWithMileage(sitterInfo, mileageInfo, visitList) {
             let el = document.createElement('div');
             let latitude = parseFloat(sitterInfo.sitterLat);
@@ -350,8 +359,10 @@
                     mapMarkers.push(marker);
                 }
             }
+            visitList.forEach((visit) => {
+                createMapMarker(visit, "");
+            })
         }
-
         function createSitterMapMarker(sitterInfo) {
             let el = document.createElement('div');
             let latitude = parseFloat(sitterInfo.sitterLat);
@@ -422,6 +433,8 @@
                 <div class="card card-bordered style-primary">
                     <div class="card-head">
                         <div class="tools">
+                            <button type="button" id="getVisitReport" onclick="getVisitReportList(${visitInfo.clientID})">VISIT REPORT LIST</button>
+
                             <div class="btn-group">
                                 <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
                                 <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
@@ -596,7 +609,6 @@
             }
             visitDiv.appendChild(visitLabel);
         }
-
         function showSitters() {
             total_miles = 0;
             total_duration_all =0;
@@ -604,67 +616,29 @@
             removeVisitDivElements();
             removeAllMapMarkers();
             let sitterProfile;
-            let hasVisits = false;
-            let showSitterVisitList = [];
 
             allSitters.forEach((sitter)=> {
-                if (sitter.status == 1) {
-                    let hasVisits = false;
-                    allVisits.forEach((visit) => {
-                        if (visit.sitterID == sitter.sitterID) {
-                            hasVisits = true;
-                            showSitterVisitList.push(visit);     
-                        }
-                    });
-                    if (hasVisits) {
+                let showSitterVisitList = [];
+                let hasVisits = false;
+                let sitterDistance; 
+
+                allVisits.forEach((visit) => {
+                    if (visit.sitterID == sitter.sitterID) {
                         trackSitterMileage.forEach((sitterMiles) => {
                             if (sitterMiles.sitterID == sitter.sitterID) {
-                                createSitterMapMarkerWithMileage(sitter, sitterMiles,showSitterVisitList);
-                                let distanceResponse = sitterMiles.route;
-                                let waypoints = sitterMiles.waypoints;
-                                let sitterID = sitterMiles.sitterID;
-                                let total_distance = distanceResponse.distance/1000;
-                                let total_duration = distanceResponse.duration/60;
-                                let route_legs = distanceResponse.legs;
-                                let num_legs = distanceResponse.legs.length;
-                                let total_dist_check = 0;
-                                let total_duration_check= 0;
-                                let first_distance = 0;
-                                let last_distance =0;
-                                let first_duration = 0;
-                                let last_duration =0;
-                                let route_index = 0;
-                                route_legs.forEach((leg)=> {
-                                    let step_arr = leg.steps;
-                                    num_legs = num_legs - 1;
-                                    route_index = route_index + 1;
-                                    total_dist_check = total_dist_check + parseFloat(leg.distance);
-                                    total_duration_check = total_duration_check + parseFloat(leg.duration);
-                                    //console.log('Leg #' + route_index)
-                                    if (route_index == 0) {
-                                        first_distance = leg.distance;
-                                    }
-                                    if (route_index == distanceResponse.legs.length - 1) {
-                                        last_distance = leg.distance
-                                    }
-                                });
-                                total_miles = total_miles + (total_distance * .62137);
-                                total_duration_all = total_duration_all + total_duration;
-                                total_distance = total_distance * .62137;
-                                let per_visit_distance = total_distance / (waypoints.length-2);
-                                let per_visit_duration = total_duration / (waypoints.length-2);
-
-                                if (total_duration_all > 60) {
-                                    let total_hr = parseInt(total_duration_all / 60);
-                                    let mins_mod = parseInt(total_duration_all % 60);
-                                    //console.log('TOTAL DURATION: ' + total_hr + ' hr ' + mins_mod + ' min');
-                                } else {
-                                    //console.log('TOTAL DURATION: ' + total_duration_all);
-                                }
-                            }                            
+                                hasVisits = true;
+                                sitterDistance = sitterMiles;
+                                showSitterVisitList.push(visit);
+                            }
                         });
                     }
-                }          
+                });
+                if (hasVisits) {
+                    showSitterVisitList.forEach((visit) => {
+                        console.log('Sitter visit: ' + visit.clientName);
+                    });
+                    createSitterMapMarkerWithMileage(sitter, sitterDistance, showSitterVisitList);
+                }    
             })
         }
         function loginAjax(username, password, role, startdate, enddate) {
@@ -674,6 +648,10 @@
 
             fetch(url, {
                 method : 'post',
+                headers: {
+                    "Content-type" : "application/x-www-form-urlencoded",
+                    "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15",
+                },
                 body: JSON.stringify({
                     user_name:username, 
                     user_pass:password, 
@@ -683,7 +661,7 @@
             .then((response)=> {
                 responseHeaders = response.headers; 
                 cookieVal = responseHeaders['set-cookie'];
-                console.log('Logged in');
+                console.log('Logged in with cookie: ' + cookieVal);
             })
         }
         function getSittersAjax() {
@@ -882,16 +860,6 @@
                     console.log(error.message);
                 });
         }
-
-
-  
-  
-
-
-
- 
-
-    
 //}(window, document));
 
 
