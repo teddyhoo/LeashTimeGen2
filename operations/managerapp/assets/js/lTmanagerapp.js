@@ -65,74 +65,7 @@
             visitsBySitter = [];
             mapMarkers = [];
 
-            setupVisitReports(loginDate);
-
-            /*if (username == '') {
-                username = document.getElementById('userName').value;
-            }
-            if (password == '') {
-                password = document.getElementById('passWord').value;
-            }
-            if (document.getElementById('login').innerHTML == 'LOGIN') {
-                let usernameNode = document.getElementById('userName');
-                usernameNode.parentNode.removeChild(usernameNode);
-                let passwordNode = document.getElementById('passWord')
-                passwordNode.parentNode.removeChild(passwordNode);
-                document.getElementById('login').innerHTML = 'UPDATE';
-            }
-
-            var userRole = 'm';
-            var fullDate;
-
-            if (loginDate == null) {
-                fullDate = getFullDate();
-            } else {
-                fullDate = loginDate;
-            }
-
-            let loginPromise = new Promise(function(resolve, reject) {
-                console.log('Logging in with: ' + username + ' and ' + password);
-                let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
-                fetch(url)
-                    .then((response)=> {
-                        return response.json();
-                    })
-                    .then((managerJSON)=> {
-                        let keys = Object.keys(managerJSON);
-                        if (managerJSON.managerData == 'ok') {
-                            resolve('ok');
-                        } else {
-                            console.log('Error logging in');
-                        }
-                    });
-            });
-
-            loginPromise.then(function(done) {
-                console.log('Promise done');
-                LTMGR.getManagerData();
-                LTMGR.getManagerVisits();
-                LTMGR.getManagerClients();
-                return done;
-            })
-            .then(function(done) {
-                var loginPanel = document.getElementById("lt-loginPanel");
-                loginPanel.setAttribute("style", "display:none");
-                var sitterNameVisits  = setInterval(()=> {
-                    allVisits = LTMGR.getVisitList();
-                    allSitters = LTMGR.getSitters();
-                    allClients = LTMGR.getClientList();
-  
-                    setupVisitReports();
-                    
-                    flyToFirstVisit();
-                    buildSitterButtons(allVisits, allSitters);
-                    clearInterval(sitterNameVisits);
-                    let loginButton = document.getElementById('login');
-                    loginButton.innerHTML = "UPDATE";
-
-                }, 1000);
-                return(done);
-            });*/
+            setupLoginSteps(loginDate);
         }
         async function loginPromise(loginDate) {
             console.log('LOGIN PROMISE STARTED');
@@ -165,37 +98,11 @@
             const response = await loginFetchResponse.json();
             return ('OK - login');
         }        
-
         async  function getListVisitReport() {
-          return new Promise(resolve => {
-                console.log('GET LIST VISIT REPORT');
-
-                /*allClients.forEach((client)=> {
-                    console.log('Getting VR list for: ' + client.client_id);
-                    if (client.client_id != null || client.client_id != '' && client.client_id != 'undefined') {
-                        if (client.petOwnerName == 'Carmelo Barone') {
-                            startDate = '2018-12-01';
-                            endDate = '2018-12-19'; // today date
-                            allVisitReportList = LTMGR.getVisitReportList(client.client_id, startDate, endDate);
-                        }
-                    }
-                });*/
-                console.log('FINISH GET LIST VISIT REPORT');
-                resolve('OK VR LiST')
-          });
         }
         async  function visitReportDetails() {
-          return new Promise(resolve => {
-
-                console.log('VISIT REPORT DETAILS');
-
-                /*allVisitReportList.forEach((vritem)=> { 
-                    console.log(vritem.visitdate + '  VISIT DATE: ' + vritem.date + ' TIME: '  + vritem.time);
-                    LTMGR.getVisitReport(vritem.visitID);
-                }) */       
-          });
         }
-        async function setupVisitReports(loginDate) {
+        async function setupLoginSteps(loginDate) {
             console.log('Start promises');
             const managerLoginFetch =  loginPromise();
             await managerLoginFetch;
@@ -218,11 +125,9 @@
         
             flyToFirstVisit();
             buildSitterButtons(allVisits, allSitters);
-            let loginButton = document.getElementById('login');
-            loginButton.innerHTML = "UPDATE";
-
+            //let loginButton = document.getElementById('login');
+            //loginButton.innerHTML = "UPDATE";
         }
-
 
         function buildSitterButtons(allSitterVisits, allSittersInfo) {
             console.log('Building sitter buttons');
@@ -268,6 +173,8 @@
             let visitCounter = document.getElementById('numVisits');
             visitCounter.innerHTML = 'TOTAL VISITS: ' + totalVisitCount + ' CANCELED: ' + totalCancelVisitCount;
         }
+
+
         function createMapMarker(visitInfo, markerIcon) {
 
             let el = document.createElement('div');
@@ -277,6 +184,9 @@
             let latitude = parseFloat(visitInfo.lat);
             let longitude = parseFloat(visitInfo.lon);
             let marker = new mapboxgl.Marker(el);
+            let popup = new mapboxgl.Popup({offset : 25})
+            marker.setPopup(popup);                                         
+
 
             if (latitude != null && longitude != null && latitude < 90 && latitude > -90) {
 
@@ -288,28 +198,121 @@
                     mapMarkers.push(marker);
                 }       
 
-                el.addEventListener("click", function(event) {
+                el.addEventListener("click", async function(event) {
 
-                   LTMGR.getVisitReport(visitInfo.visitID);
                     let popupView;
-                    popupView = createPopupView(visitInfo);
-                    let popup = new mapboxgl.Popup({offset : 25})
-                                                            .setHTML(popupView);
-                    marker.setPopup(popup);
+                    let visitReportDetailDict;
+                    let reportSubmitted;
+                    const visitReportList = LTMGR.getVisitReportList(visitInfo.clientID, '2018-12-01', '2018-12-21');
+                    await visitReportList.then((results)=> { 
+                        allVisitReportList = results
+                        allVisitReportList.forEach((vreport) => {
+                            if (vreport.visitID == visitInfo.visitID) {
+                                visitReportDetailDict = vreport;
+                                console.log(visitReportDetailDict);
+                            }
+                        })
+                    });
 
-                })
-            }
-        }
-        function createPopupView(visitInfo, divElement) {
+                    let mapURL;
+                    let photoURL;
+                    let pets = [];
+                    let moodButtons = [];
 
-            if (LTMGR.visitReport != null) {
+                    if (visitReportDetailDict != null) {
+                        const visitReportDetails = LTMGR.getVisitReport(visitInfo.visitID);
+                        await visitReportDetails.then((vrDetails)=> { 
 
-                LTMGR.visitReportList.forEach((reportID)=> {
-                    if (reportID.appointmentid == visitInfo.visitID) {
-                        console.log('Visit report ID match');
+                            dateReport = visitReportDetailDict.dateReport;
+                            timeReport = visitReportDetailDict.timeReport;
+                            arrivedTime = vrDetails.ARRIVED;
+
+                            let re = /([0-9]+)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):([0-5][0-9])/
+                            let timeArrive = re.exec(arrivedTime);
+                            let arriveTime = timeArrive[4] + ':' + timeArrive[5];
+
+                            completedTime = vrDetails.COMPLETED;
+                            let timeComplete = re.exec(completedTime);
+                            let completeTime = timeComplete[4] + ':' + timeComplete[5];
+
+                            moodButtons = vrDetails.moodButtons;
+                            pets = vrDetails.pets;
+
+                            let popupBasicInfo;
+
+                            popupBasicInfo = 
+                                `<div class="card card-bordered style-primary">
+                                        <div class="card-head">
+                                            <div class="tools">
+                                                <div class="btn-group">
+                                                    <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
+                                                    <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+                                                    <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+                                                </div>
+                                            </div>
+                                            <img src=${vrDetails.VISITPHOTONUGGETURL} width = 100 height = 100>
+                                            <header class="">${visitReportDetailDict.service}</header>
+                                            <img src=${vrDetails.MAPROUTENUGGETURL} width = 100 height = 100>
+
+                                            <div class="card-body p-t-0">
+                                                <h4 style="color:yellow;">SENT: ${timeReport} on ${dateReport}</h4>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-t-0">
+                                            <p><span class="text-default">ARRIVED: </span>${arriveTime}</p>
+                                            <p><span class="text-default">COMPLETE: </span>${completeTime}</span></p>
+                                            <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitReportDetailDict.sitter}</p>
+                                            <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
+                                        </div>
+                                </div>`;
+
+                            if (visitInfo.status == 'completed') {
+                                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                            } else if (visitInfo.status == 'late') {
+                                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                            } else if (visitInfo.status == 'future') {
+                                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                            } else if (visitInfo.status == 'canceled') {
+                                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
+                            }
+
+                            popupBasicInfo += `
+                                <div class=\"card-body small-padding p-t-0 p-b-0\">
+                                    <div class=\"form-group floating-label m-t-0 p-t-0\">
+                                        <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
+                                            ${vrDetails.NOTE}
+                                        </textarea>
+                                        <label for=\"messageSitter\">
+                                            <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
+                                        </label>
+                                    </div>
+                                    </p>
+                                </div>
+                                <div class="card-actionbar">
+                                    <div class="card-actionbar-row no-padding">
+                                        <a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left">
+                                        <i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left">
+                                        <i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a>
+                                    </div>
+                                </div>
+                                </div>`;
+                            popup.setHTML(popupBasicInfo);
+                        });
                     }
                 })
             }
+        }
+
+
+
+
+                        //popupView = createPopupView(visitInfo);
+                        //let popup = new mapboxgl.Popup({offset : 25})
+                        //                                    .setHTML(popupView);
+                        //marker.setPopup(popup);
+
+
+        function createPopupView(visitInfo, divElement) {
 
             let popupBasicInfo = `
                 <div class="card card-bordered style-primary">
@@ -939,6 +942,75 @@
                 });
         }
 //}(window, document));
+
+
+/*if (username == '') {
+                username = document.getElementById('userName').value;
+            }
+            if (password == '') {
+                password = document.getElementById('passWord').value;
+            }
+            if (document.getElementById('login').innerHTML == 'LOGIN') {
+                let usernameNode = document.getElementById('userName');
+                usernameNode.parentNode.removeChild(usernameNode);
+                let passwordNode = document.getElementById('passWord')
+                passwordNode.parentNode.removeChild(passwordNode);
+                document.getElementById('login').innerHTML = 'UPDATE';
+            }
+
+            var userRole = 'm';
+            var fullDate;
+
+            if (loginDate == null) {
+                fullDate = getFullDate();
+            } else {
+                fullDate = loginDate;
+            }
+
+            let loginPromise = new Promise(function(resolve, reject) {
+                console.log('Logging in with: ' + username + ' and ' + password);
+                let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
+                fetch(url)
+                    .then((response)=> {
+                        return response.json();
+                    })
+                    .then((managerJSON)=> {
+                        let keys = Object.keys(managerJSON);
+                        if (managerJSON.managerData == 'ok') {
+                            resolve('ok');
+                        } else {
+                            console.log('Error logging in');
+                        }
+                    });
+            });
+
+            loginPromise.then(function(done) {
+                console.log('Promise done');
+                LTMGR.getManagerData();
+                LTMGR.getManagerVisits();
+                LTMGR.getManagerClients();
+                return done;
+            })
+            .then(function(done) {
+                var loginPanel = document.getElementById("lt-loginPanel");
+                loginPanel.setAttribute("style", "display:none");
+                var sitterNameVisits  = setInterval(()=> {
+                    allVisits = LTMGR.getVisitList();
+                    allSitters = LTMGR.getSitters();
+                    allClients = LTMGR.getClientList();
+  
+                    setupVisitReports();
+                    
+                    flyToFirstVisit();
+                    buildSitterButtons(allVisits, allSitters);
+                    clearInterval(sitterNameVisits);
+                    let loginButton = document.getElementById('login');
+                    loginButton.innerHTML = "UPDATE";
+
+                }, 1000);
+                return(done);
+            });*/
+
 
 
 

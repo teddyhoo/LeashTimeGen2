@@ -42,19 +42,13 @@ http.createServer((req, res) => {
 	res.writeHead(200, { 'Content-Type': 'application/json','Access-Control-Allow-Origin':'*'});
  	
 	if(theType == 'mmdLogin') {
-
 		mgrLoginURL = url_Base_MGR +'/'+ mmdLogin;
-
 		let username = typeRequest.username;
 		let password = typeRequest.password;
-		
-		//console.log('Username: ' + username + ' Password: ' + password);
-		currentUser = username;
-		currentPass = password;
-
 		let user_role = typeRequest.role;
 		let start_date = typeRequest.startDate;
 		let end_date = typeRequest.endDate;
+
 		visitList =[];
 		sitterList = [];
 		clientList = [];
@@ -144,7 +138,7 @@ http.createServer((req, res) => {
 				});
 	 		}
 	 	});
-	}  else if (theType == "visitReportList") { 
+	} else if (theType == "visitReportList") { 
 
 		let clientID = typeRequest.clientID;
 		let start = typeRequest.startDate;
@@ -177,17 +171,24 @@ http.createServer((req, res) => {
 			} else {
 
 				let listVisitReport = JSON.parse(body);
-				console.log(listVisitReport);
+				//console.log(listVisitReport);
 				res.write(JSON.stringify(listVisitReport));
 				res.end();
 
 			}
 		}); 	
 	} else if(theType == "visitReport") {
-		let visitReportID = typeRequest.visitReportID;
-		const getVisitReportRequest = require('request');
+
+		console.log('Visit Report details called with params: ' + typeRequest.visitReportID);
+		//let visitReportID = typeRequest.visitReportID;
+		var detailsVR = require('request');
+		var detailsJAR = detailsVR.jar();
+		detailsVR = detailsVR.defaults({jar: detailsJAR});		
+
+
 		const getVisitReportOptions =  {
-			url : 'https://leashtime.com/visit-report-data.php?id='+visitReportID,
+			//url : 'https://leashtime.com/visit-report-data.php?id='+visitReportID,
+			url : typeRequest.visitReportID,
 			method: 'GET',
 			headers: {
 				'Cookie' : cookieVal,
@@ -197,10 +198,12 @@ http.createServer((req, res) => {
 				'Allow-Control' : true 
 			}
 		};
-		getVisitReportRequest(getVisitReportOptions,function(error, httpResponse, body) {
+		detailsVR(getVisitReportOptions,function(error, httpResponse, body) {
 			if (error != null) {
 				console.log('Error on the visit report list request');
 			} else {
+				console.log(body);
+				console.log(httpResponse.headers);
 				let visitReportDetail = JSON.parse(body);
 				res.write(JSON.stringify(visitReportDetail));
 				res.end();
@@ -279,7 +282,7 @@ http.createServer((req, res) => {
 				})
 	 		}
 		});
-	}else if (theType == "cancel") {
+	} else if (theType == "cancel") {
 
 		res.write(JSON.stringify({ "response" : "ok"}));
 		visitCancel(typeRequest.visitid, typeRequest.note);
@@ -314,6 +317,10 @@ http.createServer((req, res) => {
 	} 
 }).listen(port);
 
+function loginManager(urlString) {
+
+
+}
 
 function cleanupSession() {
 
@@ -376,9 +383,7 @@ function getSitterList() {
 
 	return JSON.stringify(sitterList);
 }
-
 function getFlagData() {
-
 }
 function visitCancel(appointmentid, note) {
 
