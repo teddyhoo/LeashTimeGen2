@@ -15,6 +15,7 @@
         var mapMarkers = [];
         var showSitter = {};
         var trackSitterMileage = [];
+        var allVisitReportList = [];
 
         var totalVisitCount = parseInt(0);
         var totalCancelVisitCount = parseInt(0);
@@ -64,7 +65,9 @@
             visitsBySitter = [];
             mapMarkers = [];
 
-            if (username == '') {
+            setupVisitReports(loginDate);
+
+            /*if (username == '') {
                 username = document.getElementById('userName').value;
             }
             if (password == '') {
@@ -104,25 +107,23 @@
                     });
             });
 
-            //console.time('BeginPromise');
             loginPromise.then(function(done) {
                 console.log('Promise done');
                 LTMGR.getManagerData();
                 LTMGR.getManagerVisits();
                 LTMGR.getManagerClients();
-                //console.timeEnd('BeginPromise');
                 return done;
             })
             .then(function(done) {
-                //console.log('SECOND DONE ON REQUESTS');
                 var loginPanel = document.getElementById("lt-loginPanel");
                 loginPanel.setAttribute("style", "display:none");
                 var sitterNameVisits  = setInterval(()=> {
-                    //console.log('GETTING FINISHED VISITS: ');
                     allVisits = LTMGR.getVisitList();
                     allSitters = LTMGR.getSitters();
                     allClients = LTMGR.getClientList();
-
+  
+                    setupVisitReports();
+                    
                     flyToFirstVisit();
                     buildSitterButtons(allVisits, allSitters);
                     clearInterval(sitterNameVisits);
@@ -131,20 +132,222 @@
 
                 }, 1000);
                 return(done);
-            });          
+            });*/
         }
-        function getVisitReportList(clientID) {
-            console.log('Getting visit report for: ' + clientID);
-            let visitListPromise = new Promise((resolve,reject)=> {
-                let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate=2018-12-11&endDate=2018-12-01';
-                fetch(url)
-                .then((response) => {
-                    return response.json();
+        async function loginPromise(loginDate) {
+            console.log('LOGIN PROMISE STARTED');
+
+            if (username == '') {
+                username = document.getElementById('userName').value;
+            }
+            if (password == '') {
+                password = document.getElementById('passWord').value;
+            }
+            if (document.getElementById('login').innerHTML == 'LOGIN') {
+                let usernameNode = document.getElementById('userName');
+                usernameNode.parentNode.removeChild(usernameNode);
+                let passwordNode = document.getElementById('passWord')
+                passwordNode.parentNode.removeChild(passwordNode);
+                document.getElementById('login').innerHTML = 'UPDATE';
+            }
+
+            var userRole = 'm';
+            var fullDate;
+
+            if (loginDate == null) {
+                fullDate = getFullDate();
+            } else {
+                fullDate = loginDate;
+            }
+
+            let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
+            const loginFetchResponse = await fetch(url);
+            const response = await loginFetchResponse.json();
+            return ('OK - login');
+        }        
+
+        async  function getListVisitReport() {
+          return new Promise(resolve => {
+                console.log('GET LIST VISIT REPORT');
+
+                /*allClients.forEach((client)=> {
+                    console.log('Getting VR list for: ' + client.client_id);
+                    if (client.client_id != null || client.client_id != '' && client.client_id != 'undefined') {
+                        if (client.petOwnerName == 'Carmelo Barone') {
+                            startDate = '2018-12-01';
+                            endDate = '2018-12-19'; // today date
+                            allVisitReportList = LTMGR.getVisitReportList(client.client_id, startDate, endDate);
+                        }
+                    }
+                });*/
+                console.log('FINISH GET LIST VISIT REPORT');
+                resolve('OK VR LiST')
+          });
+        }
+        async  function visitReportDetails() {
+          return new Promise(resolve => {
+
+                console.log('VISIT REPORT DETAILS');
+
+                /*allVisitReportList.forEach((vritem)=> { 
+                    console.log(vritem.visitdate + '  VISIT DATE: ' + vritem.date + ' TIME: '  + vritem.time);
+                    LTMGR.getVisitReport(vritem.visitID);
+                }) */       
+          });
+        }
+        async function setupVisitReports(loginDate) {
+            console.log('Start promises');
+            const managerLoginFetch =  loginPromise();
+            await managerLoginFetch;
+
+            const sitterListAfterLogin = LTMGR.getManagerData();
+            await sitterListAfterLogin.then((results)=> {
+                allSitters = results;
+            });
+
+            const visitListAfterLogin = LTMGR.getManagerVisits();
+            await visitListAfterLogin.then((results)=> {
+                allVisits = results;
+            })
+
+            const clientsAfterLogin = LTMGR.getManagerClients();
+            await clientsAfterLogin.then((results)=> {
+                allClients = results;
+            });
+
+        
+            flyToFirstVisit();
+            buildSitterButtons(allVisits, allSitters);
+            let loginButton = document.getElementById('login');
+            loginButton.innerHTML = "UPDATE";
+
+        }
+
+
+        function buildSitterButtons(allSitterVisits, allSittersInfo) {
+            console.log('Building sitter buttons');
+            totalVisitCount = parseInt(0);
+            totalCancelVisitCount = parseInt(0);
+
+            allSittersInfo.forEach((sitter)=> {
+                let hasVisits = false;
+                let sitterCount = parseInt(0);
+
+                allSitterVisits.forEach((visitDetails)=> {
+                    if (sitter.sitterID == visitDetails.sitterID) {
+                        hasVisits = true;
+                        createMapMarker(visitDetails, 'marker');
+                        sitterCount = sitterCount + 1;
+                        totalVisitCount = totalVisitCount + 1;
+                        if (visitDetails.status == 'canceled') {
+                            totalCancelVisitCount = totalCancelVisitCount + 1;
+                        }
+                    }
+                });
+
+                if (hasVisits) {
+                    createSitterMapMarker(sitter, 'marker');
+                    showSitter[sitter.sitterID] = false;
+                    let sitterListDiv = document.getElementById("sitterList");
+                    let sitterFilterButton = document.createElement("button");
+                    sitterFilterButton.setAttribute("type", "button");
+                    sitterFilterButton.setAttribute("id", sitter.sitterID);
+                    sitterFilterButton.setAttribute("class", "btn btn-block");
+                    let spanEl = document.createElement("span");
+                    spanEl.setAttribute("class", "pull-left");
+                    sitterFilterButton.appendChild(spanEl);
+                    sitterFilterButton.innerHTML = sitter.sitterName + ' (' + sitterCount + ')';
+                    sitterListDiv.appendChild(sitterFilterButton);
+                    document.getElementById(sitter.sitterID).addEventListener("click", removeVisitDivElements);  
+                    document.getElementById(sitter.sitterID).addEventListener("click", removeAllMapMarkers);
+                    document.getElementById(sitter.sitterID).addEventListener("click",function() {showVisitBySitter(sitter);});
+                    visitsBySitter[sitter.sitterID] = sitterCount;
+                }
+            });
+
+            let visitCounter = document.getElementById('numVisits');
+            visitCounter.innerHTML = 'TOTAL VISITS: ' + totalVisitCount + ' CANCELED: ' + totalCancelVisitCount;
+        }
+        function createMapMarker(visitInfo, markerIcon) {
+
+            let el = document.createElement('div');
+            el.setAttribute("class", "marker");
+            el.setAttribute("id", visitInfo.appointmentid);
+
+            let latitude = parseFloat(visitInfo.lat);
+            let longitude = parseFloat(visitInfo.lon);
+            let marker = new mapboxgl.Marker(el);
+
+            if (latitude != null && longitude != null && latitude < 90 && latitude > -90) {
+
+                if (latitude > 90 || latitude < -90 ) {
+                    console.log("Lat error");
+                } else {
+                    marker.setLngLat([longitude,latitude])
+                                .addTo(map);
+                    mapMarkers.push(marker);
+                }       
+
+                el.addEventListener("click", function(event) {
+
+                   LTMGR.getVisitReport(visitInfo.visitID);
+                    let popupView;
+                    popupView = createPopupView(visitInfo);
+                    let popup = new mapboxgl.Popup({offset : 25})
+                                                            .setHTML(popupView);
+                    marker.setPopup(popup);
+
                 })
-                .then((vrList) => {
-                    console.log(vrList);
+            }
+        }
+        function createPopupView(visitInfo, divElement) {
+
+            if (LTMGR.visitReport != null) {
+
+                LTMGR.visitReportList.forEach((reportID)=> {
+                    if (reportID.appointmentid == visitInfo.visitID) {
+                        console.log('Visit report ID match');
+                    }
                 })
-            });''
+            }
+
+            let popupBasicInfo = `
+                <div class="card card-bordered style-primary">
+                    <div class="card-head">
+                        <div class="tools">
+                            <button type="button" id="getVisitReport" onclick="LTMGR.getVisitReportList(${visitInfo.clientID})">VISIT REPORT LIST</button>
+
+                            <div class="btn-group">
+                                <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
+                                <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+                                <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+                            </div>
+                        </div>
+                        <header class="">${visitInfo.service}</header>
+                    </div>
+                    <div class="card-body p-t-0">
+                        <p><span class="text-default">SCHEDULED: </span>${visitInfo.starttime} - ${visitInfo.endtime} </p>
+                        <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitInfo.sitterName}</p>
+                        <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
+                    </div>
+                </div>`;
+
+
+            if (visitInfo.status == 'completed') {
+                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
+            } else if (visitInfo.status == 'late') {
+                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
+            } else if (visitInfo.status == 'future') {
+                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
+            } else if (visitInfo.status == 'canceled') {
+                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
+            }
+            if (visitInfo.visitNote != null) {
+                popupBasicInfo += "<div class=\"card\"><p><img src=\"./assets/img/postit\-20x20.png\" width=20 height=20>"+visitInfo.visitNote+"</p>";
+            }
+
+            popupBasicInfo += '<div class=\"card-body small-padding p-t-0 p-b-0\"><div class=\"form-group floating-label m-t-0 p-t-0\"><textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\"></textarea><label for=\"messageSitter\"><i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes</label></div></p></div><div class="card-actionbar"><div class="card-actionbar-row no-padding"><a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left"><i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left"><i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a></div></div></div>';
+            return popupBasicInfo; 
         }
         function showLoginPanel() {
             var loginPanel = document.getElementById("lt-loginPanel");
@@ -225,51 +428,6 @@
             let dateRequestString = prevNewDate.getFullYear() + '-' + prevNewDate.getMonth() + '-' +prevNewDate.getDate();
             updateDateInfo(prevNewDate);
             login(dateRequestString);
-        }
-        function buildSitterButtons(allSitterVisits, allSittersInfo) {
-
-            totalVisitCount = parseInt(0);
-            totalCancelVisitCount = parseInt(0);
-
-            allSittersInfo.forEach((sitter)=> {
-                let hasVisits = false;
-                let sitterCount = parseInt(0);
-
-
-                allSitterVisits.forEach((visitDetails)=> {
-                    if (sitter.sitterID == visitDetails.sitterID) {
-                        hasVisits = true;
-                        createMapMarker(visitDetails, sitterIcons[sitterCount]);
-                        sitterCount = sitterCount + 1;
-                        totalVisitCount = totalVisitCount + 1;
-                        if (visitDetails.status == 'canceled') {
-                            totalCancelVisitCount = totalCancelVisitCount + 1;
-                        }
-                    }
-                });
-
-                if (hasVisits) {
-                    createSitterMapMarker(sitter);
-                    showSitter[sitter.sitterID] = false;
-                    let sitterListDiv = document.getElementById("sitterList");
-                    let sitterFilterButton = document.createElement("button");
-                    sitterFilterButton.setAttribute("type", "button");
-                    sitterFilterButton.setAttribute("id", sitter.sitterID);
-                    sitterFilterButton.setAttribute("class", "btn btn-block");
-                    let spanEl = document.createElement("span");
-                    spanEl.setAttribute("class", "pull-left");
-                    sitterFilterButton.appendChild(spanEl);
-                    sitterFilterButton.innerHTML = sitter.sitterName + ' (' + sitterCount + ')';
-                    sitterListDiv.appendChild(sitterFilterButton);
-                    document.getElementById(sitter.sitterID).addEventListener("click", removeVisitDivElements);  
-                    document.getElementById(sitter.sitterID).addEventListener("click", removeAllMapMarkers);
-                    document.getElementById(sitter.sitterID).addEventListener("click",function() {showVisitBySitter(sitter);});
-                    visitsBySitter[sitter.sitterID] = sitterCount;
-                }
-            });
-
-            let visitCounter = document.getElementById('numVisits');
-            visitCounter.innerHTML = 'TOTAL VISITS: ' + totalVisitCount + ' CANCELED: ' + totalCancelVisitCount;
         }
         function createSitterPopup(sitterInfo) {
 
@@ -388,85 +546,6 @@
                 }
             }
         }
-        function createMapMarker(visitInfo, markerIcon) {
-
-            let el = document.createElement('div');
-            let latitude = parseFloat(visitInfo.lat);
-            let longitude = parseFloat(visitInfo.lon);
-            let popupView;
-          
-            if (latitude != null && longitude != null && latitude < 90 && latitude > -90) {
-                popupView = createPopupView(visitInfo);
-                
-                el.setAttribute("class", "mapMarker");
-                
-                if (visitInfo.status == 'completed') {
-                    el.setAttribute("class", "marker-complete");
-                } else if (visitInfo.status == 'canceled') {
-                     el.setAttribute("class", "marker-canceled");
-                } else if (visitInfo.status == 'late') {
-                     el.setAttribute("class", "marker-late");
-                } else if (visitInfo.status == 'arrived') {
-                     el.setAttribute("class", "marker-arrived");
-                } else if (visitInfo.status == 'future' || visitInfo.status == 'incomplete') {
-                     el.setAttribute("class", "marker");
-                }
-
-                let popup = new mapboxgl.Popup({offset : 25})
-                    .setHTML(popupView);
-
-                if (latitude > 90 || latitude < -90 ) {
-                    console.log("Lat error");
-                } else {
-                    let marker = new mapboxgl.Marker(el)
-                        .setLngLat([longitude,latitude])
-                        .setPopup(popup)
-                        .addTo(map);
-
-                    mapMarkers.push(marker);
-                }
-            }
-        }
-        function createPopupView(visitInfo, divElement) {
-
-            let popupBasicInfo = `
-                <div class="card card-bordered style-primary">
-                    <div class="card-head">
-                        <div class="tools">
-                            <button type="button" id="getVisitReport" onclick="getVisitReportList(${visitInfo.clientID})">VISIT REPORT LIST</button>
-
-                            <div class="btn-group">
-                                <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
-                                <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
-                                <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
-                            </div>
-                        </div>
-                        <header class="">${visitInfo.service}</header>
-                    </div>
-                    <div class="card-body p-t-0">
-                        <p><span class="text-default">SCHEDULED: </span>${visitInfo.starttime} - ${visitInfo.endtime} </p>
-                        <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitInfo.sitterName}</p>
-                        <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
-                    </div>
-                </div>`;
-
-
-            if (visitInfo.status == 'completed') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'late') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'future') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'canceled') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
-            }
-            if (visitInfo.visitNote != null) {
-                popupBasicInfo += "<div class=\"card\"><p><img src=\"./assets/img/postit\-20x20.png\" width=20 height=20>"+visitInfo.visitNote+"</p>";
-            }
-
-            popupBasicInfo += '<div class=\"card-body small-padding p-t-0 p-b-0\"><div class=\"form-group floating-label m-t-0 p-t-0\"><textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\"></textarea><label for=\"messageSitter\"><i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes</label></div></p></div><div class="card-actionbar"><div class="card-actionbar-row no-padding"><a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left"><i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left"><i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a></div></div></div>';
-            return popupBasicInfo; 
-        }
         function filterMapViewByVisitStatus(filterStatus) {
 
             if (statusVisit[filterStatus] == 'on') {
@@ -537,7 +616,6 @@
             let isMileageDone = false;
 
             trackSitterMileage.forEach((sitterDicts)=> { 
-                //console.log(sitterDicts.sitterID);
                 if (sitterDicts.sitterID == sitterProfile.sitterID) {
                     isMileageDone = true;
                 }
@@ -559,7 +637,6 @@
                     center: [parseFloat(lastVisit.lon), parseFloat(lastVisit.lat)],
                     zoom: 18
                 });
-
             }
         }
         function removeVisitDivElements() {
@@ -820,6 +897,7 @@
                 coordPair.push(lon);
                 coordPair.push(lat);
                 let coord = {"coordinates" : coordPair};
+                let waypointName = {"name" : visit.clientName};
                 waypointsArr.push(coord);
             });
 

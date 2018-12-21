@@ -20,6 +20,7 @@ var visitList =[];
 var sitterList = [];
 var clientList = [];
 var timeOffList = [];
+var visitReportList = [];
 
 
 const visitData = require('./data/visit.json');
@@ -40,19 +41,7 @@ http.createServer((req, res) => {
 
 	res.writeHead(200, { 'Content-Type': 'application/json','Access-Control-Allow-Origin':'*'});
  	
- 	if (theType == "gSit") {
-		console.log('Num sitters: ' + sitterList.length);
-		res.write(JSON.stringify(sitterList));
-		res.end();
-	} else if (theType == "gVisit") {
-
-		res.write(JSON.stringify(visitList));
-		res.end();
-	} else if (theType == "gClients") {
-
-		res.write(JSON.stringify(clientList));
-		res.end();
-	} else if(theType == 'mmdLogin') {
+	if(theType == 'mmdLogin') {
 
 		mgrLoginURL = url_Base_MGR +'/'+ mmdLogin;
 
@@ -70,6 +59,8 @@ http.createServer((req, res) => {
 		sitterList = [];
 		clientList = [];
 		timeOffList = [];
+		visitReportList = [];
+
 	 	var j = request.jar();
 	 	request = request.defaults({jar: j});
 	 	request.post({
@@ -100,14 +91,14 @@ http.createServer((req, res) => {
 	 					let listSitterID;
 	 					sitterJSON = JSON.parse(body2);
 	 					sitterList = sitterJSON.sitters;
-						console.log('----------------------------------------------------');
-	 					console.log('Sitter List: ' + sitterList.length);
-			 			console.log('----------------------------------------------------');
+						//console.log('----------------------------------------------------');
+	 					//console.log('Sitter List: ' + sitterList.length);
+			 			//console.log('----------------------------------------------------');
 
 			 			sitterList.forEach((sitter) => {
 							 
 							 if(sitter.active == 1) {
-								console.log('Active Sitter: ' + sitter.sitter);
+								//console.log('Active Sitter: ' + sitter.sitter);
 								listSitterID += sitter.id + ',';
 							 }
 			 			});
@@ -128,7 +119,6 @@ http.createServer((req, res) => {
 								let clientIDlist;
 								visitList.forEach((visitItem)=> {
 									clientIDlist += visitItem.clientptr + ',';
-
 								})
 							 	request.post({
 									url: 'https://leashtime.com/mmd-clients.php',
@@ -154,32 +144,73 @@ http.createServer((req, res) => {
 				});
 	 		}
 	 	});
-	} else if (theType == "cancel") {
+	}  else if (theType == "visitReportList") { 
 
-		res.write(JSON.stringify({ "response" : "ok"}));
-		visitCancel(typeRequest.visitid, typeRequest.note);
-		res.end();
-	} else if(theType == "uncancel") {
+		let clientID = typeRequest.clientID;
+		let start = typeRequest.startDate;
+		let end = typeRequest.endDate;
+		var visitReportRequest = require('request');
+		var visitReportJar = visitReportRequest.jar();
+		visitReportRequest = visitReportRequest.defaults({jar: visitReportJar});
 
-		res.write(JSON.stringify({ "response" : "ok"}));
-		visitUncancel(typeRequest.visitid, typeRequest.note);
-		res.end();
-	} else if(theType == "change") {
+		const options = {
+			url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
+			method: 'GET',
+			headers: {
+				'Cookie' : cookieVal,
+				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
+				'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+				'Accept-Charset' : 'utf-8',
+				'Allow-Control' : true 
+			}
+		};
+		console.log(options.url);
 
-		res.write(JSON.stringify({ "response" : "ok"}));
-		visitChange(typeRequest.visitid, typeRequest.note);
-		res.end();
-	} else if (theType == "poVisits") {
-		res.write(JSON.stringify(visitData));
-		res.end();
-	} else if (theType == "poClients") {
+		//console.log('Cookie value: ' + cookieVal);
 
-		res.write(JSON.stringify(clientData));
-		res.end();
+		visitReportRequest(options,function(error, httpResponse, body) {
+
+			console.log(httpResponse.headers);
+
+			if (error != null) {
+				console.log('Error on the visit report list request');
+			} else {
+
+				let listVisitReport = JSON.parse(body);
+				console.log(listVisitReport);
+				res.write(JSON.stringify(listVisitReport));
+				res.end();
+
+			}
+		}); 	
+	} else if(theType == "visitReport") {
+		let visitReportID = typeRequest.visitReportID;
+		const getVisitReportRequest = require('request');
+		const getVisitReportOptions =  {
+			url : 'https://leashtime.com/visit-report-data.php?id='+visitReportID,
+			method: 'GET',
+			headers: {
+				'Cookie' : cookieVal,
+				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
+				'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+				'Accept-Charset' : 'utf-8',
+				'Allow-Control' : true 
+			}
+		};
+		getVisitReportRequest(getVisitReportOptions,function(error, httpResponse, body) {
+			if (error != null) {
+				console.log('Error on the visit report list request');
+			} else {
+				let visitReportDetail = JSON.parse(body);
+				res.write(JSON.stringify(visitReportDetail));
+				res.end();
+
+			}
+		}); 
 	} else if(theType == "petOwnerVisits") {
 		var clientRequest = require('request-promise');
-		var clientGetRequest = require('request-promise');
-		let clientOwnVisitURL = 'https://client-own-scheduler-data.php?timeframes=1';	
+		//var clientGetRequest = require('request-promise');
+		//llet clientOwnVisitURL = 'https://client-own-scheduler-data.php?timeframes=1';	
 		var clientJar = clientRequest.jar();
 		clientRequest = clientRequest.defaults({jar: clientJar});
 		//let username = typeRequest.username;
@@ -248,65 +279,39 @@ http.createServer((req, res) => {
 				})
 	 		}
 		});
-	} else if (theType == "visitReportList") { 
+	}else if (theType == "cancel") {
 
-		let clientID = typeRequest.clientID;
-		let start = typeRequest.startDate;
-		let end = typeRequest.endDate;
+		res.write(JSON.stringify({ "response" : "ok"}));
+		visitCancel(typeRequest.visitid, typeRequest.note);
+		res.end();
+	} else if(theType == "uncancel") {
 
-		const visitReportRequest = require('request');
+		res.write(JSON.stringify({ "response" : "ok"}));
+		visitUncancel(typeRequest.visitid, typeRequest.note);
+		res.end();
+	} else if(theType == "change") {
 
-		const options = {
-			url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
-			method: 'GET',
-			headers: {
-				'Cookie' : cookieVal,
-				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
-				'Accept' : 'application/json',
-				'Accept-Charset' : 'utf-8' 
-			}
-		};
-		console.log(options.url);
-		console.log('Cookie value: ' + cookieVal + ', ' + options)
+		res.write(JSON.stringify({ "response" : "ok"}));
+		visitChange(typeRequest.visitid, typeRequest.note);
+		res.end();
+	} else if (theType == "poVisits") {
+		res.write(JSON.stringify(visitData));
+		res.end();
+	} else if (theType == "poClients") {
 
-		visitReportRequest(options,function(error, httpResponse, body) {
-			if (error != null) {
-				console.log('Error on the visit report list request');
-			} else {
-				body.forEach((visitReport) => {
-					console.log(visitReport.appointmentid);
-				})
-				//let visitReportList = JSON.parse(body);
-				//let visitReportList = httpResponse.body;
-				//console.log('RESPONSE BODY: ' + visitReportList);
-			}
-		}); 
-		
-	} else if(theType == "visitReport") {
-		let visitReportID = typeRequest.visitReportID;
-		const getVisitReportRequest = require('request');
-		const getVisitReportOptions = {
-
-
-		}
-		request.post({
-			url : 'https://leashtime.com/visit-report-data.php',
-			form : {id : visitReportID},
-			headers: {
-				'Cookie' : cookieVal,
-				'Content-Type' : 'application/x-www-form-urlencoded',
-				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
-			}
-		}, function(error, httpResponse, body) {
-
-			if (error != null) {
-				console.log("Visit report reponse error");
-			} else {
-				let visitReportJSON = JSON.parse(body);
-				console.log('VISIT REPORT RAW JSON:  '+ visitReportJSON);
-			}
-		});
-	}
+		res.write(JSON.stringify(clientData));
+		res.end();
+	} else if (theType == "gSit") {
+		console.log('Num sitters: ' + sitterList.length);
+		res.write(JSON.stringify(sitterList));
+		res.end();
+	} else if (theType == "gVisit") {
+		res.write(JSON.stringify(visitList));
+		res.end();
+	} else if (theType == "gClients") {
+		res.write(JSON.stringify(clientList));
+		res.end();
+	} 
 }).listen(port);
 
 

@@ -4,7 +4,6 @@
   const monthsArrStr = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   
   var VisitReport = function(visitDictionary) {
-      console.log(visitDictionary);
       return new VisitReport.init(visitDictionary);
   }
   
@@ -17,8 +16,23 @@
    
   VisitReport.prototype = {
     
-    setStatus : function() {
-      return statusMessages[this.vrStatus]
+    setMoodButtons : function() {
+      console.log('Mood button function');
+      let moodKeys = Object.keys(this.moodButtons);
+      let moodHTML;
+      moodKeys.forEach((mKey)=> {
+            if (this.moodButtons[mKey] != null) {
+                if (this.moodButtons[mKey] == 1) {
+
+                    moodHTML += `
+                    <a id=${mKey} type="message" class="btn transparent" data-content="Pee'd" data-original-title="" title="" aria-describedby=Pet Pee'd>
+                    <i class="md md-invert-colors" style="font-size:2em;margin-top:-10px"></i></a>
+                    `;
+                }
+            }
+            let moodDiv = document.getElementById('moodButtons');
+            moodDiv.innerHTML = moodHTML;
+      })
     },
     
     setSelector : function(sel) {
@@ -121,6 +135,9 @@
     this.VISITPHOTOURL = visitDictionary['VISITPHOTOURL'];
     this.VISITPHOTONUGGETURL = visitDictionary['VISITPHOTONUGGETURL'];
     this.moodButtons = visitDictionary['MOODBUTTON'];
+    console.log(this.moodButtons);
+
+    this.setMoodButtons();
     this.sitterDict = visitDictionary['SITTER'];
 
     if (this.sitterDict.none == true) {

@@ -8,7 +8,64 @@ var LTMGR = (function() {
 	var allClients = [];
 	var distanceMatrix = [];
 	var sitterDistanceData = [];
+	var visitReportList = [];
+	var visitReportDetail = [];
+	var sitterJson = [];
+	class VisitReportListItem {
+		constructor(visitListItemDictionary) {
+			this.visitID = visitListItemDictionary['appointmentid'];
+			this.visitDate = visitListItemDictionary['visitdate'];
+			this.visitTimeWindow = visitListItemDictionary['visittimeframe'];
+			this.service =  visitListItemDictionary['service'];
+			this.sitter =  visitListItemDictionary['sitter'];
+			this.dateReport  =  visitListItemDictionary['date'];
+			this.timeReport =  visitListItemDictionary['time'];
+			this.url =  visitListItemDictionary['url'];
+			this.externalUrl =  visitListItemDictionary['externalurl'];
+		}
+	}
+	class VisitReport {
+		constructor(visitDictionary) {
 
+			this.BIZNAME = visitDictionary['BIZNAME'];
+		    this.BIZSHORTNAME = visitDictionary['BIZSHORTNAME'];
+		    this.BIZEMAIL = visitDictionary['BIZEMAIL'];
+		    this.BIZHOMEPAGE = visitDictionary['BIZHOMEPAGE'];
+		    this.BIZADDRESS1 = visitDictionary['BIZADDRESS1'];
+		    this.BIZADDRESS2 = visitDictionary['BIZADDRESS2'];
+		    this.BIZCITY = visitDictionary['BIZCITY'];
+		    this.BIZSTATE = visitDictionary['BIZSTATE'];
+		    this.BIZZIP = visitDictionary['BIZZIP'];
+		    this.BIZLOGINPAGE = visitDictionary['BIZLOGINPAGE'];
+		    this.CLIENTID = visitDictionary['CLIENTID'];
+		    this.CLIENTFNAME = visitDictionary['CLIENTFNAME'];
+		    this.CLIENTLNAME = visitDictionary['CLIENTLNAME'];
+		    this.PETOWNER = this.CLIENTFNAME + ' ' + this.CLIENTLNAME;
+		    let arriveRaw = visitDictionary['ARRIVED']; //yyyy-mm-dd hh:mm:ss
+		    let completeRaw = visitDictionary['COMPLETED'];
+		    let reArrComp =/[0-9]+:[0-9]+/;
+		    let re=/[0-9]+-[0-9]+-[0-9]+/;
+		    this.ARRIVED = reArrComp.exec(arriveRaw);
+		    this.COMPLETED = reArrComp.exec(completeRaw);
+		    this.vrdate =re.exec(arriveRaw);
+		    this.NOTE = visitDictionary['NOTE'];
+		    this.PETS = visitDictionary['PETS'];
+		    this.MAPROUTEURL = visitDictionary['MAPROUTEURL'];
+		    this.MAPROUTENUGGETURL = visitDictionary['MAPROUTENUGGETURL'];
+		    this.VISITPHOTOURL = visitDictionary['VISITPHOTOURL'];
+		    this.VISITPHOTONUGGETURL = visitDictionary['VISITPHOTONUGGETURL'];
+		    this.moodButtons = visitDictionary['MOODBUTTON'];
+		    this.sitterDict = visitDictionary['SITTER'];
+
+		    if (this.sitterDict.none == true) {
+		      this.SITTER = this.BIZSHORTNAME;
+		    } else {
+		      this.SITTER = sitterDict.sittername;
+		    }
+
+		    this.serviceLabel = 'Service';
+		}
+	};
 	class DistanceMatrixPair {
 		constructor(beginCoordinate, endCoordinate, beginName, endName, distance, duration) {
 			this.beginCoordinate = beginCoordinate;
@@ -27,7 +84,7 @@ var LTMGR = (function() {
 
 
 		}
-	}
+	};
 	class SitterProfile {
 		constructor(sitterInfo) {
 			let sitterKeys = Object.keys(sitterInfo);
@@ -221,7 +278,6 @@ var LTMGR = (function() {
 			this.customFields = customFieldsLocal;
 		}
 	};
-
 	function getSitters(){
 
 		return sitterList;
@@ -234,16 +290,19 @@ var LTMGR = (function() {
 
 		return allClients;
 	}
+	async function loginManager(username, password, role,startDate,endDate) {
 
-	function loginManager(username, password, role,startDate,endDate) {
-		let successLogin = false;
 		sitterList = [];
 		visitList =[];
 		allClients =[];
 
 		console.log('Num sitter: ' + sitterList.length + ', Num visit: ' + visitList.length + ', Num client: ' + allClients.length);
 		let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+role+'&startDate='+startDate+'&endDate='+endDate;
-		fetch(url)
+		
+		const response = await fetch(url);
+		const myJson = await response.json();
+
+		/*fetch(url)
 			.then((response)=> {
 				return response.json();
 			})
@@ -254,57 +313,76 @@ var LTMGR = (function() {
 					return true;
 				}
 
-			});
+			});*/
 			//.catch((error) => {
 			//	console.log('manager login error');
 			//});
 	}
-	function getManagerData() {
-		sitterList = [];
-		visitList =[];
-		allClients =[];
+	async function getManagerData() {
+			console.log('MANAGER DATA FETCH STARTED');
 
-		let base_url = 'http://localhost:3300?type=gSit';		
-		fetch(base_url)
-			.then((response) => {
-				return response.json();
-			})
-			.then((myJson)=> {
-				myJson.forEach((sitterProfile) => {
-					let nSitterProfile = new SitterProfile(sitterProfile);
-					sitterList.push(nSitterProfile);
-					let sitterID = sitterProfile.providerid;
-					console.log(sitterID);
-					let sitterProfileString = JSON.stringify(sitterProfile);
-					console.log(sitterProfileString);	
-				})
+			sitterList = [];
+			visitList =[];
+			allClients =[];
+
+			let base_url = 'http://localhost:3300?type=gSit';		
+			const response = await fetch(base_url);
+			const myJson = await response.json();
+
+			myJson.forEach((sitterProfile) => {
+				//console.log(sitterProfile);
+				let nSitterProfile = new SitterProfile(sitterProfile);
+				sitterList.push(nSitterProfile);
 			});
+			console.log('MANAGER DATA FETCH ENDED');
+			return sitterList;
 	}
-	function getManagerVisits() {
+	async  function getManagerVisits() {
+		console.log('MANAGER visit FETCH STARTED');
+
 		let base_url = 'http://localhost:3300?type=gVisit';		
-		fetch(base_url)
-			.then((response) => {
-				return response.json();
-			})
-			.then((myJson)=> {
-				myJson.forEach((visit) => {
-					let nVisitProfile = new SitterVisit(visit);
-					visitList.push(nVisitProfile);	
-				})
-			});
+		const response = await fetch(base_url);
+		const myJson = await response.json();
+		myJson.forEach((visit) => {
+			//console.log(visit);
+			let nVisitProfile = new SitterVisit(visit);
+			visitList.push(nVisitProfile);	
+		});
+
+		console.log('MANAGER visit FETCH ended');
+		return visitList;
 	}
-	function getManagerClients() {
+	async function getManagerClients() {
+
+		console.log('MANAGER client  FETCH STARTED');
+
 		let base_url = 'http://localhost:3300?type=gClients';		
+
+		const response = await fetch(base_url);
+		const myJson = await response.json();
+		myJson.forEach((client) => {
+			//console.log(client);
+			let petOwner = new PetOwnerProfile(client);
+			allClients.push(petOwner);	
+		});
+		console.log('MANAGER client FETCH ended');
+		return allClients;
+
+/*
 		fetch(base_url)
 			.then((response) => {
 				return response.json();
 			})
 			.then((myJson)=> {
+
 				myJson.forEach((client) => {
 					let petOwner = new PetOwnerProfile(client);
 					allClients.push(petOwner);	
 				})
-			});
+
+				//return allClients;
+
+			})*/
 	}
 	function getVisitsBySitterID(sitterID) {
 	}
@@ -323,6 +401,14 @@ var LTMGR = (function() {
 		return visitListForSitter;
 	}
 	function addDistanceMatrixPair(distanceMatrixInfo, waypoints) {
+		console.log(waypoints.length);
+		let numWay = waypoints.length;
+		for(let i = 0; i < numWay -1; i++) {
+			let fromWaypoint =  waypoints[i];
+			let toWaypoint =  waypoints[i+1];
+
+			console.log('FROM: '  + waypoints[i].name + ' --> ' + waypoints[i+1].name);
+		}	
 
 		let route_legs = distanceMatrixInfo.legs;
         let num_legs = distanceMatrixInfo.legs.length;
@@ -338,6 +424,45 @@ var LTMGR = (function() {
 	}
 	function getDistanceMatrixPair(distanceMatrixLookupInfo) {
 	}
+	function getVisitReportList(clientID, startDate, endDate) {
+
+		console.log('Getting visits report for: ' + clientID );
+
+		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
+		fetch(url)
+		.then((response) => {
+			return response.json();
+		})
+		.then((vrList) => {
+			console.log(vrList);
+			vrList.forEach((reportLink) => {
+				//console.log(reportLink);
+				let vrListItem = new VisitReportListItem(reportLink);
+				//console.log(vrListItem.visitID);
+				visitReportList.push(vrListItem);
+				getVisitReport(vrListItem.visitID);
+			})
+		})
+		return visitReportList;
+	}
+	function getVisitReport(visitID) {
+		//visitReportList.forEach((visitReportItem) => {
+			//if (visitID == visitReportItem.visitID) {
+				let url = 'http://localhost:3300?type=visitReport&visitReportID='+visitID;
+				console.log(url);
+
+				fetch(url)
+				.then((response) => {
+					return response.json();
+				})
+				.then((vReport) => {
+					//let vrDetail = JSON.parse(vReport);
+					//visitReportDetail.push(vrDetail);
+					console.log(vReport);
+				})
+			//}
+		//})
+	}
 
 	return {
 
@@ -351,18 +476,23 @@ var LTMGR = (function() {
 		getVisitsBySitterID : getVisitsBySitterID,
 		getVisitsBySitter : getVisitsBySitter,
 		addDistanceMatrixPair : addDistanceMatrixPair,
-		getDistanceMatrixPair : getDistanceMatrixPair
+		getDistanceMatrixPair : getDistanceMatrixPair,
+		getVisitReportList : getVisitReportList,
+		getVisitReport : getVisitReport
 	}
 
 	modules.exports = {
 		sitterList : sitterList,
 		visitList : visitList,
 		allClients : allClients,
+		visitReportList : visitReportList,
 		SitterVisit : SitterVisit,
 		SitterProfile : SitterProfile,
 		PetOwnerProfile : PetOwnerProfile,
 		Pet : Pet,
-		DistanceMatrixPair : DistanceMatrixPair
+		DistanceMatrixPair : DistanceMatrixPair,
+		VisitReport : VisitReport,
+		VisitReportListItem : VisitReportListItem
 	}
 
 } ());
