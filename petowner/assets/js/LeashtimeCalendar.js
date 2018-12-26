@@ -37,6 +37,7 @@
         let monthDate = todayDate.getMonth()+1;
         let dateString = fullYear + '-' + monthDate + '-' + dayOfMonth;
 
+        let clientURL = 'https://leashtime.com/client-own-schedule.php?'
         $(document).ready(function () {
             $.ajax({
                 "url" : "http://localhost:3300",

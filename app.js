@@ -20,7 +20,7 @@ var visitList =[];
 var sitterList = [];
 var clientList = [];
 var timeOffList = [];
-var visitReportList = [];
+var detailVisitReportList = {};
 
 
 const visitData = require('./data/visit.json');
@@ -53,7 +53,7 @@ http.createServer((req, res) => {
 		sitterList = [];
 		clientList = [];
 		timeOffList = [];
-		visitReportList = [];
+		vrList = [];
 
 	 	var j = request.jar();
 	 	request = request.defaults({jar: j});
@@ -85,14 +85,9 @@ http.createServer((req, res) => {
 	 					let listSitterID;
 	 					sitterJSON = JSON.parse(body2);
 	 					sitterList = sitterJSON.sitters;
-						//console.log('----------------------------------------------------');
-	 					//console.log('Sitter List: ' + sitterList.length);
-			 			//console.log('----------------------------------------------------');
-
 			 			sitterList.forEach((sitter) => {
 							 
 							 if(sitter.active == 1) {
-								//console.log('Active Sitter: ' + sitter.sitter);
 								listSitterID += sitter.id + ',';
 							 }
 			 			});
@@ -138,16 +133,26 @@ http.createServer((req, res) => {
 				});
 	 		}
 	 	});
-	} else if (theType == "visitReportList") { 
+	} else if (theType == 'getSitterList') {
+
+
+	}  else if (theType == 'getVisitList') {
+		
+
+	} else if (theType == 'getClientList') {
+
+	}
+
+	else if (theType == "visitReportList") { 
 
 		let clientID = typeRequest.clientID;
 		let start = typeRequest.startDate;
 		let end = typeRequest.endDate;
-		var visitReportRequest = require('request');
-		var visitReportJar = visitReportRequest.jar();
-		visitReportRequest = visitReportRequest.defaults({jar: visitReportJar});
+		var vrListRequest = require('request');
+		var vrListJar = vrListRequest.jar();
+		vrListRequest = vrListRequest.defaults({jar: vrListJar});
 
-		const options = {
+		let options = {
 			url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
 			method: 'GET',
 			headers: {
@@ -158,37 +163,38 @@ http.createServer((req, res) => {
 				'Allow-Control' : true 
 			}
 		};
-		console.log(options.url);
-
-		//console.log('Cookie value: ' + cookieVal);
-
-		visitReportRequest(options,function(error, httpResponse, body) {
-
-			console.log(httpResponse.headers);
+		vrListRequest(options,function(error, httpResponse, body) {
 
 			if (error != null) {
 				console.log('Error on the visit report list request');
 			} else {
+				let vrList = JSON.parse(body);
+				if (vrList != null) {
+					vrList.forEach((vrItem)=> {
+						detailVisitReportList[vrItem.appointmentid] = vrItem.externalurl;
+						console.log(vrItem.visitdate + ' --> ' + vrItem.url +  ' --> ' + vrItem.externalurl);
+					})
 
-				let listVisitReport = JSON.parse(body);
-				//console.log(listVisitReport);
-				res.write(JSON.stringify(listVisitReport));
-				res.end();
-
+					res.write(JSON.stringify(vrList));
+				} else {
+					res.write(JSON.stringify({ "visitReport" : "none"}));				
+				}
+				//visitReportRequest = null;
+				//visitReportJar = null;
 			}
-		}); 	
+			res.end();
+		});
+
 	} else if(theType == "visitReport") {
 
-		console.log('Visit Report details called with params: ' + typeRequest.visitReportID);
-		//let visitReportID = typeRequest.visitReportID;
-		var detailsVR = require('request');
-		var detailsJAR = detailsVR.jar();
-		detailsVR = detailsVR.defaults({jar: detailsJAR});		
+		let getURLString = typeRequest.getURL;
+		console.log('VISIT REPORT DETAILS URL: ' + detailVisitReportList[getURLString]);
+		var vrDetailsRequest = require('request');
+		var vrDetailsJar = vrDetailsRequest.jar();
+		vrDetailsRequest = vrDetailsRequest.defaults({jar: vrDetailsJar});
 
-
-		const getVisitReportOptions =  {
-			//url : 'https://leashtime.com/visit-report-data.php?id='+visitReportID,
-			url : typeRequest.visitReportID,
+		let vrDetailsOptions  =  {
+			url : detailVisitReportList[getURLString],
 			method: 'GET',
 			headers: {
 				'Cookie' : cookieVal,
@@ -198,19 +204,24 @@ http.createServer((req, res) => {
 				'Allow-Control' : true 
 			}
 		};
-		detailsVR(getVisitReportOptions,function(error, httpResponse, body) {
+		vrDetailsRequest(vrDetailsOptions,function(error, httpResponse, body) {
 			if (error != null) {
 				console.log('Error on the visit report list request');
 			} else {
-				console.log(body);
-				console.log(httpResponse.headers);
+
 				let visitReportDetail = JSON.parse(body);
+				let vrDetailsDict = Object.keys(visitReportDetail);
+				vrDetailsDict.forEach((key) => {
+					console.log(key + ' -> ' + visitReportDetail[key]);
+				})
 				res.write(JSON.stringify(visitReportDetail));
+				//detailsVR = null;
+				//detailsJAR = null;
 				res.end();
 
 			}
 		}); 
-	} else if(theType == "petOwnerVisits") {
+	} else if (theType == "petOwnerVisits") {
 		var clientRequest = require('request-promise');
 		//var clientGetRequest = require('request-promise');
 		//llet clientOwnVisitURL = 'https://client-own-scheduler-data.php?timeframes=1';	
@@ -287,12 +298,12 @@ http.createServer((req, res) => {
 		res.write(JSON.stringify({ "response" : "ok"}));
 		visitCancel(typeRequest.visitid, typeRequest.note);
 		res.end();
-	} else if(theType == "uncancel") {
+	} else if (theType == "uncancel") {
 
 		res.write(JSON.stringify({ "response" : "ok"}));
 		visitUncancel(typeRequest.visitid, typeRequest.note);
 		res.end();
-	} else if(theType == "change") {
+	} else if (theType == "change") {
 
 		res.write(JSON.stringify({ "response" : "ok"}));
 		visitChange(typeRequest.visitid, typeRequest.note);
@@ -318,8 +329,6 @@ http.createServer((req, res) => {
 }).listen(port);
 
 function loginManager(urlString) {
-
-
 }
 
 function cleanupSession() {

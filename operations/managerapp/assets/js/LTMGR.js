@@ -8,9 +8,9 @@ var LTMGR = (function() {
 	var allClients = [];
 	var distanceMatrix = [];
 	var sitterDistanceData = [];
-	var visitReportList = [];
-	var visitReportListDict = {};
-	var visitReportDetail = [];
+	var vrList = [];
+	var vrListDic = {};
+	var vrDetailDict = {};
 
 
 	class VisitReportListItem {
@@ -25,10 +25,9 @@ var LTMGR = (function() {
 			this.url =  visitListItemDictionary['url'];
 			this.externalUrl =  visitListItemDictionary['externalurl'];
 		}
-	}
+	};
 	class VisitReport {
 		constructor(visitDictionary) {
-
 			this.BIZNAME = visitDictionary['BIZNAME'];
 		    this.BIZSHORTNAME = visitDictionary['BIZSHORTNAME'];
 		    this.BIZEMAIL = visitDictionary['BIZEMAIL'];
@@ -280,6 +279,7 @@ var LTMGR = (function() {
 			this.customFields = customFieldsLocal;
 		}
 	};
+
 	function getSitters(){
 
 		return sitterList;
@@ -292,6 +292,47 @@ var LTMGR = (function() {
 
 		return allClients;
 	}
+	function getVisitsBySitterID(sitterID) {
+	}
+	function getVisitsBySitter(sitterID) {
+
+		let visitListForSitter = [];
+
+		visitList.forEach((visitDetails) => {
+
+			if (visitDetails.sitterID == sitterID) {
+				visitListForSitter.push(visitDetails);
+			}
+
+		});
+
+		return visitListForSitter;
+	}
+	function addDistanceMatrixPair(distanceMatrixInfo, waypoints) {
+		console.log(waypoints.length);
+		let numWay = waypoints.length;
+		for(let i = 0; i < numWay -1; i++) {
+			let fromWaypoint =  waypoints[i];
+			let toWaypoint =  waypoints[i+1];
+
+			//console.log('FROM: '  + waypoints[i].name + ' --> ' + waypoints[i+1].name);
+		}	
+
+		let route_legs = distanceMatrixInfo.legs;
+        let num_legs = distanceMatrixInfo.legs.length;
+		let total_dist_check = 0;
+		let total_duration_check= 0;
+		let route_index = 0;
+		route_legs.forEach((leg)=> {
+			let waypointInfo = waypoints[route_index];
+			let step_arr = leg.steps;
+			route_index = route_index + 1;
+            num_legs = num_legs - 1;
+		});
+	}
+	function getDistanceMatrixPair(distanceMatrixLookupInfo) {
+	}
+
 	async function loginManager(username, password, role,startDate,endDate) {
 
 		sitterList = [];
@@ -339,71 +380,28 @@ var LTMGR = (function() {
 		});
 		return allClients;
 	}
-	function getVisitsBySitterID(sitterID) {
-	}
-	function getVisitsBySitter(sitterID) {
-
-		let visitListForSitter = [];
-
-		visitList.forEach((visitDetails) => {
-
-			if (visitDetails.sitterID == sitterID) {
-				visitListForSitter.push(visitDetails);
-			}
-
-		});
-
-		return visitListForSitter;
-	}
-	function addDistanceMatrixPair(distanceMatrixInfo, waypoints) {
-		console.log(waypoints.length);
-		let numWay = waypoints.length;
-		for(let i = 0; i < numWay -1; i++) {
-			let fromWaypoint =  waypoints[i];
-			let toWaypoint =  waypoints[i+1];
-
-			console.log('FROM: '  + waypoints[i].name + ' --> ' + waypoints[i+1].name);
-		}	
-
-		let route_legs = distanceMatrixInfo.legs;
-        let num_legs = distanceMatrixInfo.legs.length;
-		let total_dist_check = 0;
-		let total_duration_check= 0;
-		let route_index = 0;
-		route_legs.forEach((leg)=> {
-			let waypointInfo = waypoints[route_index];
-			let step_arr = leg.steps;
-			route_index = route_index + 1;
-            num_legs = num_legs - 1;
-		});
-	}
-	function getDistanceMatrixPair(distanceMatrixLookupInfo) {
-	}
-	async function getVisitReportList(clientID, startDate, endDate) {
+	async function getVisitReportList(clientID, startDate, endDate, visitID) {
 
 		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
 		
-		const visitReportResponse = await fetch(url);
-		const myVRJson = await visitReportResponse.json();
-		myVRJson.forEach((reportLink) => {
-			let vrListItem = new VisitReportListItem(reportLink);
-			let vrAppointmentID = reportLink.appointmentid;
-			let vrExternalURL = reportLink.externalurl;
-			visitReportListDict[vrAppointmentID] = vrExternalURL;
-			
-			visitReportList.push(vrListItem);
+		let vrListRequest = await fetch(url);
+		let vrListJson = await vrListRequest.json();
+		
+		vrListJson.forEach((vrItem) => {
+			let vrListItem = new VisitReportListItem(vrItem);
+			let vrApptID = vrItem.appointmentid;
+			let vrExtUrl = vrItem.externalurl;
+			vrListDic[vrApptID] = vrExtUrl;
+			vrList.push(vrListItem);
 		});
-
-		return visitReportList;
+		return vrList;
 	}
 	async function getVisitReport(visitID) {
-		let getURL = visitReportListDict[visitID];
-		console.log(getURL);
-		let url = 'http://localhost:3300?type=visitReport&visitReportID='+getURL;
-		const visitReportItemRespone = await fetch(url);
-		const myVRJson = await visitReportItemRespone.json();
-		console.log(myVRJson);
-		return myVRJson;
+		let getURL = vrListDic[visitID];
+		let url = 'http://localhost:3300?type=visitReport&getURL='+visitID;
+		let vrDetailResponse = await fetch(url);
+		let vrDetailJson  = await vrDetailResponse.json();
+		return vrDetailJson;
 	}
 
 	return {
