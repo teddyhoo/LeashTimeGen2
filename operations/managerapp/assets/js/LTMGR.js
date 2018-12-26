@@ -383,7 +383,7 @@ var LTMGR = (function() {
 	async function getVisitReportList(clientID, startDate, endDate, visitID) {
 
 		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
-		
+		console.log('Called visitReportList for: ' + clientID);
 		let vrListRequest = await fetch(url);
 		let vrListJson = await vrListRequest.json();
 		
@@ -391,9 +391,13 @@ var LTMGR = (function() {
 			let vrListItem = new VisitReportListItem(vrItem);
 			let vrApptID = vrItem.appointmentid;
 			let vrExtUrl = vrItem.externalurl;
+			console.log(vrApptID + ' -> ' + vrExtUrl);
 			vrListDic[vrApptID] = vrExtUrl;
 			vrList.push(vrListItem);
 		});
+		vrList.forEach((vrListItem)=> {
+			console.log(vrListItem.visitID);
+		})
 		return vrList;
 	}
 	async function getVisitReport(visitID) {

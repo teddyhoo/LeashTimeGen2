@@ -248,6 +248,8 @@
                     let isAvailable = false;
                     let vrListLinks;
 
+                    console.log(visitInfo.visitID);
+
 
                     let vrList = LTMGR.getVisitReportList(visitInfo.clientID, '2018-12-01', fullDate, visitInfo.visitID);
                     await vrList.then((vrListItems)=> { 
@@ -297,12 +299,14 @@
                                                     <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
                                                 </div>
                                             </div>
-                                            <img src=${vrDetailsDic.VISITPHOTONUGGETURL} width = 100 height = 100>
                                             <header class="">${vrListLinks.service}</header>
-                                            <img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 100 height = 100>
+                                            <h4 style="color:yellow;">VISIT REPORT SENT: ${timeReport} (${dateReport})</h4>
 
+                                            <div>
+                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} width = 100 height = 100></span>
+                                                <span><img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 100 height = 100></span>
+                                            </div>
                                             <div class="card-body p-t-0">
-                                                <h4 style="color:yellow;">VISIT REPORT SENT: ${timeReport} (${dateReport})</h4>
                                             </div>
                                         </div>
                                         <div class="card-body p-t-0">

@@ -137,7 +137,7 @@ http.createServer((req, res) => {
 
 
 	}  else if (theType == 'getVisitList') {
-		
+
 
 	} else if (theType == 'getClientList') {
 
@@ -145,44 +145,73 @@ http.createServer((req, res) => {
 
 	else if (theType == "visitReportList") { 
 
-		let clientID = typeRequest.clientID;
-		let start = typeRequest.startDate;
-		let end = typeRequest.endDate;
-		var vrListRequest = require('request');
-		var vrListJar = vrListRequest.jar();
-		vrListRequest = vrListRequest.defaults({jar: vrListJar});
-
-		let options = {
-			url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
-			method: 'GET',
-			headers: {
-				'Cookie' : cookieVal,
-				'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
-				'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-				'Accept-Charset' : 'utf-8',
-				'Allow-Control' : true 
-			}
-		};
-		vrListRequest(options,function(error, httpResponse, body) {
-
-			if (error != null) {
-				console.log('Error on the visit report list request');
-			} else {
-				let vrList = JSON.parse(body);
-				if (vrList != null) {
-					vrList.forEach((vrItem)=> {
-						detailVisitReportList[vrItem.appointmentid] = vrItem.externalurl;
-						console.log(vrItem.visitdate + ' --> ' + vrItem.url +  ' --> ' + vrItem.externalurl);
-					})
-
-					res.write(JSON.stringify(vrList));
-				} else {
-					res.write(JSON.stringify({ "visitReport" : "none"}));				
+		mgrLoginURL = url_Base_MGR +'/'+ mmdLogin;
+		let username = 'dlife';
+		let password = 'pass';
+		let user_role = 'm';
+		let start_date = typeRequest.startDate;
+		let end_date = typeRequest.endDate;
+		var j = request.jar();
+	 	request = request.defaults({jar: j});
+	 	request.post({
+	 			url: 'https://leashtime.com/mmd-login.php', 
+	 			form: {user_name:username, user_pass:password, expected_role:user_role},
+	 			headers: {
+					'Content-Type' : 'application/x-www-form-urlencoded',
+					'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
 				}
-				//visitReportRequest = null;
-				//visitReportJar = null;
+
+	 	}, function(err,httpResponse,body){ 
+	 		if(err != null) {
+	 			console.log(err);
+	 		} else {
+
+	 			cookieVal = httpResponse.headers['set-cookie'];
+
+				let clientID = typeRequest.clientID;
+				let start = typeRequest.startDate;
+				let end = typeRequest.endDate;
+				console.log('CLIENT ID: ' + clientID);
+				let vrListRequest = require('request');
+				let vrListJar = vrListRequest.jar();
+				vrListRequest = vrListRequest.defaults({jar: vrListJar});
+
+				let options = {
+					url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
+					method: 'GET',
+					headers: {
+						'Cookie' : cookieVal,
+						'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
+						'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+						'Accept-Charset' : 'utf-8',
+						'Allow-Control' : true 
+					}
+				};
+				vrListRequest(options,function(error, httpResponse, body) {
+
+					console.log(options);
+					console.log(body);
+					if (error != null) {
+						console.log('Error on the visit report list request');
+					} else {
+						let vrList = JSON.parse(body);
+						if (vrList != null) {
+							vrList.forEach((vrItem)=> {
+								detailVisitReportList[vrItem.appointmentid] = vrItem.externalurl;
+								//console.log(vrItem.visitdate + ' --> ' + vrItem.url +  ' --> ' + vrItem.externalurl);
+							})
+
+							res.write(JSON.stringify(vrList));
+						} else {
+							res.write(JSON.stringify({ "visitReport" : "none"}));				
+						}
+						vrListRequest = null;
+						vrListJar = null;
+						options = null;
+					}
+					res.end();
+				});
 			}
-			res.end();
 		});
 
 	} else if(theType == "visitReport") {
@@ -212,11 +241,11 @@ http.createServer((req, res) => {
 				let visitReportDetail = JSON.parse(body);
 				let vrDetailsDict = Object.keys(visitReportDetail);
 				vrDetailsDict.forEach((key) => {
-					console.log(key + ' -> ' + visitReportDetail[key]);
+					//console.log(key + ' -> ' + visitReportDetail[key]);
 				})
 				res.write(JSON.stringify(visitReportDetail));
-				//detailsVR = null;
-				//detailsJAR = null;
+				vrDetailsRequest = null;
+				vrDetailsJar = null;
 				res.end();
 
 			}
