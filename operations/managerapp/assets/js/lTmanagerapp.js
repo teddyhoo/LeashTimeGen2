@@ -6,6 +6,8 @@
 
         let username = '';
         let password = '';
+        var userRole = 'm';
+
         var allVisits = [];
         var allSitters= [];
         var allClients =[];
@@ -61,7 +63,8 @@
             let dateRequestString = onWhichDay.getFullYear() + '-' + monthDate+ '-' + monthDay;
             console.log('REQUESTING FOR DATE: ' + dateRequestString);
             updateDateInfo();
-            login(dateRequestString);
+            fullDate = dateRequestString;
+            loginPrevious(dateRequestString);
         }
 
         function loginPrevious(loginDate) {
@@ -78,6 +81,33 @@
             prevDaySteps(loginDate);
         }
 
+        async function prevDaySteps(loginDate) {
+            let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+loginDate+'&endDate='+loginDate;
+            const loginFetchResponse = await fetch(url);
+            const response = await loginFetchResponse.json();
+
+            const sitterListAfterLogin = LTMGR.getManagerData();
+            await sitterListAfterLogin.then((results)=> {
+                allSitters = results;
+            });
+
+            const visitListAfterLogin = LTMGR.getManagerVisits();
+            await visitListAfterLogin.then((results)=> {
+                allVisits = results;
+            })
+
+            const clientsAfterLogin = LTMGR.getManagerClients();
+            await clientsAfterLogin.then((results)=> {
+                allClients = results;
+            });
+
+            //allVisits.forEach((visit)=> {
+            //    console.log(visit.visitID);
+            //})
+        
+            flyToFirstVisit();
+            buildSitterButtons(allVisits, allSitters);
+        }
         function login(loginDate) {
             removeSittersFromSitterList();
             removeAllMapMarkers();
@@ -91,59 +121,6 @@
 
             setupLoginSteps(loginDate, false);
 
-        }
-        async function loginPromise(loginDate) {
-
-            if (username == '') {
-                username = document.getElementById('userName').value;
-            }
-            if (password == '') {
-                password = document.getElementById('passWord').value;
-            }
-            if (document.getElementById('login').innerHTML == 'LOGIN') {
-                let usernameNode = document.getElementById('userName');
-                usernameNode.parentNode.removeChild(usernameNode);
-                let passwordNode = document.getElementById('passWord')
-                passwordNode.parentNode.removeChild(passwordNode);
-                document.getElementById('login').innerHTML = 'UPDATE';
-            }
-
-            var userRole = 'm';
-            if (loginDate == null) {
-                fullDate = getFullDate();
-            } else {
-                fullDate = loginDate;
-            }
-
-            let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
-            const loginFetchResponse = await fetch(url);
-            const response = await loginFetchResponse.json();
-            return ('OK - login');
-        }        
-        async  function getListVisitReport() {
-        }
-        async  function visitReportDetails() {
-        }
-        async function prevDaySteps(loginDate) {
-
-            /*const sitterListAfterLogin = LTMGR.getManagerData();
-            await sitterListAfterLogin.then((results)=> {
-                allSitters = results;
-            });*/
-
-            const visitListAfterLogin = LTMGR.getManagerVisits();
-            await visitListAfterLogin.then((results)=> {
-                allVisits = results;
-            })
-
-            const clientsAfterLogin = LTMGR.getManagerClients();
-            await clientsAfterLogin.then((results)=> {
-                allClients = results;
-            });
-
-        
-            flyToFirstVisit();
-            buildSitterButtons(allVisits, allSitters);
         }
         async function setupLoginSteps(loginDate, isUpdate) {
             
@@ -167,12 +144,45 @@
                 allClients = results;
             });
 
+
+            //allVisits.forEach((visit)=> {
+             //   console.log(visit.visitID);
+            //})
         
             flyToFirstVisit();
             buildSitterButtons(allVisits, allSitters);
             //let loginButton = document.getElementById('login');
             //loginButton.innerHTML = "UPDATE";
         }
+        async function loginPromise(loginDate) {
+
+            if (username == '') {
+                username = document.getElementById('userName').value;
+            }
+            if (password == '') {
+                password = document.getElementById('passWord').value;
+            }
+            if (document.getElementById('login').innerHTML == 'LOGIN') {
+                let usernameNode = document.getElementById('userName');
+                usernameNode.parentNode.removeChild(usernameNode);
+                let passwordNode = document.getElementById('passWord')
+                passwordNode.parentNode.removeChild(passwordNode);
+                document.getElementById('login').innerHTML = 'UPDATE';
+            }
+
+            if (loginDate == null) {
+                fullDate = getFullDate();
+            } else {
+                fullDate = loginDate;
+            }
+
+            let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
+            const loginFetchResponse = await fetch(url);
+            const response = await loginFetchResponse.json();
+        }        
+
+
+
         function buildSitterButtons(allSitterVisits, allSittersInfo) {
             totalVisitCount = parseInt(0);
             totalCancelVisitCount = parseInt(0);
@@ -248,8 +258,7 @@
                     let isAvailable = false;
                     let vrListLinks;
 
-                    console.log(visitInfo.visitID);
-
+                    //console.log(visitInfo.visitID);
 
                     let vrList = LTMGR.getVisitReportList(visitInfo.clientID, '2018-12-01', fullDate, visitInfo.visitID);
                     await vrList.then((vrListItems)=> { 
@@ -271,6 +280,7 @@
                     if (isAvailable) {
                         const vrDetails = LTMGR.getVisitReport(visitInfo.visitID);
                         await vrDetails.then((vrDetailsDic)=> { 
+                            console.log(vrDetails);
 
                             dateReport = vrListLinks.dateReport;
                             timeReport = vrListLinks.timeReport;
@@ -286,6 +296,7 @@
                             let completeTime = timeComplete[1] + ':' + timeComplete[2];
 
                             moodButtons = vrDetailsDic.moodButtons;
+                            console.log(moodButtons);
                             pets = vrDetailsDic.pets;
 
                             let popupBasicInfo;
@@ -303,7 +314,7 @@
                                             <h4 style="color:yellow;">VISIT REPORT SENT: ${timeReport} (${dateReport})</h4>
 
                                             <div>
-                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} width = 100 height = 100></span>
+                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} width = 200 height = 200></span>
                                                 <span><img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 100 height = 100></span>
                                             </div>
                                             <div class="card-body p-t-0">
@@ -349,6 +360,65 @@
                                 </div>`;
                             popup.setHTML(popupBasicInfo);
                         });
+
+                    } else {
+
+
+                            let popupBasicInfo;
+                            popupBasicInfo = 
+                                `<div class="card card-bordered style-primary">
+                                        <div class="card-head">
+                                            <div class="tools">
+                                                <div class="btn-group">
+                                                    <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
+                                                    <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
+                                                    <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
+                                                </div>
+                                            </div>
+                                            <header class="">${visitInfo.service}</header>
+                                            <h4 style="color:yellow;">STATUS: ${visitInfo.status} (${visitInfo.arrived})</h4>
+                                            <div class="card-body p-t-0">
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-t-0">
+                                            <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitInfo.sitterName}</p>
+                                            <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
+                                        </div>
+                                </div>`;
+
+                                if (visitInfo.status == 'completed') {
+                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                                } else if (visitInfo.status == 'late') {
+                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                                } else if (visitInfo.status == 'future') {
+                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                                } else if (visitInfo.status == 'canceled') {
+                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
+                                }
+
+                            popupBasicInfo += `
+                                <div class=\"card-body small-padding p-t-0 p-b-0\">
+                                    <div class=\"form-group floating-label m-t-0 p-t-0\">
+                                        <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
+                                            ${visitInfo.note}
+                                        </textarea>
+                                        <label for=\"messageSitter\">
+                                            <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
+                                        </label>
+                                    </div>
+                                    </p>
+                                </div>
+                                <div class="card-actionbar">
+                                    <div class="card-actionbar-row no-padding">
+                                        <a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left">
+                                        <i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left">
+                                        <i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a>
+                                    </div>
+                                </div>
+                                </div>`;
+                            popup.setHTML(popupBasicInfo);
+
+
                     }
                 });
             }

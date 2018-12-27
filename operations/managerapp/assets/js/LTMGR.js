@@ -156,7 +156,6 @@ var LTMGR = (function() {
 	};
 	class PetOwnerProfile {
 		constructor(clientProfileInfo) {
-
 			this.customFields = [];
 			this.petImages = [];
 			this.pets = [];
@@ -382,8 +381,15 @@ var LTMGR = (function() {
 	}
 	async function getVisitReportList(clientID, startDate, endDate, visitID) {
 
+
+		if (vrListDic[visitID] != null) {
+
+		}
+
+		console.log('client id: ' + clientID + ' start date: ' + startDate + ' end date: ' + endDate + ' visitID: ' + visitID);
+		
+
 		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
-		console.log('Called visitReportList for: ' + clientID);
 		let vrListRequest = await fetch(url);
 		let vrListJson = await vrListRequest.json();
 		
@@ -391,13 +397,10 @@ var LTMGR = (function() {
 			let vrListItem = new VisitReportListItem(vrItem);
 			let vrApptID = vrItem.appointmentid;
 			let vrExtUrl = vrItem.externalurl;
-			console.log(vrApptID + ' -> ' + vrExtUrl);
 			vrListDic[vrApptID] = vrExtUrl;
 			vrList.push(vrListItem);
 		});
-		vrList.forEach((vrListItem)=> {
-			console.log(vrListItem.visitID);
-		})
+
 		return vrList;
 	}
 	async function getVisitReport(visitID) {
