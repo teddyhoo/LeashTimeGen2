@@ -205,13 +205,10 @@ http.createServer((req, res) => {
 						console.log('Error on the visit report list reques: ' + error);
 					} else {
 						let vrList = JSON.parse(body);
-
-						console.log(vrList[0].appointmentid);
-
+						console.log(vrList);
 						if (vrList != null) {
 							vrList.forEach((vrListItem)=> {
 								detailVisitReportList[vrListItem.appointmentid] = vrListItem.externalurl;
-
 							})
 							res.write(JSON.stringify(vrList));
 						} else {

@@ -52,9 +52,7 @@
         });
 
         function prevDay() {
-            removeSittersFromSitterList();
-            removeAllMapMarkers();
-            removeVisitDivElements();
+
 
             console.log('ON WHICH DAY CURRENT: ' + onWhichDay.getFullYear() + '-' + onWhichDay.getMonth() + '-' + onWhichDay.getDate());
             onWhichDay.setDate(onWhichDay.getDate()-1)
@@ -64,24 +62,37 @@
             console.log('REQUESTING FOR DATE: ' + dateRequestString);
             updateDateInfo();
             fullDate = dateRequestString;
-            loginPrevious(dateRequestString);
-        }
+            prevDaySteps(dateRequestString);
 
-        function loginPrevious(loginDate) {
+            removeSittersFromSitterList();
+            removeAllMapMarkers();
+            removeVisitDivElements();
+        }
+        function nextDay() {
+
+            console.log('ON WHICH DAY CURRENT: ' + onWhichDay.getFullYear() + '-' + onWhichDay.getMonth() + '-' + onWhichDay.getDate());
+
+            onWhichDay.setDate(onWhichDay.getDate()-1)
+            let monthDate = onWhichDay.getMonth() + 1;
+            let monthDay = onWhichDay.getDate();
+            let dateRequestString = onWhichDay.getFullYear() + '-' + monthDate+ '-' + monthDay;
+            console.log('REQUESTING FOR DATE: ' + dateRequestString);
+            updateDateInfo();
+            fullDate = dateRequestString;
+            updateDateInfo(prevNewDate);
+            login(dateRequestString);
+
             removeSittersFromSitterList();
             removeAllMapMarkers();
             removeVisitDivElements();
 
+        }
+        async function prevDaySteps(loginDate) {
+
             allVisits = [];
             allSitters = [];
             allClients =[];
-            visitsBySitter = [];
-            mapMarkers = [];
 
-            prevDaySteps(loginDate);
-        }
-
-        async function prevDaySteps(loginDate) {
             let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+loginDate+'&endDate='+loginDate;
             const loginFetchResponse = await fetch(url);
             const response = await loginFetchResponse.json();
@@ -101,9 +112,8 @@
                 allClients = results;
             });
 
-            //allVisits.forEach((visit)=> {
-            //    console.log(visit.visitID);
-            //})
+            visitsBySitter = [];
+            mapMarkers = [];
         
             flyToFirstVisit();
             buildSitterButtons(allVisits, allSitters);
@@ -120,7 +130,6 @@
             mapMarkers = [];
 
             setupLoginSteps(loginDate, false);
-
         }
         async function setupLoginSteps(loginDate, isUpdate) {
             
@@ -180,8 +189,6 @@
             const loginFetchResponse = await fetch(url);
             const response = await loginFetchResponse.json();
         }        
-
-
 
         function buildSitterButtons(allSitterVisits, allSittersInfo) {
             totalVisitCount = parseInt(0);
@@ -280,7 +287,7 @@
                     if (isAvailable) {
                         const vrDetails = LTMGR.getVisitReport(visitInfo.visitID);
                         await vrDetails.then((vrDetailsDic)=> { 
-                            console.log(vrDetails);
+                            console.log(vrDetailsDic);
 
                             dateReport = vrListLinks.dateReport;
                             timeReport = vrListLinks.timeReport;
@@ -295,13 +302,12 @@
                             let timeComplete = re.exec(completedTime);
                             let completeTime = timeComplete[1] + ':' + timeComplete[2];
 
-                            moodButtons = vrDetailsDic.moodButtons;
-                            console.log(moodButtons);
-                            pets = vrDetailsDic.pets;
+                            console.log(vrDetailsDic.MOODBUTTON);
+                            console.log(vrDetailsDic.PETS);
 
                             let popupBasicInfo;
                             popupBasicInfo = 
-                                `<div class="card card-bordered style-primary">
+                                `<div class="card card-bordered style-primary" id="popupMain">
                                         <div class="card-head">
                                             <div class="tools">
                                                 <div class="btn-group">
@@ -311,25 +317,31 @@
                                                 </div>
                                             </div>
                                             <header class="">${vrListLinks.service}</header>
-                                            <h4 style="color:yellow;">VISIT REPORT SENT: ${timeReport} (${dateReport})</h4>
+                                           
 
                                             <div>
-                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} width = 200 height = 200></span>
-                                                <span><img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 100 height = 100></span>
+                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} id="popupPhoto" width = 120 height = 120></span>
+                                                &nbsp&nbsp
+                                                <span><img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 120 height = 120></span>
                                             </div>
                                             <div class="card-body p-t-0">
                                             </div>
                                         </div>
                                         <div class="card-body p-t-0">
-                                            <p><span class="text-default">ARRIVED: </span>${arriveTime}</p>
-                                            <p><span class="text-default">COMPLETE: </span>${completeTime}</span></p>
+                                            <p><span class="text-default">ARRIVED: ${arriveTime}
+                                            &nbsp &nbsp COMPLETE: </span>${completeTime}</span></p>
                                             <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${vrListLinks.sitter}</p>
-                                            <p class="no-margin no-padding"><span class="text-default">CLIENT: ${vrDetailsDic.PETOWNER}</p>
+                                            <p class="no-margin no-padding"><span class="text-default">CLIENT: ${vrDetailsDic.CLIENTFNAME} ${vrDetailsDic.CLIENTLNAME}</p>
+                                            <p class="no-margin no-padding"><span class="text-default">PETS: ${vrDetailsDic.PETS}</p>
+
                                         </div>
                                 </div>`;
 
+
                                 if (visitInfo.status == 'completed') {
                                     popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
+                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> VISIT REPORT SENT: </i> '+ timeReport  +' <BR> ' + dateReport +'</p></div>';
+
                                 } else if (visitInfo.status == 'late') {
                                     popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
                                 } else if (visitInfo.status == 'future') {
@@ -342,7 +354,7 @@
                                 <div class=\"card-body small-padding p-t-0 p-b-0\">
                                     <div class=\"form-group floating-label m-t-0 p-t-0\">
                                         <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
-                                            ${vrDetailsDic.NOTE}
+                                            \n\n${vrDetailsDic.NOTE}
                                         </textarea>
                                         <label for=\"messageSitter\">
                                             <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
@@ -359,6 +371,10 @@
                                 </div>
                                 </div>`;
                             popup.setHTML(popupBasicInfo);
+                            let bigImage = document.getElementById('popupPhoto');
+                            bigImage.addEventListener('click', function(event) {
+                                console.log('click photo in popup');
+                            })
                         });
 
                     } else {
@@ -512,23 +528,7 @@
             let dateLabel = document.getElementById("dateLabel");
             dateLabel.innerHTML = todayDay;*/
         }
-        function nextDay() {
 
-            removeSittersFromSitterList();
-            removeAllMapMarkers();
-            removeVisitDivElements();
-            let newDate = new Date(onWhichDay);
-            newDate.setDate(newDate.getDate());
-            newDate.setMonth(newDate.getMonth());
-            let momentOnWhichDate = moment([newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate()]);
-            momentOnWhichDate.add('1', 'days').calendar();
-            let prevNewDate = new Date(momentOnWhichDate.year() + '-' + momentOnWhichDate.month() + '-' + momentOnWhichDate.date());
-            prevNewDate.setDate(prevNewDate.getDate()+1);
-            onWhichDay = prevNewDate;
-            let dateRequestString = prevNewDate.getFullYear() + '-' + prevNewDate.getMonth() + '-' +prevNewDate.getDate();
-            updateDateInfo(prevNewDate);
-            login(dateRequestString);
-        }
         function createSitterPopup(sitterInfo) {
 
             let popupBasicInfo = '<h1>'+sitterInfo.sitterName+'</h1>';

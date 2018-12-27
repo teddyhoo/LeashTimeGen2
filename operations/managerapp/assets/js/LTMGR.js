@@ -56,6 +56,7 @@ var LTMGR = (function() {
 		    this.VISITPHOTOURL = visitDictionary['VISITPHOTOURL'];
 		    this.VISITPHOTONUGGETURL = visitDictionary['VISITPHOTONUGGETURL'];
 		    this.moodButtons = visitDictionary['MOODBUTTON'];
+		    console.log(moodButtons);
 		    this.sitterDict = visitDictionary['SITTER'];
 
 		    if (this.sitterDict.none == true) {
@@ -381,14 +382,7 @@ var LTMGR = (function() {
 	}
 	async function getVisitReportList(clientID, startDate, endDate, visitID) {
 
-
-		if (vrListDic[visitID] != null) {
-
-		}
-
 		console.log('client id: ' + clientID + ' start date: ' + startDate + ' end date: ' + endDate + ' visitID: ' + visitID);
-		
-
 		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
 		let vrListRequest = await fetch(url);
 		let vrListJson = await vrListRequest.json();
@@ -404,11 +398,22 @@ var LTMGR = (function() {
 		return vrList;
 	}
 	async function getVisitReport(visitID) {
-		let getURL = vrListDic[visitID];
-		let url = 'http://localhost:3300?type=visitReport&getURL='+visitID;
-		let vrDetailResponse = await fetch(url);
-		let vrDetailJson  = await vrDetailResponse.json();
-		return vrDetailJson;
+		
+		if (vrDetailDict[visitID] != null) {
+
+			return vrDetailDict[visitID];
+
+		} else {
+
+			let getURL = vrListDic[visitID];
+			let url = 'http://localhost:3300?type=visitReport&getURL='+visitID;
+			let vrDetailResponse = await fetch(url);
+			let vrDetailJson  = await vrDetailResponse.json();
+			vrDetailDict[visitID] = vrDetailJson;
+			return vrDetailJson;
+
+		}
+		
 	}
 
 	return {
