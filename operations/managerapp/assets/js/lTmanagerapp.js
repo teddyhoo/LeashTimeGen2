@@ -19,6 +19,21 @@
 
         var totalVisitCount = parseInt(0);
         var totalCancelVisitCount = parseInt(0);
+        var re = /([0-9]+):([0-9]+):([0-9]+)/
+
+        var moodButtonMap = {
+            'poo' : 'dog-poo@3x.png',
+            'pee' : 'dog-pee-firehydrant@3x.png',
+            'play' : 'play-icon-red@3x.png',
+            'happy' : 'happy-icon-red@3x.png',
+            'shy' : 'shy-icon-red@3x.png',
+            'sad' : 'sad-dog-red@3x.png',
+            'sick' : 'sick-icon-red@3x.png',
+            'litter' : 'kitty-litter@3x.png',
+            'angry' : 'angry-icon-red@3x.png',
+            'cat' : 'catsit-black-red@3x.png',
+            'hungry' : 'hungry-icon-red@3x.png'
+        };
 
 
         var statusVisit = {
@@ -259,13 +274,12 @@
                 el.addEventListener("click", async function(event) {
 
                     let popupView;
-                    let visitReportListArray;
-                    let reportSubmitted;
-                    let allVisitReportList;
                     let isAvailable = false;
                     let vrListLinks;
 
-                    //console.log(visitInfo.visitID);
+                    removeSittersFromSitterList();
+                    removeVisitDivElements();
+
 
                     let vrList = LTMGR.getVisitReportList(visitInfo.clientID, '2018-12-01', fullDate, visitInfo.visitID);
                     await vrList.then((vrListItems)=> { 
@@ -279,104 +293,11 @@
                         })
                     });
 
-                    let mapURL;
-                    let photoURL;
-                    let pets = [];
-                    let moodButtons = [];
-
                     if (isAvailable) {
-                        const vrDetails = LTMGR.getVisitReport(visitInfo.visitID);
+                        let vrDetails = LTMGR.getVisitReport(visitInfo.visitID);
                         await vrDetails.then((vrDetailsDic)=> { 
-                            console.log(vrDetailsDic);
-
-                            dateReport = vrListLinks.dateReport;
-                            timeReport = vrListLinks.timeReport;
-                            arrivedTime = vrDetailsDic.ARRIVED;
-                            completedTime = vrDetailsDic.COMPLETED;
-                            console.log(arrivedTime + ' ' + completedTime + ' ' +  dateReport + ' ' +  timeReport);
-
-                            let re = /([0-9]+):([0-9]+):([0-9]+)/
-                            let timeArrive = re.exec(arrivedTime);
-                            let arriveTime = timeArrive[1] + ':' + timeArrive[2];
-
-                            let timeComplete = re.exec(completedTime);
-                            let completeTime = timeComplete[1] + ':' + timeComplete[2];
-
-                            console.log(vrDetailsDic.MOODBUTTON);
-                            console.log(vrDetailsDic.PETS);
-
-                            let popupBasicInfo;
-                            popupBasicInfo = 
-                                `<div class="card card-bordered style-primary" id="popupMain">
-                                        <div class="card-head">
-                                            <div class="tools">
-                                                <div class="btn-group">
-                                                    <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
-                                                    <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
-                                                    <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
-                                                </div>
-                                            </div>
-                                            <header class="">${vrListLinks.service}</header>
-                                           
-
-                                            <div>
-                                                <span><img src=${vrDetailsDic.VISITPHOTONUGGETURL} id="popupPhoto" width = 120 height = 120></span>
-                                                &nbsp&nbsp
-                                                <span><img src=${vrDetailsDic.MAPROUTENUGGETURL} width = 120 height = 120></span>
-                                            </div>
-                                            <div class="card-body p-t-0">
-                                            </div>
-                                        </div>
-                                        <div class="card-body p-t-0">
-                                            <p><span class="text-default">ARRIVED: ${arriveTime}
-                                            &nbsp &nbsp COMPLETE: </span>${completeTime}</span></p>
-                                            <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${vrListLinks.sitter}</p>
-                                            <p class="no-margin no-padding"><span class="text-default">CLIENT: ${vrDetailsDic.CLIENTFNAME} ${vrDetailsDic.CLIENTLNAME}</p>
-                                            <p class="no-margin no-padding"><span class="text-default">PETS: ${vrDetailsDic.PETS}</p>
-
-                                        </div>
-                                </div>`;
-
-
-                                if (visitInfo.status == 'completed') {
-                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
-                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> VISIT REPORT SENT: </i> '+ timeReport  +' <BR> ' + dateReport +'</p></div>';
-
-                                } else if (visitInfo.status == 'late') {
-                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
-                                } else if (visitInfo.status == 'future') {
-                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
-                                } else if (visitInfo.status == 'canceled') {
-                                    popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
-                                }
-
-                            popupBasicInfo += `
-                                <div class=\"card-body small-padding p-t-0 p-b-0\">
-                                    <div class=\"form-group floating-label m-t-0 p-t-0\">
-                                        <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
-                                            \n\n${vrDetailsDic.NOTE}
-                                        </textarea>
-                                        <label for=\"messageSitter\">
-                                            <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
-                                        </label>
-                                    </div>
-                                    </p>
-                                </div>
-                                <div class="card-actionbar">
-                                    <div class="card-actionbar-row no-padding">
-                                        <a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left">
-                                        <i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left">
-                                        <i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a>
-                                    </div>
-                                </div>
-                                </div>`;
-                            popup.setHTML(popupBasicInfo);
-                            let bigImage = document.getElementById('popupPhoto');
-                            bigImage.addEventListener('click', function(event) {
-                                console.log('click photo in popup');
-                            })
+                            let popupBasicInfo = createPopupVisitReportView(vrDetailsDic, vrListLinks);          
                         });
-
                     } else {
 
 
@@ -392,11 +313,13 @@
                                                 </div>
                                             </div>
                                             <header class="">${visitInfo.service}</header>
-                                            <h4 style="color:yellow;">STATUS: ${visitInfo.status} (${visitInfo.arrived})</h4>
+                                            <h4 style="color:yellow;">VISIT REPORT HAS NOT BEEN SENT</h4>
                                             <div class="card-body p-t-0">
                                             </div>
                                         </div>
                                         <div class="card-body p-t-0">
+                                            <p><span class="text-default">ARRIVED: ${visitInfo.arrived}
+                                            &nbsp &nbsp COMPLETE: </span>${visitInfo.completed}</span></p>
                                             <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitInfo.sitterName}</p>
                                             <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
                                         </div>
@@ -416,7 +339,7 @@
                                 <div class=\"card-body small-padding p-t-0 p-b-0\">
                                     <div class=\"form-group floating-label m-t-0 p-t-0\">
                                         <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
-                                            ${visitInfo.note}
+                                            ${visitInfo.visitNote}
                                         </textarea>
                                         <label for=\"messageSitter\">
                                             <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
@@ -433,52 +356,86 @@
                                 </div>
                                 </div>`;
                             popup.setHTML(popupBasicInfo);
-
-
                     }
+                    popup.setHTML(popupBasicInfo);
                 });
             }
         }
-        function createPopupView(visitInfo, divElement) {
 
-            let popupBasicInfo = `
-                <div class="card card-bordered style-primary">
+        function createPopupVisitReportView(vrDetails, vrListInfo) {
+
+            let dateReport = vrListInfo.dateReport;
+            let timeReport = vrListInfo.timeReport;
+            let arrivedTime = vrDetails.ARRIVED;
+            let completedTime = vrDetails.COMPLETED;
+
+            let timeArrive = re.exec(arrivedTime);
+            let arriveTime = timeArrive[1] + ':' + timeArrive[2];
+            let timeComplete = re.exec(completedTime);
+            let completeTime = timeComplete[1] + ':' + timeComplete[2];
+            let moodKeys = Object.keys(vrDetails.MOODBUTTON);
+            console.log(vrDetails.MOODBUTTON);
+            let onMood = moodKeys.filter(function(key) {
+                return vrDetails.MOODBUTTON[key] == 1;
+            });
+
+            popupBasicInfo = 
+                `<div class="card card-bordered style-primary" id="popupMain">
                     <div class="card-head">
                         <div class="tools">
-                            <button type="button" id="getVisitReport" onclick="LTMGR.getVisitReportList(${visitInfo.clientID})">VISIT REPORT LIST</button>
-
                             <div class="btn-group">
                                 <a class="btn btn-icon-toggle btn-refresh"><i class="md md-refresh"></i></a>
                                 <a class="btn btn-icon-toggle btn-collapse"><i class="fa fa-angle-down"></i></a>
                                 <a class="btn btn-icon-toggle btn-close"><i class="md md-close"></i></a>
                             </div>
                         </div>
-                        <header class="">${visitInfo.service}</header>
+                        <header class="">${vrListInfo.service}</header>
+                        <div>
+                            ${onMood.map((mood)=>{
+                                return "<img src=./assets/img/"+moodButtonMap[mood]+" width=36 height=36>"
+                            })}
+                        </div>
+                        <div>
+                            <span><img src=${vrDetails.VISITPHOTONUGGETURL} id="popupPhoto" width = 160 height = 160></span>
+                            &nbsp&nbsp
+                            <span><img src=${vrDetails.MAPROUTENUGGETURL} width = 160 height = 160></span>
+                        </div>
+                        <div class="card-body p-t-0">
+                        </div>
                     </div>
                     <div class="card-body p-t-0">
-                        <p><span class="text-default">SCHEDULED: </span>${visitInfo.starttime} - ${visitInfo.endtime} </p>
-                        <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${visitInfo.sitterName}</p>
-                        <p class="no-margin no-padding"><span class="text-default">CLIENT: ${visitInfo.clientName}</p>
+                        <p><span class="text-default">ARRIVED: ${arriveTime}
+                            &nbsp &nbsp COMPLETE: </span>${completeTime}</span></p>
+                        <p class="no-margin no-padding"><span class="text-default">SITTER: </span>${vrListInfo.sitter}</p>
+                        <p class="no-margin no-padding"><span class="text-default">CLIENT: ${vrDetails.CLIENTFNAME} ${vrDetails.CLIENTLNAME}</p>
+                        <p class="no-margin no-padding"><span class="text-default">PETS: ${vrDetails.PETS}</p>
+
                     </div>
                 </div>`;
-
-
-            if (visitInfo.status == 'completed') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'late') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-warning no-margin\"><i class=\"fa fa-warning\"> LATE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'future') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-info no-margin\"><i class=\"fa fa-wifi\"> FUTURE: </i> '+visitInfo.timeOfDay+'</p></div>';
-            } else if (visitInfo.status == 'canceled') {
-                popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-danger no-margin\"><i class=\"fa fa-ban\"> CANCELED: </i> '+visitInfo.timeOfDay+'</p></div>';
-            }
-            if (visitInfo.visitNote != null) {
-                popupBasicInfo += "<div class=\"card\"><p><img src=\"./assets/img/postit\-20x20.png\" width=20 height=20>"+visitInfo.visitNote+"</p>";
-            }
-
-            popupBasicInfo += '<div class=\"card-body small-padding p-t-0 p-b-0\"><div class=\"form-group floating-label m-t-0 p-t-0\"><textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\"></textarea><label for=\"messageSitter\"><i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes</label></div></p></div><div class="card-actionbar"><div class="card-actionbar-row no-padding"><a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left"><i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left"><i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a></div></div></div>';
-            return popupBasicInfo; 
+            popupBasicInfo += '<div class=\"card\"><div class=\"card-header no-margin\"><p class=\"alert alert-success no-margin\"><i class=\"fa fa-compass\"> COMPLETE</i>';
+            popupBasicInfo += '<p class=\"alert alert-success no-margin\">VISIT REPORT SENT:  '+ timeReport  +' <BR> ' + dateReport +'</p></div>';
+            popupBasicInfo += `
+                    <div class=\"card-body small-padding p-t-0 p-b-0\">
+                        <div class=\"form-group floating-label m-t-0 p-t-0\">
+                                        
+                            <textarea name=\"messageSitter\" id=\"messageSitter\" class=\"form-control text-sm\" rows=\"3\">
+                                \n\n${vrDetails.NOTE}
+                            </textarea>
+                            <label for=\"messageSitter\">
+                                <i class=\"fa fa-note icon-tilt-alt\"></i> Visit Notes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-actionbar">
+                        <div class="card-actionbar-row no-padding">
+                            <a href="javascript:void(0);" class="btn btn-icon-toggle btn-danger ink-reaction pull-left">
+                            <i class="fa fa-heart"></i></a><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left">
+                            <i class="fa fa-reply"></i></a><a href="javascript:void(0);" class="btn btn-flat btn-default-dark ink-reaction">SEND</a>
+                        </div>
+                    </div>
+            </div>`;
         }
+
         function showLoginPanel() {
             var loginPanel = document.getElementById("lt-loginPanel");
             loginPanel.setAttribute("style", "display:block");
@@ -528,7 +485,6 @@
             let dateLabel = document.getElementById("dateLabel");
             dateLabel.innerHTML = todayDay;*/
         }
-
         function createSitterPopup(sitterInfo) {
 
             let popupBasicInfo = '<h1>'+sitterInfo.sitterName+'</h1>';
@@ -589,10 +545,6 @@
 
             return popupBasicInfo;
         }
-        function createVRPopup(VRInfo) {
-            let popupVR = '<div class="card style-info"><div class="card-head"><section id="lt-vrCard" class="full-bleed force-padding"><div class="section-body style-default-dark force-padding text-shadow" style="overflow: hidden;"><div id="imgHolder" class="img-backdrop responsive-image" style="background-image: url("https://leashtime.com/public/sandbox-new/email/visit-reports/assets/img/pic-dogsun.jpg");" onclick="swapPhotoMap();"></div><div class="overlay overlay-shade-top stick-top-left height-3"></div><div class="stick-top-left"><div class="text-light force-padding"><i class="fa fa-photo"></i><strong> CARE</strong>REPORTS&trade;</div></div><div class="row"><div class="col-xs-12 no-padding"><div class="width-3 text-center pull-right" style="line-height:1;"><div class=""><strong class="text-lg no-margin"><span class="vrd" data-vrdata="vrdate">11/19/18</span></strong><br><span class=" text-xs text-light opacity-75"><span class="vrd" data-vrdata="servicelabel">30 Minute Walk</span></span></div></div></div></div><div class="overlay overlay-shade-bottom stick-bottom-left text-right"></div><div class="stick-bottom-right text-right force-padding"><div class="btn-group"><div class="btn-group"><a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="md md-map md-2x"></i></a><ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Peed</a></li></ul> </div><div class="btn-group"><a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="fa fa-paw "></i></a><ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Pooped</a></li></ul></div><div class="btn-group"> <a href="#" class="btn btn-icon-toggle dropdown-toggle" data-toggle="dropdown"><i class="md md-colorize "></i></a> <ul class="dropdown-menu animation-dock pull-right menu-card-styling" role="menu" style="text-align: left;"><li><a href="javascript:void(0);" data-style="style-default-dark"><i class="fa fa-paw fa-fw text-default-dark"></i> Feeling Sick</a></li> </ul> </div></div> </div> <div class="stick-bottom-left force-padding"><img id="vrMap" class="large-box-shadow mg-responsive auto-width" src="https://LeashTime.com/appointment-map.php?token=pslvp"  style="width:18%;border-radius: 6px;" alt="Map "></div></div></section></div><header><strong>CARE</strong>VISIT™ COMPLETE</header></div><div class="card-body"><small>ADD VISIT NOTE</small><textarea class="form-control control-12-rows">12 rows</textarea></div><div class="card-actionbar"> <div class="card-actionbar-row text-white"><a href="javascript:void(0);" class="btn btn-icon-toggle btn-default ink-reaction pull-left"><i class="fa fa-edit"></i></a><button href="javascript:void(0);" class="btn btn-flat ink-reaction btn-info">SEND VISIT REPORT</button> </div></div></div>'
-            return popupVR;
-        }     
         function createSitterMapMarkerWithMileage(sitterInfo, mileageInfo, visitList) {
             let el = document.createElement('div');
             let latitude = parseFloat(sitterInfo.sitterLat);
