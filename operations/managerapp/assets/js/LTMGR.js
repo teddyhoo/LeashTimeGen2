@@ -351,14 +351,22 @@ var LTMGR = (function() {
 		allClients =[];
 
 		let base_url = 'http://localhost:3300?type=gSit';		
-		const response = await fetch(base_url);
-		const myJson = await response.json();
+		let response;
+		try {
+			response = await fetch(base_url);
+			const myJson = await response.json();
 
-		myJson.forEach((sitterProfile) => {
-			let nSitterProfile = new SitterProfile(sitterProfile);
-			sitterList.push(nSitterProfile);
-		});
+			myJson.forEach((sitterProfile) => {
+				let nSitterProfile = new SitterProfile(sitterProfile);
+				sitterList.push(nSitterProfile);
+			});
 		return sitterList;
+		} catch(error) {
+			console.log('ERROR:' + error);
+			return error;
+		}
+			
+		
 	}
 	async  function getManagerVisits() {
 		let base_url = 'http://localhost:3300?type=gVisit';		
@@ -398,7 +406,7 @@ var LTMGR = (function() {
 		return vrList;
 	}
 	async function getVisitReport(visitID) {
-		
+
 		if (vrDetailDict[visitID] != null) {
 
 			return vrDetailDict[visitID];

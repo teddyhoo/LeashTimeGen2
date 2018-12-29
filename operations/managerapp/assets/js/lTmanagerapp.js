@@ -35,7 +35,6 @@
             'hungry' : 'hungry-icon-red@3x.png'
         };
 
-
         var statusVisit = {
             'future' : 'on',
             'late' : 'on',
@@ -67,8 +66,6 @@
         });
 
         function prevDay() {
-
-
             console.log('ON WHICH DAY CURRENT: ' + onWhichDay.getFullYear() + '-' + onWhichDay.getMonth() + '-' + onWhichDay.getDate());
             onWhichDay.setDate(onWhichDay.getDate()-1)
             let monthDate = onWhichDay.getMonth() + 1;
@@ -201,10 +198,21 @@
             }
 
             let url = 'http://localhost:3300?type=mmdLogin&username='+username+'&password='+password+'&role='+userRole+'&startDate='+fullDate+'&endDate='+fullDate;
-            const loginFetchResponse = await fetch(url);
-            const response = await loginFetchResponse.json();
+            let loginFetchResponse;
+            let response;
+            try {
+                loginFetchResponse = await fetch(url);
+            } catch (error) {
+                console.log('Login fetch response error');
+                return error;
+            }
+            try {
+                response = await loginFetchResponse.json();
+                console.log(response);
+            } catch(error) {
+                console.log('Response error ');
+            }
         }        
-
         function buildSitterButtons(allSitterVisits, allSittersInfo) {
             totalVisitCount = parseInt(0);
             totalCancelVisitCount = parseInt(0);
@@ -277,8 +285,8 @@
                     let isAvailable = false;
                     let vrListLinks;
 
-                    removeSittersFromSitterList();
-                    removeVisitDivElements();
+                    //removeSittersFromSitterList();
+                    //removeVisitDivElements();
 
 
                     let vrList = LTMGR.getVisitReportList(visitInfo.clientID, '2018-12-01', fullDate, visitInfo.visitID);
@@ -361,7 +369,6 @@
                 });
             }
         }
-
         function createPopupVisitReportView(vrDetails, vrListInfo) {
 
             let dateReport = vrListInfo.dateReport;
@@ -435,7 +442,6 @@
                     </div>
             </div>`;
         }
-
         function showLoginPanel() {
             var loginPanel = document.getElementById("lt-loginPanel");
             loginPanel.setAttribute("style", "display:block");
