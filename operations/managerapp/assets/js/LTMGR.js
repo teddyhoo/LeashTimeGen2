@@ -6,7 +6,7 @@ var LTMGR = (function() {
 	var sitterList = [];
 	var visitList = []; 
 	var allClients = [];
-	var distanceMatrix = [];
+	var matrixDistance = [];
 	var sitterDistanceData = [];
 	var vrList = [];
 	var vrListDic = {};
@@ -72,10 +72,19 @@ var LTMGR = (function() {
 		constructor(beginCoordinate, endCoordinate, beginName, endName, distance, duration) {
 			this.beginCoordinate = beginCoordinate;
 			this.endCoordinate = endCoordinate;
+
 			this.beginName = beginName;
 			this.endName = endName;
 			this.distance = distance;
 			this.duration = duration;
+		}
+
+		getDistance() {
+
+		}
+
+		getDuration() {
+
 		}
 
 		getLatLon(forName) {
@@ -83,7 +92,6 @@ var LTMGR = (function() {
 		}
 
 		getName(forLatLon) {
-
 
 		}
 	};
@@ -102,9 +110,41 @@ var LTMGR = (function() {
 			this.zip = sitterInfo.zip;
 			this.sitterLat = sitterInfo.lat;
 			this.sitterLon = sitterInfo.lon;
-
 			this.showVisits = true;
+			this.distanceTable = [] 
+			/* 
+				{
+					date.  -> YYYY-MM-DD
+					start   -> coordinate[]
+					end.    -> coordinate[]
+					duration
+					distance
+
+				}
+			*/
 		}
+
+		saveSitterDistanceTable() {
+
+		}
+
+		addDistanceTable(waypointInfo) {
+
+		}
+
+		getSitterDistanceTable() {
+
+			return distanceTable;
+		}
+
+		calculateTotalMileage(startDate, endDate) {
+
+		}
+
+		calculateTotalDurationDriving (startDate, endDate) {
+
+		}
+
 	};
 	class SitterVisit {
 		constructor(visitInfo) {
@@ -279,18 +319,9 @@ var LTMGR = (function() {
 			this.customFields = customFieldsLocal;
 		}
 	};
-
-	function getSitters(){
-
-		return sitterList;
-	}
 	function getVisitList() {
 
 		return visitList;
-	}
-	function getClientList() {
-
-		return allClients;
 	}
 	function getVisitsBySitterID(sitterID) {
 	}
@@ -309,30 +340,74 @@ var LTMGR = (function() {
 		return visitListForSitter;
 	}
 	function addDistanceMatrixPair(distanceMatrixInfo, waypoints) {
-		console.log(waypoints.length);
-		let numWay = waypoints.length;
-		for(let i = 0; i < numWay -1; i++) {
-			let fromWaypoint =  waypoints[i];
-			let toWaypoint =  waypoints[i+1];
-
-			//console.log('FROM: '  + waypoints[i].name + ' --> ' + waypoints[i+1].name);
-		}	
 
 		let route_legs = distanceMatrixInfo.legs;
         let num_legs = distanceMatrixInfo.legs.length;
+        let total_num_legs = num_legs;
 		let total_dist_check = 0;
 		let total_duration_check= 0;
 		let route_index = 0;
-		route_legs.forEach((leg)=> {
-			let waypointInfo = waypoints[route_index];
-			let step_arr = leg.steps;
+		let total_distance = distanceMatrixInfo.distance/1000;
+		total_distance = total_distance * .62137;
+		let total_duration = distanceMatrixInfo.duration/60;
+
+		console.log('route legs: ' + num_legs + ' waypoints: ' + waypoints.length);
+		let matrixData = window.localStorage.getItem("distanceMatrix");
+		matrixDistance = JSON.parse(matrixData);
+		if (matrixDistance != null) {
+			console.log(matrixDistance);
+		} else {
+			matrixDistance = [];
+		}
+ 
+		waypoints.forEach((waypointInfo)=>{
+			let waypointInfoPrior;
+			let startCoord;
+			let endCoord;
+			let startName;
+			let endName;
+			let distance;
+			let duration;
+			let durationHours;
+			let convertDistance;
+
+			if (route_index > 0) {
+				console.log('Route index: ' + route_index);
+				let leg = route_legs[route_index];
+				endName = waypointInfo.name;
+				endCoord = waypointInfo.location;
+				waypointInfoPrior = waypoints[route_index-1]
+				startName = waypointInfoPrior.name;
+				startCoord = waypointInfoPrior.location;
+				if (leg != null){
+					distance = leg.distance;
+					duration = leg.duration;
+					durationHours = duration/60;
+				 	convertDistance = (distance / 1000);
+					let matrixItem = new DistanceMatrixPair(startCoord, endCoord, startName, endName, convertDistance, durationHours);
+					matrixDistance.push(matrixItem);
+				}
+			}
+			
 			route_index = route_index + 1;
             num_legs = num_legs - 1;
 		});
-	}
-	function getDistanceMatrixPair(distanceMatrixLookupInfo) {
-	}
 
+
+		window.localStorage.setItem("distanceMatrix", JSON.stringify(matrixDistance));
+	}
+	function getDistanceMatrix() {
+		matrixDistance = [];
+		let matrixData = window.localStorage.getItem("distanceMatrix");
+		matrixDistance = JSON.parse(matrixData);
+		if (matrixDistance != null) {
+			matrixDistance.forEach((matrix)=> {
+				console.log(matrix.beginCoordinate + ' ' + matrix.endCoordinate);
+			})
+			return matrixDistance;
+		}
+		return null;
+	}
 	async function loginManager(username, password, role,startDate,endDate) {
 
 		sitterList = [];
@@ -360,13 +435,11 @@ var LTMGR = (function() {
 				let nSitterProfile = new SitterProfile(sitterProfile);
 				sitterList.push(nSitterProfile);
 			});
-		return sitterList;
+			return sitterList;
 		} catch(error) {
 			console.log('ERROR:' + error);
 			return error;
 		}
-			
-		
 	}
 	async  function getManagerVisits() {
 		let base_url = 'http://localhost:3300?type=gVisit';		
@@ -394,21 +467,25 @@ var LTMGR = (function() {
 		let url = 'http://localhost:3300?type=visitReportList&clientID='+clientID+'&startDate='+startDate+'&endDate='+endDate;
 		let vrListRequest = await fetch(url);
 		let vrListJson = await vrListRequest.json();
-		
-		vrListJson.forEach((vrItem) => {
-			let vrListItem = new VisitReportListItem(vrItem);
-			let vrApptID = vrItem.appointmentid;
-			let vrExtUrl = vrItem.externalurl;
-			vrListDic[vrApptID] = vrExtUrl;
-			vrList.push(vrListItem);
-		});
-
-		return vrList;
+		if (vrListJson['visitReport'] == 'none') {
+			return vrListJson;
+		} else {
+			if(vrListJson != null ) {
+				vrListJson.forEach((vrItem) => {
+					let vrListItem = new VisitReportListItem(vrItem);
+					let vrApptID = vrItem.appointmentid;
+					let vrExtUrl = vrItem.externalurl;
+					vrListDic[vrApptID] = vrExtUrl;
+					vrList.push(vrListItem);
+				});
+				return vrList;
+			}
+		}
 	}
 	async function getVisitReport(visitID) {
 
 		if (vrDetailDict[visitID] != null) {
-
+			console.log(vrDetailDict[visitID]);	
 			return vrDetailDict[visitID];
 
 		} else {
@@ -426,9 +503,7 @@ var LTMGR = (function() {
 
 	return {
 
-		getSitters : getSitters,
 		getVisitList : getVisitList,
-		getClientList : getClientList,
 		loginManager : loginManager,
 		getManagerData : getManagerData,
 		getManagerVisits : getManagerVisits,
@@ -436,9 +511,9 @@ var LTMGR = (function() {
 		getVisitsBySitterID : getVisitsBySitterID,
 		getVisitsBySitter : getVisitsBySitter,
 		addDistanceMatrixPair : addDistanceMatrixPair,
-		getDistanceMatrixPair : getDistanceMatrixPair,
 		getVisitReportList : getVisitReportList,
-		getVisitReport : getVisitReport
+		getVisitReport : getVisitReport,
+		getDistanceMatrix : getDistanceMatrix
 	}
 
 	modules.exports = {

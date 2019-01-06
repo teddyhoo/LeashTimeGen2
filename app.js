@@ -205,15 +205,28 @@ http.createServer((req, res) => {
 						console.log('Error on the visit report list reques: ' + error);
 					} else {
 						let vrList = JSON.parse(body);
-						console.log(vrList);
-						if (vrList != null) {
-							vrList.forEach((vrListItem)=> {
-								detailVisitReportList[vrListItem.appointmentid] = vrListItem.externalurl;
-							})
-							res.write(JSON.stringify(vrList));
+						let vrKeys = Object.keys(vrList);
+						vrKeys.forEach((key) =>{
+							console.log(key);
+							console.log(vrList[key]);
+						})
+						if(vrList.error != null) {
+
+								console.log('Error - no reports were found');
+								res.write(JSON.stringify({ "visitReport" : "none"}));				
+
 						} else {
-							res.write(JSON.stringify({ "visitReport" : "none"}));				
+							if (vrList != null) {
+								vrList.forEach((vrListItem)=> {
+									detailVisitReportList[vrListItem.appointmentid] = vrListItem.externalurl;
+								})
+								res.write(JSON.stringify(vrList));
+							} else {
+								console.log('NO visit reports from the server');
+								res.write(JSON.stringify({ "visitReport" : "none"}));				
+							}
 						}
+						
 						vrListRequest = null;
 						vrListJar = null;
 						options = null;
