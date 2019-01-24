@@ -1,4 +1,4 @@
-    
+ /*   
 
 var visitDictionary = 
     {
@@ -56,11 +56,11 @@ var visitDictionary =
 
     myVisitReport.setPhoto();
     myVisitReport.setMap();
+*/
 
 
-
-    function getVisitReport(visitID) {
-        let url = 'https://leashtime.com/visit-report-data.php?id='+visitID;
+    function getVisitReport(visitID, businessID) {
+        //let url = 'https://leashtime.com/visit-report-data.php?id='+visitID+'&;
 
         /*if (visitID == '209158') {
 
@@ -78,12 +78,31 @@ var visitDictionary =
              
         } else {*/
 
-            fetch(url)
+            /*fetch(url)
             .then((response)=> {
                 return response.json();
             })
             .then((visitReportJSON) => {
-                var visitDictionary = JSON.stringify(visitReportJSON);
+                var visitDictionary = JSON.stringify(visitReportJSON);*/
+
+                var visitDictionary = 
+                {"BIZNAME":"Dog's Life",
+                "BIZSHORTNAME":"Dog's Life",
+                "BIZEMAIL":"dogslife69@yahoo.com",
+                "BIZHOMEPAGE":"http://s179641890.onlinehome.us/test/dogslifehome.html",
+                "BIZPHONE":"703 555 1212","BIZADDRESS1":"123 Main Street",
+                "BIZADDRESS2":"","BIZCITY":"Vienna",
+                "BIZSTATE":"VA",
+                "BIZZIP":"22180",
+                "BIZLOGINPAGE":"http://leashtime.com/login-page.php?bizid=3","CLIENTID":"45",
+                "CLIENTFNAME":"Carmelo","CLIENTLNAME":"Barone","SITTERID":"42",
+                "SITTER":{"none":true},"ARRIVED":"2019-01-18 12:18:54","COMPLETED":"2019-01-18 13:51:19",
+                "MOODBUTTON":{"cat":"0","happy":"1","hungry":"0","litter":"0","pee":"1","play":"0","poo":"1","sad":"0","shy":"0","sick":"0"},
+                "MAPROUTEURL":"https://LeashTime.com/appointment-map.php?token=bgqpny",
+                "MAPROUTENUGGETURL":"https://LeashTime.com/appointment-map.php?nugget=jtFZXCCTeOfLCPDXsXkMdOKxWOje8S9o",
+                "VISITPHOTOURL":"https://LeashTime.com/appointment-photo.php?token=womek",
+                "VISITPHOTONUGGETURL":"https://LeashTime.com/appointment-photo.php?nugget=jtFZXCCTeOfLCPDXsXkMdOKxWOje8S9o",
+                "NOTE":"WhOa what a visit","PETS":["Amica"],"PETSENGLISH":"Amica"}
                 var myVisitReport = VR$(visitDictionary);
                 var pageItems = document.querySelectorAll(".vrd");
               
@@ -96,8 +115,10 @@ var visitDictionary =
                 myVisitReport.setPhoto();
                 myVisitReport.setMap();
 
-            })
+            //})
         //}
+
+
     }
 
     

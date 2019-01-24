@@ -190,7 +190,54 @@ http.createServer((req, res) => {
 				vrListRequest = vrListRequest.defaults({jar: vrListJar});
 
 				let options = {
-					url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end,
+					url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end+'&receivedonly=1',
+					method: 'GET',
+					headers: {
+						'Cookie' : cookieVal,
+						'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15',
+						'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+						'Accept-Charset' : 'utf-8',
+						'Allow-Control' : true 
+					}
+
+				};
+
+				vrListRequest(options,function(error, httpResponse, body) {
+					if (error != null) {
+						console.log('Error on the visit report list reques: ' + error);
+					} else {
+						let vrList = JSON.parse(body);
+						//console.log(vrList);
+						/*let vrKeys = Object.keys(vrList);
+						vrKeys.forEach((key) =>{
+							console.log('KEY: ' + key);
+							console.log('VAL: ' +vrList[key]);
+						})*/
+						if(vrList.error != null) {
+
+								res.write(JSON.stringify({ "visitReport" : "none"}));				
+
+						} else {
+							if (vrList != null) {
+								vrList.forEach((dict)=> {
+									detailVisitReportList[dict.appointmentid] = dict.externalurl;
+								})
+								res.write(JSON.stringify(vrList));
+							} else {
+								console.log('NO visit reports from the server');
+								res.write(JSON.stringify({ "visitReport" : "none"}));				
+							}
+						}
+						
+						vrListRequest = null;
+						vrListJar = null;
+						options = null;
+					}
+					res.end();
+				});
+
+				let options2 = {
+					url : 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end+'&submittedonly=1',
 					method: 'GET',
 					headers: {
 						'Cookie' : cookieVal,
@@ -200,7 +247,11 @@ http.createServer((req, res) => {
 						'Allow-Control' : true 
 					}
 				};
-				vrListRequest(options,function(error, httpResponse, body) {
+
+				/*let vrListRequest2 = require('request');
+				let vrListJar2 = vrListRequest2.jar();
+				vrListRequest2 = vrListRequest2.defaults({jar: vrListJar2});
+				vrListRequest2(options,function(error, httpResponse, body) {
 					if (error != null) {
 						console.log('Error on the visit report list reques: ' + error);
 					} else {
@@ -232,7 +283,7 @@ http.createServer((req, res) => {
 						options = null;
 					}
 					res.end();
-				});
+				});*/
 			}
 		});
 

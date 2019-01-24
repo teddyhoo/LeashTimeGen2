@@ -15,15 +15,32 @@ var LTMGR = (function() {
 
 	class VisitReportListItem {
 		constructor(visitListItemDictionary) {
+			console.log('VISIT INFO');
+			console.log('--------------');
+
 			this.visitID = visitListItemDictionary['appointmentid'];
 			this.visitDate = visitListItemDictionary['visitdate'];
 			this.visitTimeWindow = visitListItemDictionary['visittimeframe'];
 			this.service =  visitListItemDictionary['service'];
 			this.sitter =  visitListItemDictionary['sitter'];
 			this.dateReport  =  visitListItemDictionary['date'];
-			this.timeReport =  visitListItemDictionary['time'];
 			this.url =  visitListItemDictionary['url'];
 			this.externalUrl =  visitListItemDictionary['externalurl'];
+			this.status = visitListItemDictionary['status'];
+			this.reportsubmissiontype = visitListItemDictionary['reportsubmissiontype'];
+			this.reportsubmissiondate = visitListItemDictionary['reportsubmissiondate'];
+			this.reportIsPublic = visitListItemDictionary['reportIsPublic'];
+			this.reportIsPublicDetails = visitListItemDictionary['reportIsPublicDetails'];
+			if (this.reportIsPublicDetails != null) {
+				let publicKey = Object.keys(this.reportIsPublicDetails);
+				publicKey.forEach((key)=> {
+					console.log(key + ' -> ' + this.reportIsPublicDetails[key]);
+				})
+			}
+			this.reportPublishedDate = visitListItemDictionary['reportPublishedDatePretty'];
+			this.reportPublishedTime = visitListItemDictionary['reportPublishedTime'];
+			this.photocacheid = visitListItemDictionary['visitphotocacheid'];
+			this.visitmapcacheid = visitListItemDictionary['visitmapcacheid'];
 		}
 	};
 	class VisitReport {
@@ -78,21 +95,13 @@ var LTMGR = (function() {
 			this.distance = distance;
 			this.duration = duration;
 		}
-
 		getDistance() {
-
 		}
-
 		getDuration() {
-
 		}
-
 		getLatLon(forName) {
-
 		}
-
 		getName(forLatLon) {
-
 		}
 	};
 	class SitterProfile {
@@ -144,7 +153,6 @@ var LTMGR = (function() {
 		calculateTotalDurationDriving (startDate, endDate) {
 
 		}
-
 	};
 	class SitterVisit {
 		constructor(visitInfo) {
@@ -355,7 +363,11 @@ var LTMGR = (function() {
 		let matrixData = window.localStorage.getItem("distanceMatrix");
 		matrixDistance = JSON.parse(matrixData);
 		if (matrixDistance != null) {
-			console.log(matrixDistance);
+
+			matrixDistance.forEach((matrix)=> {
+				console.log('Reading matrix: ' + matrix.beginName);
+			})
+			//})
 		} else {
 			matrixDistance = [];
 		}
@@ -392,8 +404,6 @@ var LTMGR = (function() {
 			route_index = route_index + 1;
             num_legs = num_legs - 1;
 		});
-
-
 		window.localStorage.setItem("distanceMatrix", JSON.stringify(matrixDistance));
 	}
 	function getDistanceMatrix() {
@@ -402,7 +412,7 @@ var LTMGR = (function() {
 		matrixDistance = JSON.parse(matrixData);
 		if (matrixDistance != null) {
 			matrixDistance.forEach((matrix)=> {
-				console.log(matrix.beginCoordinate + ' ' + matrix.endCoordinate);
+				//console.log('Getting from local... ' + matrix.beginName + ' ' + matrix.endName + ' (distance: ' + matrix.distance + ' miles, duration: ' + matrix.duration + ' ) ' + matrix.beginCoordinate + ' ' + matrix.endCoordinate);
 			})
 			return matrixDistance;
 		}
@@ -461,6 +471,31 @@ var LTMGR = (function() {
 		});
 		return allClients;
 	}
+	async function managerLoginAjax(username, password, role) {
+		url = 'https://leashtime.com/mmd-login.php';
+		form = {
+			user_name : username,
+			user_pass: password,
+			expected_role : role
+		};
+
+		fetch(url, {
+			method : 'post',
+			body : JSON.stingify(form)
+		}).then((response)=> {
+			return response.json();
+		}).then((data)=> {
+
+		})
+
+	}
+	async function getVisitReportListAjax(clientID, startDate, endDate, visitID) {
+
+		url  = 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end+'&submittedonly=1',
+		url2 = 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end+'&submittedonly=1',
+		url3 = 'https://leashtime.com/visit-report-list-ajax.php?clientid='+clientID+'&start='+start+'&end='+end+'&submittedonly=1'
+	}
+
 	async function getVisitReportList(clientID, startDate, endDate, visitID) {
 
 		console.log('client id: ' + clientID + ' start date: ' + startDate + ' end date: ' + endDate + ' visitID: ' + visitID);
@@ -472,33 +507,30 @@ var LTMGR = (function() {
 		} else {
 			if(vrListJson != null ) {
 				vrListJson.forEach((vrItem) => {
+					console.log(vrItem);
 					let vrListItem = new VisitReportListItem(vrItem);
 					let vrApptID = vrItem.appointmentid;
 					let vrExtUrl = vrItem.externalurl;
 					vrListDic[vrApptID] = vrExtUrl;
 					vrList.push(vrListItem);
 				});
+
 				return vrList;
 			}
 		}
 	}
 	async function getVisitReport(visitID) {
-
-		if (vrDetailDict[visitID] != null) {
-			console.log(vrDetailDict[visitID]);	
-			return vrDetailDict[visitID];
-
-		} else {
-
 			let getURL = vrListDic[visitID];
+			console.log(getURL);
 			let url = 'http://localhost:3300?type=visitReport&getURL='+visitID;
 			let vrDetailResponse = await fetch(url);
 			let vrDetailJson  = await vrDetailResponse.json();
+			let vrDetailKeys = Object.keys(vrDetailJson);
+			vrDetailKeys.forEach((key)=> {
+				console.log(key + ' ' + vrDetailJson[key]);
+			})
 			vrDetailDict[visitID] = vrDetailJson;
-			return vrDetailJson;
-
-		}
-		
+			return vrDetailJson;	
 	}
 
 	return {
